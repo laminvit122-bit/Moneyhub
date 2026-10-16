@@ -1,7 +1,7 @@
 --[[
     ==================================================
     PROJECT: MONEYHUB PREMIUM GUI (Injector Version)
-    DESCRIPTION: Modern Glass UI with falling snow/dust particles.
+    DESCRIPTION: Modern Glass UI with vertical falling dust and Sidebar (Main Tab).
     COMPATIBILITY: Roblox Injectors / Exploits (Luau)
     ==================================================
 ]]
@@ -19,7 +19,7 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Безопасное удаление предыдущей копии скрипта, если она уже была запущена
+-- Безопасное удаление предыдущей копии скрипта
 if playerGui:FindFirstChild("MoneyHubGui") then
     playerGui.MoneyHubGui:Destroy()
 end
@@ -30,7 +30,7 @@ screenGui.Name = "MoneyHubGui"
 screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Защита GUI от обнаружения некоторыми античитами (опционально для инжекторов)
+-- Защита GUI (если поддерживается инжектором)
 if syn and syn.protect_gui then
     syn.protect_gui(screenGui)
     screenGui.Parent = CoreGui
@@ -43,8 +43,8 @@ end
 -- Главное окно интерфейса (Main Frame)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 500, 0, 340)
-mainFrame.Position = UDim2.new(0.5, -250, 0.5, -170)
+mainFrame.Size = UDim2.new(0, 560, 0, 360)
+mainFrame.Position = UDim2.new(0.5, -280, 0.5, -180)
 mainFrame.BackgroundColor3 = Color3.fromRGB(12, 10, 20) -- Глубокий чёрно-фиолетовый фон
 mainFrame.BackgroundTransparency = 0.1 -- Ровно 10% прозрачности
 mainFrame.BorderSizePixel = 0
@@ -91,7 +91,7 @@ contentContainer.Parent = mainFrame
 -- Верхняя панель (TopBar) для перетаскивания и кнопок управления
 local topBar = Instance.new("Frame")
 topBar.Name = "TopBar"
-topBar.Size = UDim2.new(1, 0, 0, 50)
+topBar.Size = UDim2.new(1, 0, 0, 45)
 topBar.BackgroundTransparency = 1
 topBar.ZIndex = 2
 topBar.Parent = contentContainer
@@ -113,13 +113,13 @@ titleLabel.Parent = topBar
 -- Кнопка закрытия (×)
 local closeBtn = Instance.new("TextButton")
 closeBtn.Name = "CloseButton"
-closeBtn.Size = UDim2.new(0, 32, 0, 32)
-closeBtn.Position = UDim2.new(1, -42, 0.5, -16)
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -40, 0.5, -15)
 closeBtn.BackgroundColor3 = Color3.fromRGB(45, 20, 55)
 closeBtn.BackgroundTransparency = 0.5
 closeBtn.Text = "×"
 closeBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
-closeBtn.TextSize = 22
+closeBtn.TextSize = 20
 closeBtn.Font = Enum.Font.GothamBold
 closeBtn.ZIndex = 3
 closeBtn.Parent = topBar
@@ -131,13 +131,13 @@ closeCorner.Parent = closeBtn
 -- Кнопка сворачивания (−)
 local minBtn = Instance.new("TextButton")
 minBtn.Name = "MinimizeButton"
-minBtn.Size = UDim2.new(0, 32, 0, 32)
-minBtn.Position = UDim2.new(1, -82, 0.5, -16)
+minBtn.Size = UDim2.new(0, 30, 0, 30)
+minBtn.Position = UDim2.new(1, -76, 0.5, -15)
 minBtn.BackgroundColor3 = Color3.fromRGB(45, 20, 55)
 minBtn.BackgroundTransparency = 0.5
 minBtn.Text = "−"
 minBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
-minBtn.TextSize = 18
+minBtn.TextSize = 16
 minBtn.Font = Enum.Font.GothamBold
 minBtn.ZIndex = 3
 minBtn.Parent = topBar
@@ -146,20 +146,65 @@ local minCorner = Instance.new("UICorner")
 minCorner.CornerRadius = UDim.new(0, 8)
 minCorner.Parent = minBtn
 
--- Информационный текст-приветствие внутри интерфейса
+-- ==========================================
+-- ЛЕВАЯ ПАНЕЛЬ (SIDEBAR) И ВКЛАДКА "MAIN"
+-- ==========================================
+local sidebar = Instance.new("Frame")
+sidebar.Name = "Sidebar"
+sidebar.Size = UDim2.new(0, 140, 1, -55)
+sidebar.Position = UDim2.new(0, 12, 0, 50)
+sidebar.BackgroundColor3 = Color3.fromRGB(18, 14, 28)
+sidebar.BackgroundTransparency = 0.4
+sidebar.BorderSizePixel = 0
+sidebar.ZIndex = 2
+sidebar.Parent = contentContainer
+
+local sidebarCorner = Instance.new("UICorner")
+sidebarCorner.CornerRadius = UDim.new(0, 10)
+sidebarCorner.Parent = sidebar
+
+-- Кнопка вкладки "Main" в левой панели
+local mainTabBtn = Instance.new("TextButton")
+mainTabBtn.Name = "MainTabButton"
+mainTabBtn.Size = UDim2.new(1, -16, 0, 38)
+mainTabBtn.Position = UDim2.new(0, 8, 0, 10)
+mainTabBtn.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
+mainTabBtn.BackgroundTransparency = 0.3 -- Активная вкладка выделена
+mainTabBtn.Text = "  Main"
+mainTabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+mainTabBtn.TextSize = 14
+mainTabBtn.Font = Enum.Font.GothamBold
+mainTabBtn.TextXAlignment = Enum.TextXAlignment.Left
+mainTabBtn.ZIndex = 3
+mainTabBtn.Parent = sidebar
+
+local mainTabCorner = Instance.new("UICorner")
+mainTabCorner.CornerRadius = UDim.new(0, 8)
+mainTabCorner.Parent = mainTabBtn
+
+-- Область контента вкладки Main (справа от сайдбара)
+local mainContentArea = Instance.new("Frame")
+mainContentArea.Name = "MainContentArea"
+mainContentArea.Size = UDim2.new(1, -170, 1, -65)
+mainContentArea.Position = UDim2.new(0, 160, 0, 55)
+mainContentArea.BackgroundTransparency = 1
+mainContentArea.ZIndex = 2
+mainContentArea.Parent = contentContainer
+
+-- Приветственный текст во вкладке Main
 local welcomeLabel = Instance.new("TextLabel")
-welcomeLabel.Size = UDim2.new(1, -36, 0, 120)
-welcomeLabel.Position = UDim2.new(0, 18, 0, 70)
+welcomeLabel.Size = UDim2.new(1, 0, 0, 100)
+welcomeLabel.Position = UDim2.new(0, 0, 0, 10)
 welcomeLabel.BackgroundTransparency = 1
 welcomeLabel.Font = Enum.Font.GothamMedium
-welcomeLabel.Text = "Добро пожаловать в MONEYHUB\n\nИнтерфейс успешно инжектирован.\nВсе системы работают в штатном режиме."
+welcomeLabel.Text = "Добро пожаловать в MONEYHUB!\n\nВы находитесь на вкладке Main. Здесь вы можете разместить основные функции вашего скрипта."
 welcomeLabel.TextColor3 = Color3.fromRGB(180, 165, 205)
-welcomeLabel.TextSize = 14
+welcomeLabel.TextSize = 13
 welcomeLabel.TextWrapped = true
 welcomeLabel.TextXAlignment = Enum.TextXAlignment.Left
 welcomeLabel.TextYAlignment = Enum.TextYAlignment.Top
 welcomeLabel.ZIndex = 2
-welcomeLabel.Parent = contentContainer
+welcomeLabel.Parent = mainContentArea
 
 -- Плавающая кнопка для разворачивания (при свёрнутом окне)
 local floatBtn = Instance.new("TextButton")
@@ -255,21 +300,20 @@ setupHover(closeBtn)
 setupHover(minBtn)
 
 -- ==========================================
--- СИСТЕМА ПАДАЮЩЕГО СНЕГА И СВЕТЯЩЕЙСЯ ПЫЛИ
+-- СИСТЕМА ПАДАЮЩЕЙ ПЫЛИ (БЕЗ БОКОВОГО ДВИЖЕНИЯ)
 -- ==========================================
-local maxParticles = 22 -- Оптимальный лимит для производительности
+local maxParticles = 22
 local particles = {}
 local active = true
 
--- Очистка при уничтожении GUI
 screenGui.Destroying:Connect(function()
     active = false
 end)
 
--- Спавн новых частиц с интервалом
+-- Спавн новых частиц
 task.spawn(function()
     while active do
-        task.wait(0.4)
+        task.wait(0.3) -- Чуть чаще спавн, так как падают быстрее
         if not active then break end
         
         if #particles < maxParticles and mainFrame.Visible then
@@ -289,9 +333,7 @@ task.spawn(function()
 
             table.insert(particles, {
                 instance = particle,
-                speed = math.random(12, 28) / 10,        -- Скорость падения
-                swaySpeed = math.random(2, 5),          -- Частота покачивания
-                swayAmount = math.random(8, 25),        -- Амплитуда покачивания
+                speed = math.random(35, 55) / 10, -- Увеличенная скорость падения
                 startTime = tick(),
                 initialX = particle.Position.X.Scale
             })
@@ -299,7 +341,7 @@ task.spawn(function()
     end
 end)
 
--- Плавное обновление движения частиц через RenderStepped
+-- Обновление движения частиц строго вниз (без колебаний по X)
 RunService.RenderStepped:Connect(function()
     if not active or not screenGui.Parent then return end
     
@@ -309,14 +351,14 @@ RunService.RenderStepped:Connect(function()
         if pData.instance and pData.instance.Parent then
             local elapsed = currentTime - pData.startTime
             local currentY = (elapsed * pData.speed) / mainFrame.AbsoluteSize.Y
-            local sway = math.sin(elapsed * pData.swaySpeed) * (pData.swayAmount / mainFrame.AbsoluteSize.X)
             
             -- Если частица долетела до низа — удаляем её
             if currentY > 1.05 then
                 pData.instance:Destroy()
                 table.remove(particles, i)
             else
-                pData.instance.Position = UDim2.new(pData.initialX + sway, 0, currentY, 0)
+                -- Движение строго по вертикали (initialX не меняется)
+                pData.instance.Position = UDim2.new(pData.initialX, 0, currentY, 0)
             end
         else
             table.remove(particles, i)
