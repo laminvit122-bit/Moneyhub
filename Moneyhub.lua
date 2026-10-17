@@ -1,7 +1,7 @@
 --[[
     ==================================================
     PROJECT: MONEYHUB PREMIUM GUI (Full & Complete)
-    DESCRIPTION: Modern Glass UI, Smooth Animations, Green/Black Toggles, No Strokes & Perfect Non-Locking Auto Block.
+    DESCRIPTION: Modern Glass UI, Smooth Animations, Green/Black Toggles, No Strokes & Smart Auto-Face + Auto Block.
     COMPATIBILITY: Roblox Injectors / Exploits (PC & Mobile)
     ==================================================
 ]]
@@ -244,14 +244,24 @@ end
 
 local isBlockingNow = false
 
--- Моментальный микро-тап блока (не блокирует ходьбу и способности)
-local function triggerBlock()
+-- Автоматический разворот к противнику + микро-тап блока
+local function triggerBlockAndFace(enemyRoot)
     if isBlockingNow then return end
     isBlockingNow = true
 
     task.spawn(function()
         pcall(function()
-            -- Мгновенное нажатие клавиши F на 0.05 сек и сразу отпускание
+            local char = player.Character
+            if char then
+                local rootPart = char:FindFirstChild("HumanoidRootPart")
+                if rootPart and enemyRoot then
+                    -- Мгновенно поворачиваемся лицом к атакующему (даже если он сзади)
+                    local targetPos = Vector3.new(enemyRoot.Position.X, rootPart.Position.Y, enemyRoot.Position.Z)
+                    rootPart.CFrame = CFrame.lookAt(rootPart.Position, targetPos)
+                end
+            end
+
+            -- Микро-тап блока
             VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
             
             local mobileBtn = getMobileBlockButton()
@@ -265,7 +275,6 @@ local function triggerBlock()
             end
         end)
 
-        -- Быстрое отпускание, чтобы персонаж не залипал в блоке и мог двигаться
         task.wait(0.05)
         pcall(function()
             VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.F, false, game)
@@ -275,13 +284,12 @@ local function triggerBlock()
             end
         end)
 
-        -- Небольшая пауза перед следующим возможным блоком
         task.wait(0.1)
         isBlockingNow = false
     end)
 end
 
--- Умный сканер анимаций противника (строго на удар, игнорируя чужой блок)
+-- Умный сканер анимаций врага с возможностью определения ударов со всех сторон
 RunService.RenderStepped:Connect(function()
     if not autoBlockEnabled then return end
     
@@ -298,7 +306,7 @@ RunService.RenderStepped:Connect(function()
             
             if enemyRoot and enemyHum and enemyHum.Health > 0 then
                 local distance = (rootPart.Position - enemyRoot.Position).Magnitude
-                if distance <= 10 then
+                if distance <= 11 then
                     local isPunchingOrAttacking = false
                     local animator = enemyHum:FindFirstChildOfClass("Animator")
                     if animator then
@@ -318,7 +326,7 @@ RunService.RenderStepped:Connect(function()
                     end
                     
                     if isPunchingOrAttacking then
-                        triggerBlock()
+                        triggerBlockAndFace(enemyRoot)
                         break
                     end
                 end
