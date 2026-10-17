@@ -1,7 +1,7 @@
 --[[
     ==================================================
     PROJECT: MONEYHUB PREMIUM GUI (Full & Complete)
-    DESCRIPTION: Modern Glass UI, Smooth Animations, Green/Black Toggles, No Strokes & Smart Auto-Face + Auto Block.
+    DESCRIPTION: Modern Glass UI, Smooth Animations, Green/Black Toggles, Shift Lock Auto-Face + Auto Block.
     COMPATIBILITY: Roblox Injectors / Exploits (PC & Mobile)
     ==================================================
 ]]
@@ -20,7 +20,7 @@ local VirtualInputManager = game:GetService("VirtualInputManager")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Очистка старого GUI при перезапуске
+-- Очистка старого GUI
 if playerGui:FindFirstChild("MoneyHubGui") then
     playerGui.MoneyHubGui:Destroy()
 end
@@ -40,11 +40,10 @@ else
     screenGui.Parent = playerGui
 end
 
--- Позиции для анимации
 local targetPosition = UDim2.new(0.5, -280, 0.5, -180)
 local hiddenPosition = UDim2.new(0.5, -280, 0.5, 300)
 
--- Главное окно интерфейса (без обводки)
+-- Главное окно (без обводки)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
 mainFrame.Size = UDim2.new(0, 560, 0, 360)
@@ -67,7 +66,7 @@ mainGradient.Color = ColorSequence.new({
 mainGradient.Rotation = 45
 mainGradient.Parent = mainFrame
 
--- Контейнер для падающей пыли
+-- Пыль
 local particleContainer = Instance.new("Frame")
 particleContainer.Name = "ParticleContainer"
 particleContainer.Size = UDim2.new(1, 0, 1, 0)
@@ -75,7 +74,6 @@ particleContainer.BackgroundTransparency = 1
 particleContainer.ZIndex = 1
 particleContainer.Parent = mainFrame
 
--- Контейнер для содержимого интерфейса
 local contentContainer = Instance.new("Frame")
 contentContainer.Name = "ContentContainer"
 contentContainer.Size = UDim2.new(1, 0, 1, 0)
@@ -83,7 +81,7 @@ contentContainer.BackgroundTransparency = 1
 contentContainer.ZIndex = 2
 contentContainer.Parent = mainFrame
 
--- Верхняя панель управления
+-- Верхняя панель
 local topBar = Instance.new("Frame")
 topBar.Name = "TopBar"
 topBar.Size = UDim2.new(1, 0, 0, 45)
@@ -138,7 +136,7 @@ local minCorner = Instance.new("UICorner")
 minCorner.CornerRadius = UDim.new(0, 8)
 minCorner.Parent = minBtn
 
--- Левая панель (Sidebar)
+-- Сайдбар
 local sidebar = Instance.new("Frame")
 sidebar.Name = "Sidebar"
 sidebar.Size = UDim2.new(0, 140, 1, -55)
@@ -153,7 +151,6 @@ local sidebarCorner = Instance.new("UICorner")
 sidebarCorner.CornerRadius = UDim.new(0, 10)
 sidebarCorner.Parent = sidebar
 
--- Кнопка вкладки "Main"
 local mainTabBtn = Instance.new("TextButton")
 mainTabBtn.Name = "MainTabButton"
 mainTabBtn.Size = UDim2.new(1, -16, 0, 38)
@@ -172,7 +169,6 @@ local mainTabCorner = Instance.new("UICorner")
 mainTabCorner.CornerRadius = UDim.new(0, 8)
 mainTabCorner.Parent = mainTabBtn
 
--- Область контента вкладки Main
 local mainContentArea = Instance.new("Frame")
 mainContentArea.Name = "MainContentArea"
 mainContentArea.Size = UDim2.new(1, -170, 1, -65)
@@ -192,7 +188,7 @@ tabTitle.TextXAlignment = Enum.TextXAlignment.Left
 tabTitle.ZIndex = 2
 tabTitle.Parent = mainContentArea
 
--- Кнопка (переключатель) Auto Block (ЧЁРНЫЙ / ЗЕЛЁНЫЙ, без обводок)
+-- Кнопка Auto Block (ЧЁРНЫЙ / ЗЕЛЁНЫЙ)
 local autoBlockEnabled = false
 
 local autoBlockBtn = Instance.new("TextButton")
@@ -226,7 +222,7 @@ autoBlockBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Поиск мобильной кнопки блока
+-- Поиск мобильной кнопки
 local function getMobileBlockButton()
     for _, gui in ipairs(playerGui:GetChildren()) do
         if gui:IsA("ScreenGui") and gui.Name ~= "MoneyHubGui" then
@@ -244,60 +240,67 @@ end
 
 local isBlockingNow = false
 
--- Автоматический разворот к противнику + микро-тап блока
-local function triggerBlockAndFace(enemyRoot)
+-- Точная функция блока под реальный удар + разворот в Shift Lock
+local function doBlock(enemyRoot)
     if isBlockingNow then return end
     isBlockingNow = true
 
     task.spawn(function()
         pcall(function()
+            -- Разворот перса и камеры к врагу (работает даже в Shift Lock)
             local char = player.Character
             if char then
-                local rootPart = char:FindFirstChild("HumanoidRootPart")
-                if rootPart and enemyRoot then
-                    -- Мгновенно поворачиваемся лицом к атакующему (даже если он сзади)
-                    local targetPos = Vector3.new(enemyRoot.Position.X, rootPart.Position.Y, enemyRoot.Position.Z)
-                    rootPart.CFrame = CFrame.lookAt(rootPart.Position, targetPos)
+                local root = char:FindFirstChild("HumanoidRootPart")
+                if root and enemyRoot then
+                    local targetPos = Vector3.new(enemyRoot.Position.X, root.Position.Y, enemyRoot.Position.Z)
+                    local lookCFrame = CFrame.lookAt(root.Position, targetPos)
+                    
+                    -- Поворачиваем сам RootPart
+                    root.CFrame = lookCFrame
+                    
+                    -- Принудительно разворачиваем камеру для обхода ограничений Shift Lock
+                    local camera = workspace.CurrentCamera
+                    if camera then
+                        local camDist = (camera.CFrame.Position - root.Position).Magnitude
+                        camera.CFrame = CFrame.lookAt(root.Position - (lookCFrame.LookVector * camDist), root.Position + lookCFrame.LookVector)
+                    end
                 end
             end
 
-            -- Микро-тап блока
+            -- Активация блока
             VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
-            
             local mobileBtn = getMobileBlockButton()
-            if mobileBtn then
-                firesignal(mobileBtn.MouseButton1Down)
-            end
+            if mobileBtn then firesignal(mobileBtn.MouseButton1Down) end
             
-            local commEvent = ReplicatedStorage:FindFirstChild("Event") or ReplicatedStorage:FindFirstChild("Comm") or ReplicatedStorage:FindFirstChild("MainEvent")
+            local commEvent = ReplicatedStorage:FindFirstChild("Event") or ReplicatedStorage:FindFirstChild("Comm")
             if commEvent and commEvent:IsA("RemoteEvent") then
                 commEvent:FireServer({Goal = "LeftClick", Key = Enum.KeyCode.F})
             end
         end)
 
-        task.wait(0.05)
+        -- Задержка удерживания блока под удар
+        task.wait(0.28)
+
         pcall(function()
             VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.F, false, game)
             local mobileBtn = getMobileBlockButton()
-            if mobileBtn then
-                firesignal(mobileBtn.MouseButton1Up)
-            end
+            if mobileBtn then firesignal(mobileBtn.MouseButton1Up) end
         end)
 
-        task.wait(0.1)
+        task.wait(0.05)
         isBlockingNow = false
     end)
 end
 
--- Умный сканер анимаций врага с возможностью определения ударов со всех сторон
+-- Сканирование ударов
 RunService.RenderStepped:Connect(function()
-    if not autoBlockEnabled then return end
+    if not autoBlockEnabled or isBlockingNow then return end
     
     local character = player.Character
     if not character then return end
     local rootPart = character:FindFirstChild("HumanoidRootPart")
     if not rootPart then return end
-    
+
     for _, otherPlayer in ipairs(Players:GetPlayers()) do
         if otherPlayer ~= player and otherPlayer.Character then
             local enemyChar = otherPlayer.Character
@@ -306,27 +309,31 @@ RunService.RenderStepped:Connect(function()
             
             if enemyRoot and enemyHum and enemyHum.Health > 0 then
                 local distance = (rootPart.Position - enemyRoot.Position).Magnitude
-                if distance <= 11 then
-                    local isPunchingOrAttacking = false
+                
+                if distance <= 8.5 then
+                    local isRealAttack = false
                     local animator = enemyHum:FindFirstChildOfClass("Animator")
+                    
                     if animator then
                         for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
-                            if track.IsPlaying and track.Length > 0 then
+                            if track.IsPlaying then
+                                local speed = track.Speed
+                                local priority = track.Priority
                                 local animId = track.Animation.AnimationId:lower()
-                                
-                                local isIdleOrWalk = animId:find("idle") or animId:find("walk") or animId:find("run")
-                                local isEnemyBlocking = animId:find("block") or animId:find("defend") or animId:find("shield")
-                                
-                                if not isIdleOrWalk and not isEnemyBlocking then
-                                    isPunchingOrAttacking = true
+
+                                local isMovement = animId:find("idle") or animId:find("walk") or animId:find("run") or animId:find("jump") or animId:find("fall")
+                                local isBlock = animId:find("block") or animId:find("defend") or animId:find("guard")
+
+                                if not isMovement and not isBlock and (priority == Enum.AnimationPriority.Action or speed > 0.8) then
+                                    isRealAttack = true
                                     break
                                 end
                             end
                         end
                     end
-                    
-                    if isPunchingOrAttacking then
-                        triggerBlockAndFace(enemyRoot)
+
+                    if isRealAttack then
+                        doBlock(enemyRoot)
                         break
                     end
                 end
@@ -335,7 +342,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Плавающая кнопка (без обводок)
+-- Плавающая кнопка
 local floatBtn = Instance.new("TextButton")
 floatBtn.Name = "FloatingButton"
 floatBtn.Size = UDim2.new(0, 140, 0, 42)
@@ -396,13 +403,11 @@ enableDragging(floatBtn, floatBtn)
 local function animateOpen()
     mainFrame.Position = hiddenPosition
     mainFrame.BackgroundTransparency = 1
-    
     TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = targetPosition, BackgroundTransparency = 0.1}):Play()
 end
 
 minBtn.MouseButton1Click:Connect(function()
     TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = hiddenPosition, BackgroundTransparency = 1}):Play()
-    
     task.wait(0.3)
     mainFrame.Visible = false
     floatBtn.Visible = true
@@ -426,7 +431,7 @@ end)
 
 animateOpen()
 
--- Пыль
+-- Медленная пыль
 local maxParticles = 16
 local particles = {}
 
@@ -458,13 +463,11 @@ RunService.RenderStepped:Connect(function(dt)
     local scaledDt = dt * 60
     for _, p in ipairs(particles) do
         p.y = p.y + (p.speed * scaledDt)
-        
         if p.y > 1.05 then
             p.y = -0.05
             p.x = math.random()
             p.speed = math.random(3, 7) / 10000
         end
-        
         p.instance.Position = UDim2.new(p.x, 0, p.y, 0)
     end
 end)
