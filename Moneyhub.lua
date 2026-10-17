@@ -1,7 +1,7 @@
 --[[
     ==================================================
     PROJECT: MONEYHUB PREMIUM GUI (Full & Complete)
-    DESCRIPTION: Modern Glass UI, Smooth Animations, Green/Black Toggles, Non-Freezing & Smart Attack-Only Auto Block.
+    DESCRIPTION: Modern Glass UI, Smooth Animations, Green/Black Toggles, No Strokes & Perfect Non-Locking Auto Block.
     COMPATIBILITY: Roblox Injectors / Exploits (PC & Mobile)
     ==================================================
 ]]
@@ -15,6 +15,7 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local VirtualInputManager = game:GetService("VirtualInputManager")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -43,7 +44,7 @@ end
 local targetPosition = UDim2.new(0.5, -280, 0.5, -180)
 local hiddenPosition = UDim2.new(0.5, -280, 0.5, 300)
 
--- Главное окно интерфейса
+-- Главное окно интерфейса (без обводки)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
 mainFrame.Size = UDim2.new(0, 560, 0, 360)
@@ -57,12 +58,6 @@ mainFrame.Parent = screenGui
 local mainCorner = Instance.new("UICorner")
 mainCorner.CornerRadius = UDim.new(0, 14)
 mainCorner.Parent = mainFrame
-
-local mainStroke = Instance.new("UIStroke")
-mainStroke.Color = Color3.fromRGB(138, 43, 226)
-mainStroke.Thickness = 1.5
-mainStroke.Transparency = 1
-mainStroke.Parent = mainFrame
 
 local mainGradient = Instance.new("UIGradient")
 mainGradient.Color = ColorSequence.new({
@@ -197,7 +192,7 @@ tabTitle.TextXAlignment = Enum.TextXAlignment.Left
 tabTitle.ZIndex = 2
 tabTitle.Parent = mainContentArea
 
--- Кнопка (переключатель) Auto Block (ЧЁРНЫЙ / ЗЕЛЁНЫЙ)
+-- Кнопка (переключатель) Auto Block (ЧЁРНЫЙ / ЗЕЛЁНЫЙ, без обводок)
 local autoBlockEnabled = false
 
 local autoBlockBtn = Instance.new("TextButton")
@@ -218,23 +213,16 @@ local autoBlockCorner = Instance.new("UICorner")
 autoBlockCorner.CornerRadius = UDim.new(0, 8)
 autoBlockCorner.Parent = autoBlockBtn
 
-local autoBlockStroke = Instance.new("UIStroke")
-autoBlockStroke.Color = Color3.fromRGB(80, 50, 120)
-autoBlockStroke.Thickness = 1.2
-autoBlockStroke.Parent = autoBlockBtn
-
 autoBlockBtn.MouseButton1Click:Connect(function()
     autoBlockEnabled = not autoBlockEnabled
     if autoBlockEnabled then
         autoBlockBtn.Text = "  Auto Block: ON"
         autoBlockBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
         TweenService:Create(autoBlockBtn, TweenInfo.new(0.25), {BackgroundColor3 = Color3.fromRGB(0, 180, 80)}):Play()
-        TweenService:Create(autoBlockStroke, TweenInfo.new(0.25), {Color = Color3.fromRGB(0, 255, 120)}):Play()
     else
         autoBlockBtn.Text = "  Auto Block: OFF"
         autoBlockBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
         TweenService:Create(autoBlockBtn, TweenInfo.new(0.25), {BackgroundColor3 = Color3.fromRGB(20, 20, 25)}):Play()
-        TweenService:Create(autoBlockStroke, TweenInfo.new(0.25), {Color = Color3.fromRGB(80, 50, 120)}):Play()
     end
 end)
 
@@ -256,38 +244,44 @@ end
 
 local isBlockingNow = false
 
--- Прямой активатор блока без заморозки ходьбы
+-- Моментальный микро-тап блока (не блокирует ходьбу и способности)
 local function triggerBlock()
     if isBlockingNow then return end
     isBlockingNow = true
 
     task.spawn(function()
         pcall(function()
+            -- Мгновенное нажатие клавиши F на 0.05 сек и сразу отпускание
+            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
+            
+            local mobileBtn = getMobileBlockButton()
+            if mobileBtn then
+                firesignal(mobileBtn.MouseButton1Down)
+            end
+            
             local commEvent = ReplicatedStorage:FindFirstChild("Event") or ReplicatedStorage:FindFirstChild("Comm") or ReplicatedStorage:FindFirstChild("MainEvent")
             if commEvent and commEvent:IsA("RemoteEvent") then
                 commEvent:FireServer({Goal = "LeftClick", Key = Enum.KeyCode.F})
             end
-            
+        end)
+
+        -- Быстрое отпускание, чтобы персонаж не залипал в блоке и мог двигаться
+        task.wait(0.05)
+        pcall(function()
+            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.F, false, game)
             local mobileBtn = getMobileBlockButton()
             if mobileBtn then
-                firesignal(mobileBtn.Activated)
-            end
-            
-            local char = player.Character
-            if char then
-                local tool = char:FindFirstChildOfClass("Tool")
-                if tool then
-                    tool:Activate()
-                end
+                firesignal(mobileBtn.MouseButton1Up)
             end
         end)
 
-        task.wait(0.15)
+        -- Небольшая пауза перед следующим возможным блоком
+        task.wait(0.1)
         isBlockingNow = false
     end)
 end
 
--- Умный сканер: игнорирует блок противника, реагирует ТОЛЬКО на удар
+-- Умный сканер анимаций противника (строго на удар, игнорируя чужой блок)
 RunService.RenderStepped:Connect(function()
     if not autoBlockEnabled then return end
     
@@ -304,7 +298,7 @@ RunService.RenderStepped:Connect(function()
             
             if enemyRoot and enemyHum and enemyHum.Health > 0 then
                 local distance = (rootPart.Position - enemyRoot.Position).Magnitude
-                if distance <= 9 then
+                if distance <= 10 then
                     local isPunchingOrAttacking = false
                     local animator = enemyHum:FindFirstChildOfClass("Animator")
                     if animator then
@@ -312,7 +306,6 @@ RunService.RenderStepped:Connect(function()
                             if track.IsPlaying and track.Length > 0 then
                                 local animId = track.Animation.AnimationId:lower()
                                 
-                                -- ИГНОРИРУЕМ ходьбу, бездействие и СОБСТВЕННЫЙ БЛОК противника
                                 local isIdleOrWalk = animId:find("idle") or animId:find("walk") or animId:find("run")
                                 local isEnemyBlocking = animId:find("block") or animId:find("defend") or animId:find("shield")
                                 
@@ -324,7 +317,6 @@ RunService.RenderStepped:Connect(function()
                         end
                     end
                     
-                    -- Ставим блок строго при атаке противника вблизи
                     if isPunchingOrAttacking then
                         triggerBlock()
                         break
@@ -335,7 +327,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Плавающая кнопка
+-- Плавающая кнопка (без обводок)
 local floatBtn = Instance.new("TextButton")
 floatBtn.Name = "FloatingButton"
 floatBtn.Size = UDim2.new(0, 140, 0, 42)
@@ -353,11 +345,6 @@ floatBtn.Parent = screenGui
 local floatCorner = Instance.new("UICorner")
 floatCorner.CornerRadius = UDim.new(0, 21)
 floatCorner.Parent = floatBtn
-
-local floatStroke = Instance.new("UIStroke")
-floatStroke.Color = Color3.fromRGB(138, 43, 226)
-floatStroke.Thickness = 1.5
-floatStroke.Parent = floatBtn
 
 -- Перетаскивание
 local function enableDragging(frame, handle)
@@ -401,15 +388,12 @@ enableDragging(floatBtn, floatBtn)
 local function animateOpen()
     mainFrame.Position = hiddenPosition
     mainFrame.BackgroundTransparency = 1
-    mainStroke.Transparency = 1
     
     TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = targetPosition, BackgroundTransparency = 0.1}):Play()
-    TweenService:Create(mainStroke, TweenInfo.new(0.5), {Transparency = 0.3}):Play()
 end
 
 minBtn.MouseButton1Click:Connect(function()
     TweenService:Create(mainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = hiddenPosition, BackgroundTransparency = 1}):Play()
-    TweenService:Create(mainStroke, TweenInfo.new(0.3), {Transparency = 1}):Play()
     
     task.wait(0.3)
     mainFrame.Visible = false
@@ -428,7 +412,6 @@ end)
 
 closeBtn.MouseButton1Click:Connect(function()
     TweenService:Create(mainFrame, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0), Position = UDim2.new(0.5, 0, 0.5, 0), BackgroundTransparency = 1}):Play()
-    TweenService:Create(mainStroke, TweenInfo.new(0.2), {Transparency = 1}):Play()
     task.wait(0.35)
     screenGui:Destroy()
 end)
