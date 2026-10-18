@@ -1,7 +1,7 @@
 --[[
     ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Combo Auto Farm)
-    DESCRIPTION: Modern Glass UI, Smooth Animations, Green/Black Toggles, No Strokes, Real Invisibility & 3xM1 -> Jump+M1 -> Skill 2 Combo Loop.
+    PROJECT: MONEYHUB PREMIUM GUI (Mobile & PC Auto-Aim Farm)
+    DESCRIPTION: Glass UI, Green/Black Toggles, No Strokes, Real Invisibility, Auto-AimLock + Shift-Lock Compatible & Exact Combo (3xM1 -> Jump+M1 -> Skill 2).
     COMPATIBILITY: Roblox Injectors / Exploits (PC & Mobile)
     ==================================================
 ]]
@@ -16,9 +16,11 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VirtualInputManager = game:GetService("VirtualInputManager")
+local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+local camera = Workspace.CurrentCamera
 
 -- Очистка старого GUI
 if playerGui:FindFirstChild("MoneyHubGui") then
@@ -209,7 +211,7 @@ local autoFarmCorner = Instance.new("UICorner")
 autoFarmCorner.CornerRadius = UDim.new(0, 8)
 autoFarmCorner.Parent = autoFarmBtn
 
--- Серверная невидимость
+-- Настоящая серверная невидимость
 local function toggleRealInvisibility(state)
     local char = player.Character
     if not char then return end
@@ -222,10 +224,8 @@ local function toggleRealInvisibility(state)
                     v.CanCollide = false
                 elseif v:IsA("Decal") or v:IsA("Texture") then
                     v.Transparency = 1
-                elseif v:IsA("Accessory") then
-                    if v:FindFirstChild("Handle") then
-                        v.Handle.Transparency = 1
-                    end
+                elseif v:IsA("Accessory") and v:FindFirstChild("Handle") then
+                    v.Handle.Transparency = 1
                 end
             end
             
@@ -256,7 +256,28 @@ autoFarmBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Логика удержания за спиной
+-- Поиск интерфейсных кнопок кулака (M1), спринта и прыжка на мобиле
+local function getActionButtons()
+    local punchBtn, sprintBtn, jumpBtn = nil, nil, nil
+    for _, gui in ipairs(playerGui:GetChildren()) do
+        if gui:IsA("ScreenGui") and gui.Name ~= "MoneyHubGui" then
+            for _, btn in ipairs(gui:GetDescendants()) do
+                if (btn:IsA("ImageButton") or btn:IsA("TextButton")) and btn.Visible then
+                    local name = btn.Name:lower()
+                    if name:find("punch") or name:find("attack") or name:find("hit") or name:find("m1") then
+                        punchBtn = btn
+                    elseif name:find("sprint") or name:find("dash") or name:find("run") then
+                        sprintBtn = btn
+                    elseif name:find("jump") then
+                        jumpBtn = btn
+                    end
+                end
+            end
+        end
+    end
+    return punchBtn, sprintBtn, jumpBtn
+end
+
 local currentTarget = nil
 
 local function getNextTarget()
@@ -275,6 +296,7 @@ local function getNextTarget()
     return nil
 end
 
+-- Мгновенное пришивание за спину + АИМЛОК в режиме Shift-Lock
 RunService.RenderStepped:Connect(function()
     if not autoFarmEnabled then return end
     
@@ -289,62 +311,98 @@ RunService.RenderStepped:Connect(function()
 
     if currentTarget and currentTarget.Character and currentTarget.Character:FindFirstChild("HumanoidRootPart") then
         local enemyRoot = currentTarget.Character.HumanoidRootPart
-        myRoot.CFrame = enemyRoot.CFrame * CFrame.new(0, 0, 2.2)
+        
+        -- Позиционирование ровно в 2.2 студах за спиной
+        local backPosition = enemyRoot.CFrame * CFrame.new(0, 0, 2.2)
+        myRoot.CFrame = CFrame.lookAt(backPosition.Position, enemyRoot.Position)
+        
+        -- Принудительный авто-аим камеры (работает и в Shift-Lock)
+        camera.CFrame = CFrame.lookAt(camera.CFrame.Position, enemyRoot.Position)
     end
 end)
 
--- Вспомогательная функция для эмуляции клика M1
-local function doM1Click()
-    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0)
-    task.wait(0.02)
-    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+-- Функция вызова M1 удара (совместима с ПК и Mobile)
+local function executeM1()
+    pcall(function()
+        local punchBtn = getActionButtons()
+        if punchBtn then
+            firesignal(punchBtn.MouseButton1Down)
+            firesignal(punchBtn.Activated)
+            firesignal(punchBtn.MouseButton1Up)
+        else
+            VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+            task.wait(0.01)
+            VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+        end
+
+        -- Дублирующий RemoteEvent
+        local comm = ReplicatedStorage:FindFirstChild("Event") or ReplicatedStorage:FindFirstChild("Comm")
+        if comm and comm:IsA("RemoteEvent") then
+            comm:FireServer({Goal = "LeftClick"})
+        end
+    end)
 end
 
--- Вспомогательная функция для нажатия клавиши
-local function doKeyPress(keyCode)
-    VirtualInputManager:SendKeyEvent(true, keyCode, false, game)
-    task.wait(0.02)
-    VirtualInputManager:SendKeyEvent(false, keyCode, false, game)
+-- Функция вызова прыжка
+local function executeJump()
+    pcall(function()
+        local _, _, jumpBtn = getActionButtons()
+        if jumpBtn then
+            firesignal(jumpBtn.Activated)
+        else
+            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
+            task.wait(0.02)
+            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
+        end
+    end)
 end
 
 -- ==========================================
--- ТОЧНАЯ РОТАЦИЯ КОМБО:
--- 3x M1 (быстро) -> Прыжок + 1x M1 -> 2-я Способность
+-- БОЕВОЙ ЦИКЛ (3x M1 -> Прыжок+M1 -> 2-я Способность)
 -- ==========================================
 task.spawn(function()
     while true do
-        task.wait(0.1)
+        task.wait(0.05)
         if autoFarmEnabled and currentTarget then
             pcall(function()
-                -- Включаем Спринт
-                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.LeftShift, false, game)
+                -- Включение спринта
+                local _, sprintBtn = getActionButtons()
+                if sprintBtn then firesignal(sprintBtn.Activated) else VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.LeftShift, false, game) end
 
-                -- 1. Сначала 3 быстрых обычных удара (M1)
+                -- 1. 3 быстрых удара M1
                 for i = 1, 3 do
                     if not autoFarmEnabled or not currentTarget then break end
-                    doM1Click()
-                    task.wait(0.18) -- Скорость ударов M1
+                    executeM1()
+                    task.wait(0.18)
                 end
 
                 if not autoFarmEnabled or not currentTarget then return end
 
-                -- 2. Сразу прыжок и 1 удар M1
-                doKeyPress(Enum.KeyCode.Space) -- Прыжок
-                task.wait(0.05)
-                doM1Click() -- 1 удар в воздухе
+                -- 2. Прыжок + 1 M1 удар
+                executeJump()
+                task.wait(0.04)
+                executeM1()
                 task.wait(0.2)
 
                 if not autoFarmEnabled or not currentTarget then return end
 
-                -- 3. Активация 2-й способности
-                doKeyPress(Enum.KeyCode.Two)
-                task.wait(0.4) -- Небольшая пауза после способности перед новым циклом
+                -- 3. Способность 2
+                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Two, false, game)
+                task.wait(0.02)
+                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Two, false, game)
+                
+                local comm = ReplicatedStorage:FindFirstChild("Event") or ReplicatedStorage:FindFirstChild("Comm")
+                if comm and comm:IsA("RemoteEvent") then
+                    comm:FireServer({Goal = "KeyPress", Key = Enum.KeyCode.Two})
+                end
+
+                task.wait(0.3)
             end)
         end
     end
 end)
 
--- Поддержание невидимости при респавне
+-- Респавн невидимости
 player.CharacterAdded:Connect(function(newChar)
     newChar:WaitForChild("HumanoidRootPart")
     task.wait(0.5)
@@ -442,7 +500,7 @@ end)
 
 animateOpen()
 
--- Пыль
+-- Медленная пыль
 local maxParticles = 16
 local particles = {}
 
