@@ -1,7 +1,7 @@
 --[[
     ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Mobile & PC Auto-Aim Farm)
-    DESCRIPTION: Glass UI, Green/Black Toggles, No Strokes, Real Invisibility, Auto-AimLock + Shift-Lock Compatible & Exact Combo (3xM1 -> Jump+M1 -> Skill 2).
+    PROJECT: MONEYHUB PREMIUM GUI (Fix Floating Button Edition)
+    DESCRIPTION: Glass UI, Green/Black Toggles, No Strokes, Server Invisibility, Auto-AimLock, Shift-Lock Compatible & Non-Lagging Combo Loop.
     COMPATIBILITY: Roblox Injectors / Exploits (PC & Mobile)
     ==================================================
 ]]
@@ -211,31 +211,20 @@ local autoFarmCorner = Instance.new("UICorner")
 autoFarmCorner.CornerRadius = UDim.new(0, 8)
 autoFarmCorner.Parent = autoFarmBtn
 
--- Настоящая серверная невидимость
-local function toggleRealInvisibility(state)
+-- Безопасная серверная невидимость без разрушения физики
+local function toggleSafeInvisibility(state)
     local char = player.Character
     if not char then return end
     
     pcall(function()
-        if state then
-            for _, v in ipairs(char:GetDescendants()) do
-                if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
-                    v.Transparency = 1
-                    v.CanCollide = false
-                elseif v:IsA("Decal") or v:IsA("Texture") then
-                    v.Transparency = 1
-                elseif v:IsA("Accessory") and v:FindFirstChild("Handle") then
-                    v.Handle.Transparency = 1
-                end
-            end
-            
-            local lowerTorso = char:FindFirstChild("LowerTorso")
-            if lowerTorso and lowerTorso:FindFirstChild("Root") then
-                lowerTorso.Root:Destroy()
-            end
-        else
-            if char:FindFirstChild("Humanoid") then
-                char.Humanoid.Health = 0
+        for _, v in ipairs(char:GetDescendants()) do
+            if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+                v.Transparency = state and 1 or 0
+                v.CanCollide = false
+            elseif v:IsA("Decal") or v:IsA("Texture") then
+                v.Transparency = state and 1 or 0
+            elseif v:IsA("Accessory") and v:FindFirstChild("Handle") then
+                v.Handle.Transparency = state and 1 or 0
             end
         end
     end)
@@ -247,16 +236,16 @@ autoFarmBtn.MouseButton1Click:Connect(function()
         autoFarmBtn.Text = "  Auto Farm: ON"
         autoFarmBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
         TweenService:Create(autoFarmBtn, TweenInfo.new(0.25), {BackgroundColor3 = Color3.fromRGB(0, 180, 80)}):Play()
-        toggleRealInvisibility(true)
+        toggleSafeInvisibility(true)
     else
         autoFarmBtn.Text = "  Auto Farm: OFF"
         autoFarmBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
         TweenService:Create(autoFarmBtn, TweenInfo.new(0.25), {BackgroundColor3 = Color3.fromRGB(20, 20, 25)}):Play()
-        toggleRealInvisibility(false)
+        toggleSafeInvisibility(false)
     end
 end)
 
--- Поиск интерфейсных кнопок кулака (M1), спринта и прыжка на мобиле
+-- Поиск мобильных кнопок
 local function getActionButtons()
     local punchBtn, sprintBtn, jumpBtn = nil, nil, nil
     for _, gui in ipairs(playerGui:GetChildren()) do
@@ -296,7 +285,7 @@ local function getNextTarget()
     return nil
 end
 
--- Мгновенное пришивание за спину + АИМЛОК в режиме Shift-Lock
+-- Привязка за спину + АИМЛОК
 RunService.RenderStepped:Connect(function()
     if not autoFarmEnabled then return end
     
@@ -312,16 +301,12 @@ RunService.RenderStepped:Connect(function()
     if currentTarget and currentTarget.Character and currentTarget.Character:FindFirstChild("HumanoidRootPart") then
         local enemyRoot = currentTarget.Character.HumanoidRootPart
         
-        -- Позиционирование ровно в 2.2 студах за спиной
         local backPosition = enemyRoot.CFrame * CFrame.new(0, 0, 2.2)
         myRoot.CFrame = CFrame.lookAt(backPosition.Position, enemyRoot.Position)
-        
-        -- Принудительный авто-аим камеры (работает и в Shift-Lock)
         camera.CFrame = CFrame.lookAt(camera.CFrame.Position, enemyRoot.Position)
     end
 end)
 
--- Функция вызова M1 удара (совместима с ПК и Mobile)
 local function executeM1()
     pcall(function()
         local punchBtn = getActionButtons()
@@ -335,7 +320,6 @@ local function executeM1()
             VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
         end
 
-        -- Дублирующий RemoteEvent
         local comm = ReplicatedStorage:FindFirstChild("Event") or ReplicatedStorage:FindFirstChild("Comm")
         if comm and comm:IsA("RemoteEvent") then
             comm:FireServer({Goal = "LeftClick"})
@@ -343,7 +327,6 @@ local function executeM1()
     end)
 end
 
--- Функция вызова прыжка
 local function executeJump()
     pcall(function()
         local _, _, jumpBtn = getActionButtons()
@@ -357,19 +340,16 @@ local function executeJump()
     end)
 end
 
--- ==========================================
--- БОЕВОЙ ЦИКЛ (3x M1 -> Прыжок+M1 -> 2-я Способность)
--- ==========================================
+-- Безопасный боевой цикл (без зависания кнопки)
 task.spawn(function()
     while true do
-        task.wait(0.05)
+        task.wait(0.1)
         if autoFarmEnabled and currentTarget then
             pcall(function()
-                -- Включение спринта
                 local _, sprintBtn = getActionButtons()
                 if sprintBtn then firesignal(sprintBtn.Activated) else VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.LeftShift, false, game) end
 
-                -- 1. 3 быстрых удара M1
+                -- 1. 3 M1 удара
                 for i = 1, 3 do
                     if not autoFarmEnabled or not currentTarget then break end
                     executeM1()
@@ -378,7 +358,7 @@ task.spawn(function()
 
                 if not autoFarmEnabled or not currentTarget then return end
 
-                -- 2. Прыжок + 1 M1 удар
+                -- 2. Прыжок + M1 удар
                 executeJump()
                 task.wait(0.04)
                 executeM1()
@@ -398,6 +378,8 @@ task.spawn(function()
 
                 task.wait(0.3)
             end)
+        else
+            task.wait(0.5) -- Обязательная пауза при отсутствии цели для разгрузки потоков
         end
     end
 end)
@@ -407,11 +389,11 @@ player.CharacterAdded:Connect(function(newChar)
     newChar:WaitForChild("HumanoidRootPart")
     task.wait(0.5)
     if autoFarmEnabled then
-        toggleRealInvisibility(true)
+        toggleSafeInvisibility(true)
     end
 end)
 
--- Плавающая кнопка
+-- Плавающая кнопка (с высоким ZIndex для исключения залипания)
 local floatBtn = Instance.new("TextButton")
 floatBtn.Name = "FloatingButton"
 floatBtn.Size = UDim2.new(0, 140, 0, 42)
@@ -423,7 +405,7 @@ floatBtn.TextColor3 = Color3.fromRGB(230, 200, 255)
 floatBtn.TextSize = 14
 floatBtn.Font = Enum.Font.GothamBold
 floatBtn.Visible = false
-floatBtn.ZIndex = 10
+floatBtn.ZIndex = 100
 floatBtn.Parent = screenGui
 
 local floatCorner = Instance.new("UICorner")
