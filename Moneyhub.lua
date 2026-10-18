@@ -1,7 +1,7 @@
 --[[
     ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Real Server Invisibility)
-    DESCRIPTION: Modern Glass UI, Smooth Animations, Green/Black Toggles, No Strokes & Real Server-Invisible Auto Farm.
+    PROJECT: MONEYHUB PREMIUM GUI (Combo Auto Farm)
+    DESCRIPTION: Modern Glass UI, Smooth Animations, Green/Black Toggles, No Strokes, Real Invisibility & 3xM1 -> Jump+M1 -> Skill 2 Combo Loop.
     COMPATIBILITY: Roblox Injectors / Exploits (PC & Mobile)
     ==================================================
 ]]
@@ -209,43 +209,36 @@ local autoFarmCorner = Instance.new("UICorner")
 autoFarmCorner.CornerRadius = UDim.new(0, 8)
 autoFarmCorner.Parent = autoFarmBtn
 
--- Функция настоящей серверной невидимости (Server-Side Invisibility)
-local savedClones = {}
-
-local function toggleServerInvisibility(state)
+-- Серверная невидимость
+local function toggleRealInvisibility(state)
     local char = player.Character
     if not char then return end
     
-    if state then
-        pcall(function()
-            -- Удаляем отображение внешних деталей для сервера через узел LowerTorso/Root
-            local root = char:FindFirstChild("HumanoidRootPart")
-            if root then
-                for _, child in ipairs(char:GetChildren()) do
-                    if child:IsA("BasePart") and child.Name ~= "HumanoidRootPart" then
-                        child.Transparency = 1
-                        if child:FindFirstChildOfClass("SpecialMesh") then
-                            child:FindFirstChildOfClass("SpecialMesh").TextureId = ""
-                        end
-                    elseif child:IsA("Accessory") then
-                        local handle = child:FindFirstChild("Handle")
-                        if handle then handle.Transparency = 1 end
+    pcall(function()
+        if state then
+            for _, v in ipairs(char:GetDescendants()) do
+                if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+                    v.Transparency = 1
+                    v.CanCollide = false
+                elseif v:IsA("Decal") or v:IsA("Texture") then
+                    v.Transparency = 1
+                elseif v:IsA("Accessory") then
+                    if v:FindFirstChild("Handle") then
+                        v.Handle.Transparency = 1
                     end
                 end
-                -- Смещение локального кадра для десинхронизации от сервера
-                if char:FindFirstChild("LowerTorso") and char.LowerTorso:FindFirstChild("Root") then
-                    char.LowerTorso.Root:Destroy()
-                end
             end
-        end)
-    else
-        -- При выключении переспавниваем персонажа нормальным образом
-        pcall(function()
+            
+            local lowerTorso = char:FindFirstChild("LowerTorso")
+            if lowerTorso and lowerTorso:FindFirstChild("Root") then
+                lowerTorso.Root:Destroy()
+            end
+        else
             if char:FindFirstChild("Humanoid") then
                 char.Humanoid.Health = 0
             end
-        end)
-    end
+        end
+    end)
 end
 
 autoFarmBtn.MouseButton1Click:Connect(function()
@@ -254,87 +247,109 @@ autoFarmBtn.MouseButton1Click:Connect(function()
         autoFarmBtn.Text = "  Auto Farm: ON"
         autoFarmBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
         TweenService:Create(autoFarmBtn, TweenInfo.new(0.25), {BackgroundColor3 = Color3.fromRGB(0, 180, 80)}):Play()
-        toggleServerInvisibility(true)
+        toggleRealInvisibility(true)
     else
         autoFarmBtn.Text = "  Auto Farm: OFF"
         autoFarmBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
         TweenService:Create(autoFarmBtn, TweenInfo.new(0.25), {BackgroundColor3 = Color3.fromRGB(20, 20, 25)}):Play()
-        toggleServerInvisibility(false)
+        toggleRealInvisibility(false)
     end
 end)
 
--- Логика Auto Farm
+-- Логика удержания за спиной
 local currentTarget = nil
 
+local function getNextTarget()
+    local validPlayers = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") and p.Character:FindFirstChild("Humanoid") then
+            if p.Character.Humanoid.Health > 0 then
+                table.insert(validPlayers, p)
+            end
+        end
+    end
+
+    if #validPlayers > 0 then
+        return validPlayers[math.random(1, #validPlayers)]
+    end
+    return nil
+end
+
+RunService.RenderStepped:Connect(function()
+    if not autoFarmEnabled then return end
+    
+    local char = player.Character
+    if not char then return end
+    local myRoot = char:FindFirstChild("HumanoidRootPart")
+    if not myRoot then return end
+
+    if not currentTarget or not currentTarget.Character or not currentTarget.Character:FindFirstChild("HumanoidRootPart") or not currentTarget.Character:FindFirstChild("Humanoid") or currentTarget.Character.Humanoid.Health <= 0 then
+        currentTarget = getNextTarget()
+    end
+
+    if currentTarget and currentTarget.Character and currentTarget.Character:FindFirstChild("HumanoidRootPart") then
+        local enemyRoot = currentTarget.Character.HumanoidRootPart
+        myRoot.CFrame = enemyRoot.CFrame * CFrame.new(0, 0, 2.2)
+    end
+end)
+
+-- Вспомогательная функция для эмуляции клика M1
+local function doM1Click()
+    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+    task.wait(0.02)
+    VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+end
+
+-- Вспомогательная функция для нажатия клавиши
+local function doKeyPress(keyCode)
+    VirtualInputManager:SendKeyEvent(true, keyCode, false, game)
+    task.wait(0.02)
+    VirtualInputManager:SendKeyEvent(false, keyCode, false, game)
+end
+
+-- ==========================================
+-- ТОЧНАЯ РОТАЦИЯ КОМБО:
+-- 3x M1 (быстро) -> Прыжок + 1x M1 -> 2-я Способность
+-- ==========================================
 task.spawn(function()
     while true do
-        task.wait(0.2)
-        if autoFarmEnabled then
-            local char = player.Character
-            if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Humanoid") and char.Humanoid.Health > 0 then
-                
-                local targetValid = false
-                if currentTarget and currentTarget.Character and currentTarget.Character:FindFirstChild("HumanoidRootPart") and currentTarget.Character:FindFirstChild("Humanoid") then
-                    if currentTarget.Character.Humanoid.Health > 0 then
-                        targetValid = true
-                    end
+        task.wait(0.1)
+        if autoFarmEnabled and currentTarget then
+            pcall(function()
+                -- Включаем Спринт
+                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.LeftShift, false, game)
+
+                -- 1. Сначала 3 быстрых обычных удара (M1)
+                for i = 1, 3 do
+                    if not autoFarmEnabled or not currentTarget then break end
+                    doM1Click()
+                    task.wait(0.18) -- Скорость ударов M1
                 end
 
-                if not targetValid then
-                    local validPlayers = {}
-                    for _, p in ipairs(Players:GetPlayers()) do
-                        if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") and p.Character:FindFirstChild("Humanoid") then
-                            if p.Character.Humanoid.Health > 0 then
-                                table.insert(validPlayers, p)
-                            end
-                        end
-                    end
+                if not autoFarmEnabled or not currentTarget then return end
 
-                    if #validPlayers > 0 then
-                        currentTarget = validPlayers[math.random(1, #validPlayers)]
-                    else
-                        currentTarget = nil
-                    end
-                end
+                -- 2. Сразу прыжок и 1 удар M1
+                doKeyPress(Enum.KeyCode.Space) -- Прыжок
+                task.wait(0.05)
+                doM1Click() -- 1 удар в воздухе
+                task.wait(0.2)
 
-                if currentTarget and currentTarget.Character and currentTarget.Character:FindFirstChild("HumanoidRootPart") then
-                    pcall(function()
-                        local enemyRoot = currentTarget.Character.HumanoidRootPart
-                        local myRoot = char.HumanoidRootPart
-                        
-                        -- Мгновенная телепортация за спину
-                        myRoot.CFrame = enemyRoot.CFrame * CFrame.new(0, 0, 2.5)
-                        
-                        -- Атака M1
-                        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0)
-                        task.wait(0.02)
-                        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+                if not autoFarmEnabled or not currentTarget then return end
 
-                        -- Способности
-                        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.One, false, game)
-                        task.wait(0.01)
-                        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.One, false, game)
-                        
-                        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Two, false, game)
-                        task.wait(0.01)
-                        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Two, false, game)
-
-                        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Three, false, game)
-                        task.wait(0.01)
-                        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Three, false, game)
-                    end)
-                end
-            end
+                -- 3. Активация 2-й способности
+                doKeyPress(Enum.KeyCode.Two)
+                task.wait(0.4) -- Небольшая пауза после способности перед новым циклом
+            end)
         end
     end
 end)
 
--- Авто-невидимость при респавне
+-- Поддержание невидимости при респавне
 player.CharacterAdded:Connect(function(newChar)
     newChar:WaitForChild("HumanoidRootPart")
     task.wait(0.5)
     if autoFarmEnabled then
-        toggleServerInvisibility(true)
+        toggleRealInvisibility(true)
     end
 end)
 
