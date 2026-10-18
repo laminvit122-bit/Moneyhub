@@ -1,7 +1,7 @@
 --[[
     ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Full & Complete)
-    DESCRIPTION: Modern Glass UI, Smooth Animations, Green/Black Toggles, Shift Lock Auto-Face + Auto Block.
+    PROJECT: MONEYHUB PREMIUM GUI (Real Server Invisibility)
+    DESCRIPTION: Modern Glass UI, Smooth Animations, Green/Black Toggles, No Strokes & Real Server-Invisible Auto Farm.
     COMPATIBILITY: Roblox Injectors / Exploits (PC & Mobile)
     ==================================================
 ]]
@@ -43,7 +43,7 @@ end
 local targetPosition = UDim2.new(0.5, -280, 0.5, -180)
 local hiddenPosition = UDim2.new(0.5, -280, 0.5, 300)
 
--- Главное окно (без обводки)
+-- Главное окно (без обводок)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
 mainFrame.Size = UDim2.new(0, 560, 0, 360)
@@ -188,157 +188,153 @@ tabTitle.TextXAlignment = Enum.TextXAlignment.Left
 tabTitle.ZIndex = 2
 tabTitle.Parent = mainContentArea
 
--- Кнопка Auto Block (ЧЁРНЫЙ / ЗЕЛЁНЫЙ)
-local autoBlockEnabled = false
+-- Кнопка Auto Farm (ЧЁРНЫЙ / ЗЕЛЁНЫЙ)
+local autoFarmEnabled = false
 
-local autoBlockBtn = Instance.new("TextButton")
-autoBlockBtn.Name = "AutoBlockButton"
-autoBlockBtn.Size = UDim2.new(1, 0, 0, 42)
-autoBlockBtn.Position = UDim2.new(0, 0, 0, 35)
-autoBlockBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
-autoBlockBtn.BackgroundTransparency = 0.3
-autoBlockBtn.Text = "  Auto Block: OFF"
-autoBlockBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
-autoBlockBtn.TextSize = 13
-autoBlockBtn.Font = Enum.Font.GothamMedium
-autoBlockBtn.TextXAlignment = Enum.TextXAlignment.Left
-autoBlockBtn.ZIndex = 2
-autoBlockBtn.Parent = mainContentArea
+local autoFarmBtn = Instance.new("TextButton")
+autoFarmBtn.Name = "AutoFarmButton"
+autoFarmBtn.Size = UDim2.new(1, 0, 0, 42)
+autoFarmBtn.Position = UDim2.new(0, 0, 0, 35)
+autoFarmBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+autoFarmBtn.BackgroundTransparency = 0.3
+autoFarmBtn.Text = "  Auto Farm: OFF"
+autoFarmBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+autoFarmBtn.TextSize = 13
+autoFarmBtn.Font = Enum.Font.GothamMedium
+autoFarmBtn.TextXAlignment = Enum.TextXAlignment.Left
+autoFarmBtn.ZIndex = 2
+autoFarmBtn.Parent = mainContentArea
 
-local autoBlockCorner = Instance.new("UICorner")
-autoBlockCorner.CornerRadius = UDim.new(0, 8)
-autoBlockCorner.Parent = autoBlockBtn
+local autoFarmCorner = Instance.new("UICorner")
+autoFarmCorner.CornerRadius = UDim.new(0, 8)
+autoFarmCorner.Parent = autoFarmBtn
 
-autoBlockBtn.MouseButton1Click:Connect(function()
-    autoBlockEnabled = not autoBlockEnabled
-    if autoBlockEnabled then
-        autoBlockBtn.Text = "  Auto Block: ON"
-        autoBlockBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        TweenService:Create(autoBlockBtn, TweenInfo.new(0.25), {BackgroundColor3 = Color3.fromRGB(0, 180, 80)}):Play()
+-- Функция настоящей серверной невидимости (Server-Side Invisibility)
+local savedClones = {}
+
+local function toggleServerInvisibility(state)
+    local char = player.Character
+    if not char then return end
+    
+    if state then
+        pcall(function()
+            -- Удаляем отображение внешних деталей для сервера через узел LowerTorso/Root
+            local root = char:FindFirstChild("HumanoidRootPart")
+            if root then
+                for _, child in ipairs(char:GetChildren()) do
+                    if child:IsA("BasePart") and child.Name ~= "HumanoidRootPart" then
+                        child.Transparency = 1
+                        if child:FindFirstChildOfClass("SpecialMesh") then
+                            child:FindFirstChildOfClass("SpecialMesh").TextureId = ""
+                        end
+                    elseif child:IsA("Accessory") then
+                        local handle = child:FindFirstChild("Handle")
+                        if handle then handle.Transparency = 1 end
+                    end
+                end
+                -- Смещение локального кадра для десинхронизации от сервера
+                if char:FindFirstChild("LowerTorso") and char.LowerTorso:FindFirstChild("Root") then
+                    char.LowerTorso.Root:Destroy()
+                end
+            end
+        end)
     else
-        autoBlockBtn.Text = "  Auto Block: OFF"
-        autoBlockBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
-        TweenService:Create(autoBlockBtn, TweenInfo.new(0.25), {BackgroundColor3 = Color3.fromRGB(20, 20, 25)}):Play()
+        -- При выключении переспавниваем персонажа нормальным образом
+        pcall(function()
+            if char:FindFirstChild("Humanoid") then
+                char.Humanoid.Health = 0
+            end
+        end)
+    end
+end
+
+autoFarmBtn.MouseButton1Click:Connect(function()
+    autoFarmEnabled = not autoFarmEnabled
+    if autoFarmEnabled then
+        autoFarmBtn.Text = "  Auto Farm: ON"
+        autoFarmBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TweenService:Create(autoFarmBtn, TweenInfo.new(0.25), {BackgroundColor3 = Color3.fromRGB(0, 180, 80)}):Play()
+        toggleServerInvisibility(true)
+    else
+        autoFarmBtn.Text = "  Auto Farm: OFF"
+        autoFarmBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+        TweenService:Create(autoFarmBtn, TweenInfo.new(0.25), {BackgroundColor3 = Color3.fromRGB(20, 20, 25)}):Play()
+        toggleServerInvisibility(false)
     end
 end)
 
--- Поиск мобильной кнопки
-local function getMobileBlockButton()
-    for _, gui in ipairs(playerGui:GetChildren()) do
-        if gui:IsA("ScreenGui") and gui.Name ~= "MoneyHubGui" then
-            for _, btn in ipairs(gui:GetDescendants()) do
-                if (btn:IsA("ImageButton") or btn:IsA("TextButton")) and btn.Visible then
-                    if btn.Name:lower():find("block") or btn.Name:lower():find("defend") then
-                        return btn
-                    end
-                end
-            end
-        end
-    end
-    return nil
-end
+-- Логика Auto Farm
+local currentTarget = nil
 
-local isBlockingNow = false
-
--- Точная функция блока под реальный удар + разворот в Shift Lock
-local function doBlock(enemyRoot)
-    if isBlockingNow then return end
-    isBlockingNow = true
-
-    task.spawn(function()
-        pcall(function()
-            -- Разворот перса и камеры к врагу (работает даже в Shift Lock)
+task.spawn(function()
+    while true do
+        task.wait(0.2)
+        if autoFarmEnabled then
             local char = player.Character
-            if char then
-                local root = char:FindFirstChild("HumanoidRootPart")
-                if root and enemyRoot then
-                    local targetPos = Vector3.new(enemyRoot.Position.X, root.Position.Y, enemyRoot.Position.Z)
-                    local lookCFrame = CFrame.lookAt(root.Position, targetPos)
-                    
-                    -- Поворачиваем сам RootPart
-                    root.CFrame = lookCFrame
-                    
-                    -- Принудительно разворачиваем камеру для обхода ограничений Shift Lock
-                    local camera = workspace.CurrentCamera
-                    if camera then
-                        local camDist = (camera.CFrame.Position - root.Position).Magnitude
-                        camera.CFrame = CFrame.lookAt(root.Position - (lookCFrame.LookVector * camDist), root.Position + lookCFrame.LookVector)
+            if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Humanoid") and char.Humanoid.Health > 0 then
+                
+                local targetValid = false
+                if currentTarget and currentTarget.Character and currentTarget.Character:FindFirstChild("HumanoidRootPart") and currentTarget.Character:FindFirstChild("Humanoid") then
+                    if currentTarget.Character.Humanoid.Health > 0 then
+                        targetValid = true
                     end
                 end
-            end
 
-            -- Активация блока
-            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
-            local mobileBtn = getMobileBlockButton()
-            if mobileBtn then firesignal(mobileBtn.MouseButton1Down) end
-            
-            local commEvent = ReplicatedStorage:FindFirstChild("Event") or ReplicatedStorage:FindFirstChild("Comm")
-            if commEvent and commEvent:IsA("RemoteEvent") then
-                commEvent:FireServer({Goal = "LeftClick", Key = Enum.KeyCode.F})
-            end
-        end)
-
-        -- Задержка удерживания блока под удар
-        task.wait(0.28)
-
-        pcall(function()
-            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.F, false, game)
-            local mobileBtn = getMobileBlockButton()
-            if mobileBtn then firesignal(mobileBtn.MouseButton1Up) end
-        end)
-
-        task.wait(0.05)
-        isBlockingNow = false
-    end)
-end
-
--- Сканирование ударов
-RunService.RenderStepped:Connect(function()
-    if not autoBlockEnabled or isBlockingNow then return end
-    
-    local character = player.Character
-    if not character then return end
-    local rootPart = character:FindFirstChild("HumanoidRootPart")
-    if not rootPart then return end
-
-    for _, otherPlayer in ipairs(Players:GetPlayers()) do
-        if otherPlayer ~= player and otherPlayer.Character then
-            local enemyChar = otherPlayer.Character
-            local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
-            local enemyHum = enemyChar:FindFirstChild("Humanoid")
-            
-            if enemyRoot and enemyHum and enemyHum.Health > 0 then
-                local distance = (rootPart.Position - enemyRoot.Position).Magnitude
-                
-                if distance <= 8.5 then
-                    local isRealAttack = false
-                    local animator = enemyHum:FindFirstChildOfClass("Animator")
-                    
-                    if animator then
-                        for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
-                            if track.IsPlaying then
-                                local speed = track.Speed
-                                local priority = track.Priority
-                                local animId = track.Animation.AnimationId:lower()
-
-                                local isMovement = animId:find("idle") or animId:find("walk") or animId:find("run") or animId:find("jump") or animId:find("fall")
-                                local isBlock = animId:find("block") or animId:find("defend") or animId:find("guard")
-
-                                if not isMovement and not isBlock and (priority == Enum.AnimationPriority.Action or speed > 0.8) then
-                                    isRealAttack = true
-                                    break
-                                end
+                if not targetValid then
+                    local validPlayers = {}
+                    for _, p in ipairs(Players:GetPlayers()) do
+                        if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") and p.Character:FindFirstChild("Humanoid") then
+                            if p.Character.Humanoid.Health > 0 then
+                                table.insert(validPlayers, p)
                             end
                         end
                     end
 
-                    if isRealAttack then
-                        doBlock(enemyRoot)
-                        break
+                    if #validPlayers > 0 then
+                        currentTarget = validPlayers[math.random(1, #validPlayers)]
+                    else
+                        currentTarget = nil
                     end
+                end
+
+                if currentTarget and currentTarget.Character and currentTarget.Character:FindFirstChild("HumanoidRootPart") then
+                    pcall(function()
+                        local enemyRoot = currentTarget.Character.HumanoidRootPart
+                        local myRoot = char.HumanoidRootPart
+                        
+                        -- Мгновенная телепортация за спину
+                        myRoot.CFrame = enemyRoot.CFrame * CFrame.new(0, 0, 2.5)
+                        
+                        -- Атака M1
+                        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+                        task.wait(0.02)
+                        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+
+                        -- Способности
+                        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.One, false, game)
+                        task.wait(0.01)
+                        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.One, false, game)
+                        
+                        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Two, false, game)
+                        task.wait(0.01)
+                        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Two, false, game)
+
+                        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Three, false, game)
+                        task.wait(0.01)
+                        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Three, false, game)
+                    end)
                 end
             end
         end
+    end
+end)
+
+-- Авто-невидимость при респавне
+player.CharacterAdded:Connect(function(newChar)
+    newChar:WaitForChild("HumanoidRootPart")
+    task.wait(0.5)
+    if autoFarmEnabled then
+        toggleServerInvisibility(true)
     end
 end)
 
@@ -431,7 +427,7 @@ end)
 
 animateOpen()
 
--- Медленная пыль
+-- Пыль
 local maxParticles = 16
 local particles = {}
 
