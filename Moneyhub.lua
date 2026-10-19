@@ -1,7 +1,7 @@
 --[[
     ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Mobile Dex-Engineered Edition)
-    DESCRIPTION: Mobile TouchGui Adapter, Real Server Desync, Auto-AimLock & Random Abilities + M1 Touch Punch.
+    PROJECT: MONEYHUB PREMIUM GUI (Fast Combo Edition)
+    DESCRIPTION: Glass UI, Green/Black Toggles, No Strokes, Server Invisibility, Shift-Lock AimLock & Lightning Fast Combo: 4x M1 -> Skill 1 -> 2x Skill 2.
     COMPATIBILITY: Roblox Mobile Injectors
     ==================================================
 ]]
@@ -15,7 +15,6 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local VirtualInputManager = game:GetService("VirtualInputManager")
 local Workspace = game:GetService("Workspace")
 
 local player = Players.LocalPlayer
@@ -211,15 +210,13 @@ local autoFarmCorner = Instance.new("UICorner")
 autoFarmCorner.CornerRadius = UDim.new(0, 8)
 autoFarmCorner.Parent = autoFarmBtn
 
--- Настоящая серверная невидимость (Network Desync)
+-- Настоящая серверная невидимость
 local desyncConnection = nil
 local function toggleServerDesync(state)
     if state then
         desyncConnection = RunService.Heartbeat:Connect(function()
             if autoFarmEnabled and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                local root = player.Character.HumanoidRootPart
-                -- Смещение физического вектора для скрытия персонажа от сервера
-                root.Velocity = Vector3.new(0, -1000, 0)
+                player.Character.HumanoidRootPart.Velocity = Vector3.new(0, -1000, 0)
             end
         end)
     else
@@ -245,7 +242,7 @@ autoFarmBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Поиск точно найденной кнопки PunchButton в TouchGui
+-- Поиск PunchButton на мобильном
 local function getTouchPunchButton()
     local touchGui = playerGui:FindFirstChild("TouchGui")
     if touchGui then
@@ -255,7 +252,6 @@ local function getTouchPunchButton()
             if btn then return btn end
         end
     end
-    -- Резервный поиск по всему GUI
     for _, gui in ipairs(playerGui:GetChildren()) do
         if gui:IsA("ScreenGui") and gui.Name ~= "MoneyHubGui" then
             local btn = gui:FindFirstChild("PunchButton", true)
@@ -283,7 +279,7 @@ local function getNextTarget()
     return nil
 end
 
--- Привязка за спину + АИМЛОК
+-- Привязка за спину + Аимлок
 RunService.RenderStepped:Connect(function()
     if not autoFarmEnabled then return end
     
@@ -305,19 +301,16 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- ТОЧНЫЙ ВЫЗОВ МОБИЛЬНОГО УДАРА M1
-local function executeMobileM1()
+-- Мгновенный удар M1 (экран + RemoteEvent)
+local function executeInstantM1()
     pcall(function()
         local punchBtn = getTouchPunchButton()
         if punchBtn then
-            -- Вызов активации сенсорной кнопки мобильного управления
             firesignal(punchBtn.MouseButton1Down)
             firesignal(punchBtn.Activated)
-            firesignal(punchBtn.InputBegan)
             firesignal(punchBtn.MouseButton1Up)
         end
 
-        -- Отправка пакетов напрямую в коммуникационные события игры
         for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
             if obj:IsA("RemoteEvent") then
                 local name = obj.Name:lower()
@@ -331,40 +324,66 @@ local function executeMobileM1()
     end)
 end
 
--- ВЫЗОВ МОБИЛЬНЫХ СПОСОБНОСТЕЙ (1, 2, 3, 4)
-local function executeMobileAbility(num)
+-- Мгновенная активация способности
+local function executeInstantSkill(skillNumber)
     pcall(function()
-        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode["KeyCode" .. num] or Enum.KeyCode.One, false, game)
-        task.wait(0.02)
-        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode["KeyCode" .. num] or Enum.KeyCode.One, false, game)
+        -- Ищем мобильную кнопку способности на экране
+        for _, gui in ipairs(playerGui:GetChildren()) do
+            if gui:IsA("ScreenGui") and gui.Name ~= "MoneyHubGui" then
+                for _, btn in ipairs(gui:GetDescendants()) do
+                    if (btn:IsA("ImageButton") or btn:IsA("TextButton")) and btn.Visible then
+                        local text = btn:IsA("TextButton") and btn.Text or ""
+                        local name = btn.Name
+                        if text == tostring(skillNumber) or name == tostring(skillNumber) then
+                            firesignal(btn.Activated)
+                        end
+                    end
+                end
+            end
+        end
 
+        -- Отправка через RemoteEvent
         for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
             if obj:IsA("RemoteEvent") then
                 local name = obj.Name:lower()
                 if name:find("comm") or name:find("event") then
-                    obj:FireServer({Goal = "KeyPress", Key = num})
+                    obj:FireServer({Goal = "KeyPress", Key = skillNumber})
+                    obj:FireServer("KeyPress", skillNumber)
                 end
             end
         end
     end)
 end
 
--- БОЕВОЙ ЦИКЛ РАНДОМНОГО СПАМА
+-- ==========================================
+-- ТОЧНАЯ РОТАЦИЯ: 4x M1 -> 1-я Способность -> 2x 2-я Способность
+-- ==========================================
 task.spawn(function()
     while true do
-        task.wait(0.1)
+        task.wait(0.05)
         if autoFarmEnabled and currentTarget then
             pcall(function()
-                local choice = math.random(1, 5)
-                if choice == 5 then
-                    for i = 1, 3 do
-                        if not autoFarmEnabled or not currentTarget then break end
-                        executeMobileM1()
-                        task.wait(0.12)
-                    end
-                else
-                    executeMobileAbility(choice)
+                -- 1. Ровно 4 быстрых удара M1 подряд
+                for i = 1, 4 do
+                    if not autoFarmEnabled or not currentTarget then break end
+                    executeInstantM1()
+                    task.wait(0.08) -- Очень быстрая пауза между ударами
                 end
+
+                if not autoFarmEnabled or not currentTarget then return end
+
+                -- 2. Сразу 1-я способность
+                executeInstantSkill(1)
+                task.wait(0.15)
+
+                if not autoFarmEnabled or not currentTarget then return end
+
+                -- 3. Сразу 2-я способность (2 раза подряд)
+                executeInstantSkill(2)
+                task.wait(0.1)
+                executeInstantSkill(2)
+
+                task.wait(0.3) -- Пауза перед началом следующего комбо-цикла
             end)
         else
             task.wait(0.4)
