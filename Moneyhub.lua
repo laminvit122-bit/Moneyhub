@@ -1,7 +1,7 @@
 --[[
     ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Fix Floating Button Edition)
-    DESCRIPTION: Glass UI, Green/Black Toggles, No Strokes, Server Invisibility, Auto-AimLock, Shift-Lock Compatible & Non-Lagging Combo Loop.
+    PROJECT: MONEYHUB PREMIUM GUI (Random Spam Combo Edition)
+    DESCRIPTION: Glass UI, Green/Black Toggles, No Strokes, Server Invisibility, Auto-AimLock & Random Abilities + M1 Spam.
     COMPATIBILITY: Roblox Injectors / Exploits (PC & Mobile)
     ==================================================
 ]]
@@ -211,7 +211,7 @@ local autoFarmCorner = Instance.new("UICorner")
 autoFarmCorner.CornerRadius = UDim.new(0, 8)
 autoFarmCorner.Parent = autoFarmBtn
 
--- Безопасная серверная невидимость без разрушения физики
+-- Безопасная серверная невидимость
 local function toggleSafeInvisibility(state)
     local char = player.Character
     if not char then return end
@@ -245,26 +245,21 @@ autoFarmBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Поиск мобильных кнопок
-local function getActionButtons()
-    local punchBtn, sprintBtn, jumpBtn = nil, nil, nil
+-- Поиск мобильных кнопок кулака
+local function getPunchButton()
     for _, gui in ipairs(playerGui:GetChildren()) do
         if gui:IsA("ScreenGui") and gui.Name ~= "MoneyHubGui" then
             for _, btn in ipairs(gui:GetDescendants()) do
                 if (btn:IsA("ImageButton") or btn:IsA("TextButton")) and btn.Visible then
                     local name = btn.Name:lower()
                     if name:find("punch") or name:find("attack") or name:find("hit") or name:find("m1") then
-                        punchBtn = btn
-                    elseif name:find("sprint") or name:find("dash") or name:find("run") then
-                        sprintBtn = btn
-                    elseif name:find("jump") then
-                        jumpBtn = btn
+                        return btn
                     end
                 end
             end
         end
     end
-    return punchBtn, sprintBtn, jumpBtn
+    return nil
 end
 
 local currentTarget = nil
@@ -307,79 +302,80 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
+-- Функция надежного удара M1 (эмуляция + сетевые события игры)
 local function executeM1()
     pcall(function()
-        local punchBtn = getActionButtons()
+        local punchBtn = getPunchButton()
         if punchBtn then
             firesignal(punchBtn.MouseButton1Down)
             firesignal(punchBtn.Activated)
             firesignal(punchBtn.MouseButton1Up)
-        else
-            VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0)
-            task.wait(0.01)
-            VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
         end
+        
+        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+        task.wait(0.01)
+        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
 
-        local comm = ReplicatedStorage:FindFirstChild("Event") or ReplicatedStorage:FindFirstChild("Comm")
-        if comm and comm:IsA("RemoteEvent") then
-            comm:FireServer({Goal = "LeftClick"})
+        -- Спам по всем возможным RemoteEvent атаки в игре
+        for _, child in ipairs(ReplicatedStorage:GetChildren()) do
+            if child:IsA("RemoteEvent") then
+                local name = child.Name:lower()
+                if name:find("event") or name:find("comm") or name:find("punch") or name:find("attack") then
+                    pcall(function()
+                        child:FireServer({Goal = "LeftClick"})
+                        child:FireServer("LeftClick")
+                        child:FireServer("Punch")
+                    end)
+                end
+            end
         end
     end)
 end
 
-local function executeJump()
+-- Функция нажатия способностей (1, 2, 3, 4)
+local function executeKey(keyCode)
     pcall(function()
-        local _, _, jumpBtn = getActionButtons()
-        if jumpBtn then
-            firesignal(jumpBtn.Activated)
-        else
-            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
-            task.wait(0.02)
-            VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
+        VirtualInputManager:SendKeyEvent(true, keyCode, false, game)
+        task.wait(0.02)
+        VirtualInputManager:SendKeyEvent(false, keyCode, false, game)
+
+        for _, child in ipairs(ReplicatedStorage:GetChildren()) do
+            if child:IsA("RemoteEvent") then
+                pcall(function()
+                    child:FireServer({Goal = "KeyPress", Key = keyCode})
+                    child:FireServer("KeyPress", keyCode)
+                end)
+            end
         end
     end)
 end
 
--- Безопасный боевой цикл (без зависания кнопки)
+-- ==========================================
+-- РАНДОМНЫЙ СПАМ УДАРОВ И СПОСОБНОСТЕЙ
+-- ==========================================
+local abilityKeys = {Enum.KeyCode.One, Enum.KeyCode.Two, Enum.KeyCode.Three, Enum.KeyCode.Four}
+
 task.spawn(function()
     while true do
-        task.wait(0.1)
+        task.wait(0.12)
         if autoFarmEnabled and currentTarget then
             pcall(function()
-                local _, sprintBtn = getActionButtons()
-                if sprintBtn then firesignal(sprintBtn.Activated) else VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.LeftShift, false, game) end
-
-                -- 1. 3 M1 удара
-                for i = 1, 3 do
-                    if not autoFarmEnabled or not currentTarget then break end
-                    executeM1()
-                    task.wait(0.18)
-                end
-
-                if not autoFarmEnabled or not currentTarget then return end
-
-                -- 2. Прыжок + M1 удар
-                executeJump()
-                task.wait(0.04)
-                executeM1()
-                task.wait(0.2)
-
-                if not autoFarmEnabled or not currentTarget then return end
-
-                -- 3. Способность 2
-                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Two, false, game)
-                task.wait(0.02)
-                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Two, false, game)
+                -- Случайный выбор: ударить M1 или применить одну из способностей (1, 2, 3, 4)
+                local actionType = math.random(1, 5) -- 1, 2, 3, 4 — способности, 5 — серия M1 ударов
                 
-                local comm = ReplicatedStorage:FindFirstChild("Event") or ReplicatedStorage:FindFirstChild("Comm")
-                if comm and comm:IsA("RemoteEvent") then
-                    comm:FireServer({Goal = "KeyPress", Key = Enum.KeyCode.Two})
+                if actionType == 5 then
+                    for i = 1, 3 do
+                        if not autoFarmEnabled or not currentTarget then break end
+                        executeM1()
+                        task.wait(0.12)
+                    end
+                else
+                    local randomKey = abilityKeys[math.random(1, #abilityKeys)]
+                    executeKey(randomKey)
                 end
-
-                task.wait(0.3)
             end)
         else
-            task.wait(0.5) -- Обязательная пауза при отсутствии цели для разгрузки потоков
+            task.wait(0.5)
         end
     end
 end)
@@ -393,7 +389,7 @@ player.CharacterAdded:Connect(function(newChar)
     end
 end)
 
--- Плавающая кнопка (с высоким ZIndex для исключения залипания)
+-- Плавающая кнопка (с высоким ZIndex)
 local floatBtn = Instance.new("TextButton")
 floatBtn.Name = "FloatingButton"
 floatBtn.Size = UDim2.new(0, 140, 0, 42)
