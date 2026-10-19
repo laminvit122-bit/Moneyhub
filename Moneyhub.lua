@@ -1,8 +1,8 @@
 --[[
     ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Random Spam Combo Edition)
-    DESCRIPTION: Glass UI, Green/Black Toggles, No Strokes, Server Invisibility, Auto-AimLock & Random Abilities + M1 Spam.
-    COMPATIBILITY: Roblox Injectors / Exploits (PC & Mobile)
+    PROJECT: MONEYHUB PREMIUM GUI (Mobile Dex-Engineered Edition)
+    DESCRIPTION: Mobile TouchGui Adapter, Real Server Desync, Auto-AimLock & Random Abilities + M1 Touch Punch.
+    COMPATIBILITY: Roblox Mobile Injectors
     ==================================================
 ]]
 
@@ -211,23 +211,23 @@ local autoFarmCorner = Instance.new("UICorner")
 autoFarmCorner.CornerRadius = UDim.new(0, 8)
 autoFarmCorner.Parent = autoFarmBtn
 
--- Безопасная серверная невидимость
-local function toggleSafeInvisibility(state)
-    local char = player.Character
-    if not char then return end
-    
-    pcall(function()
-        for _, v in ipairs(char:GetDescendants()) do
-            if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
-                v.Transparency = state and 1 or 0
-                v.CanCollide = false
-            elseif v:IsA("Decal") or v:IsA("Texture") then
-                v.Transparency = state and 1 or 0
-            elseif v:IsA("Accessory") and v:FindFirstChild("Handle") then
-                v.Handle.Transparency = state and 1 or 0
+-- Настоящая серверная невидимость (Network Desync)
+local desyncConnection = nil
+local function toggleServerDesync(state)
+    if state then
+        desyncConnection = RunService.Heartbeat:Connect(function()
+            if autoFarmEnabled and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                local root = player.Character.HumanoidRootPart
+                -- Смещение физического вектора для скрытия персонажа от сервера
+                root.Velocity = Vector3.new(0, -1000, 0)
             end
+        end)
+    else
+        if desyncConnection then
+            desyncConnection:Disconnect()
+            desyncConnection = nil
         end
-    end)
+    end
 end
 
 autoFarmBtn.MouseButton1Click:Connect(function()
@@ -236,27 +236,30 @@ autoFarmBtn.MouseButton1Click:Connect(function()
         autoFarmBtn.Text = "  Auto Farm: ON"
         autoFarmBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
         TweenService:Create(autoFarmBtn, TweenInfo.new(0.25), {BackgroundColor3 = Color3.fromRGB(0, 180, 80)}):Play()
-        toggleSafeInvisibility(true)
+        toggleServerDesync(true)
     else
         autoFarmBtn.Text = "  Auto Farm: OFF"
         autoFarmBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
         TweenService:Create(autoFarmBtn, TweenInfo.new(0.25), {BackgroundColor3 = Color3.fromRGB(20, 20, 25)}):Play()
-        toggleSafeInvisibility(false)
+        toggleServerDesync(false)
     end
 end)
 
--- Поиск мобильных кнопок кулака
-local function getPunchButton()
+-- Поиск точно найденной кнопки PunchButton в TouchGui
+local function getTouchPunchButton()
+    local touchGui = playerGui:FindFirstChild("TouchGui")
+    if touchGui then
+        local frame = touchGui:FindFirstChild("TouchControlFrame")
+        if frame then
+            local btn = frame:FindFirstChild("PunchButton")
+            if btn then return btn end
+        end
+    end
+    -- Резервный поиск по всему GUI
     for _, gui in ipairs(playerGui:GetChildren()) do
         if gui:IsA("ScreenGui") and gui.Name ~= "MoneyHubGui" then
-            for _, btn in ipairs(gui:GetDescendants()) do
-                if (btn:IsA("ImageButton") or btn:IsA("TextButton")) and btn.Visible then
-                    local name = btn.Name:lower()
-                    if name:find("punch") or name:find("attack") or name:find("hit") or name:find("m1") then
-                        return btn
-                    end
-                end
-            end
+            local btn = gui:FindFirstChild("PunchButton", true)
+            if btn then return btn end
         end
     end
     return nil
@@ -295,101 +298,81 @@ RunService.RenderStepped:Connect(function()
 
     if currentTarget and currentTarget.Character and currentTarget.Character:FindFirstChild("HumanoidRootPart") then
         local enemyRoot = currentTarget.Character.HumanoidRootPart
+        local backPos = enemyRoot.CFrame * CFrame.new(0, 0, 2)
         
-        local backPosition = enemyRoot.CFrame * CFrame.new(0, 0, 2.2)
-        myRoot.CFrame = CFrame.lookAt(backPosition.Position, enemyRoot.Position)
+        myRoot.CFrame = CFrame.lookAt(backPos.Position, enemyRoot.Position)
         camera.CFrame = CFrame.lookAt(camera.CFrame.Position, enemyRoot.Position)
     end
 end)
 
--- Функция надежного удара M1 (эмуляция + сетевые события игры)
-local function executeM1()
+-- ТОЧНЫЙ ВЫЗОВ МОБИЛЬНОГО УДАРА M1
+local function executeMobileM1()
     pcall(function()
-        local punchBtn = getPunchButton()
+        local punchBtn = getTouchPunchButton()
         if punchBtn then
+            -- Вызов активации сенсорной кнопки мобильного управления
             firesignal(punchBtn.MouseButton1Down)
             firesignal(punchBtn.Activated)
+            firesignal(punchBtn.InputBegan)
             firesignal(punchBtn.MouseButton1Up)
         end
-        
-        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, true, game, 0)
-        task.wait(0.01)
-        VirtualInputManager:SendMouseButtonEvent(0, 0, 0, false, game, 0)
 
-        -- Спам по всем возможным RemoteEvent атаки в игре
-        for _, child in ipairs(ReplicatedStorage:GetChildren()) do
-            if child:IsA("RemoteEvent") then
-                local name = child.Name:lower()
-                if name:find("event") or name:find("comm") or name:find("punch") or name:find("attack") then
-                    pcall(function()
-                        child:FireServer({Goal = "LeftClick"})
-                        child:FireServer("LeftClick")
-                        child:FireServer("Punch")
-                    end)
+        -- Отправка пакетов напрямую в коммуникационные события игры
+        for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
+            if obj:IsA("RemoteEvent") then
+                local name = obj.Name:lower()
+                if name:find("comm") or name:find("event") or name:find("punch") or name:find("m1") then
+                    obj:FireServer({Goal = "LeftClick"})
+                    obj:FireServer("LeftClick")
+                    obj:FireServer("Punch")
                 end
             end
         end
     end)
 end
 
--- Функция нажатия способностей (1, 2, 3, 4)
-local function executeKey(keyCode)
+-- ВЫЗОВ МОБИЛЬНЫХ СПОСОБНОСТЕЙ (1, 2, 3, 4)
+local function executeMobileAbility(num)
     pcall(function()
-        VirtualInputManager:SendKeyEvent(true, keyCode, false, game)
+        VirtualInputManager:SendKeyEvent(true, Enum.KeyCode["KeyCode" .. num] or Enum.KeyCode.One, false, game)
         task.wait(0.02)
-        VirtualInputManager:SendKeyEvent(false, keyCode, false, game)
+        VirtualInputManager:SendKeyEvent(false, Enum.KeyCode["KeyCode" .. num] or Enum.KeyCode.One, false, game)
 
-        for _, child in ipairs(ReplicatedStorage:GetChildren()) do
-            if child:IsA("RemoteEvent") then
-                pcall(function()
-                    child:FireServer({Goal = "KeyPress", Key = keyCode})
-                    child:FireServer("KeyPress", keyCode)
-                end)
+        for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
+            if obj:IsA("RemoteEvent") then
+                local name = obj.Name:lower()
+                if name:find("comm") or name:find("event") then
+                    obj:FireServer({Goal = "KeyPress", Key = num})
+                end
             end
         end
     end)
 end
 
--- ==========================================
--- РАНДОМНЫЙ СПАМ УДАРОВ И СПОСОБНОСТЕЙ
--- ==========================================
-local abilityKeys = {Enum.KeyCode.One, Enum.KeyCode.Two, Enum.KeyCode.Three, Enum.KeyCode.Four}
-
+-- БОЕВОЙ ЦИКЛ РАНДОМНОГО СПАМА
 task.spawn(function()
     while true do
-        task.wait(0.12)
+        task.wait(0.1)
         if autoFarmEnabled and currentTarget then
             pcall(function()
-                -- Случайный выбор: ударить M1 или применить одну из способностей (1, 2, 3, 4)
-                local actionType = math.random(1, 5) -- 1, 2, 3, 4 — способности, 5 — серия M1 ударов
-                
-                if actionType == 5 then
+                local choice = math.random(1, 5)
+                if choice == 5 then
                     for i = 1, 3 do
                         if not autoFarmEnabled or not currentTarget then break end
-                        executeM1()
+                        executeMobileM1()
                         task.wait(0.12)
                     end
                 else
-                    local randomKey = abilityKeys[math.random(1, #abilityKeys)]
-                    executeKey(randomKey)
+                    executeMobileAbility(choice)
                 end
             end)
         else
-            task.wait(0.5)
+            task.wait(0.4)
         end
     end
 end)
 
--- Респавн невидимости
-player.CharacterAdded:Connect(function(newChar)
-    newChar:WaitForChild("HumanoidRootPart")
-    task.wait(0.5)
-    if autoFarmEnabled then
-        toggleSafeInvisibility(true)
-    end
-end)
-
--- Плавающая кнопка (с высоким ZIndex)
+-- Плавающая кнопка
 local floatBtn = Instance.new("TextButton")
 floatBtn.Name = "FloatingButton"
 floatBtn.Size = UDim2.new(0, 140, 0, 42)
@@ -408,7 +391,6 @@ local floatCorner = Instance.new("UICorner")
 floatCorner.CornerRadius = UDim.new(0, 21)
 floatCorner.Parent = floatBtn
 
--- Перетаскивание
 local function enableDragging(frame, handle)
     local dragging, dragInput, dragStart, startPos
 
@@ -446,7 +428,6 @@ end
 enableDragging(mainFrame, topBar)
 enableDragging(floatBtn, floatBtn)
 
--- Анимации
 local function animateOpen()
     mainFrame.Position = hiddenPosition
     mainFrame.BackgroundTransparency = 1
