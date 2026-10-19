@@ -1,7 +1,7 @@
 --[[
     ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Fast Combo Edition)
-    DESCRIPTION: Glass UI, Green/Black Toggles, No Strokes, Server Invisibility, Shift-Lock AimLock & Lightning Fast Combo: 4x M1 -> Skill 1 -> 2x Skill 2.
+    PROJECT: MONEYHUB PREMIUM GUI (Smart Combo & Anti-Damage Edition)
+    DESCRIPTION: Glass UI, Green/Black Toggles, No Strokes, Server Invisibility, Shift-Lock AimLock, Smart Distance Hit Check & 2s Map Escape on Damage.
     COMPATIBILITY: Roblox Mobile Injectors
     ==================================================
 ]]
@@ -242,7 +242,7 @@ autoFarmBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Поиск PunchButton на мобильном
+-- Поиск мобильного PunchButton
 local function getTouchPunchButton()
     local touchGui = playerGui:FindFirstChild("TouchGui")
     if touchGui then
@@ -262,6 +262,7 @@ local function getTouchPunchButton()
 end
 
 local currentTarget = nil
+local isEvadingDamage = false
 
 local function getNextTarget()
     local validPlayers = {}
@@ -279,9 +280,64 @@ local function getNextTarget()
     return nil
 end
 
--- Привязка за спину + Аимлок
+-- Система отслеживания получения урона (Anti-Damage Escape)
+local lastHealth = 100
+player.CharacterAdded:Connect(function(char)
+    local humanoid = char:WaitForChild("Humanoid", 5)
+    if humanoid then
+        lastHealth = humanoid.Health
+        humanoid.HealthChanged:Connect(function(newHealth)
+            if autoFarmEnabled and not isEvadingDamage then
+                if newHealth < lastHealth then
+                    -- Получил урон! Телепортируемся на 2 секунды за карту
+                    isEvadingDamage = true
+                    task.spawn(function()
+                        pcall(function()
+                            local root = char:FindFirstChild("HumanoidRootPart")
+                            if root then
+                                local safePos = root.CFrame
+                                root.CFrame = CFrame.new(0, -500, 0)
+                                task.wait(2.0) -- Ждем 2 секунды за картой
+                                root.CFrame = safePos
+                            end
+                        end)
+                        isEvadingDamage = false
+                    end)
+                end
+                lastHealth = newHealth
+            end
+        end)
+    end
+end)
+
+if player.Character and player.Character:FindFirstChild("Humanoid") then
+    local humanoid = player.Character.Humanoid
+    lastHealth = humanoid.Health
+    humanoid.HealthChanged:Connect(function(newHealth)
+        if autoFarmEnabled and not isEvadingDamage then
+            if newHealth < lastHealth then
+                isEvadingDamage = true
+                task.spawn(function()
+                    pcall(function()
+                        local root = player.Character:FindFirstChild("HumanoidRootPart")
+                        if root then
+                            local safePos = root.CFrame
+                            root.CFrame = CFrame.new(0, -500, 0)
+                            task.wait(2.0)
+                            root.CFrame = safePos
+                        end
+                    end)
+                    isEvadingDamage = false
+                end)
+            end
+            lastHealth = newHealth
+        end
+    end)
+end
+
+-- Следование за спиной + Аимлок (если не в эвакуации от урона)
 RunService.RenderStepped:Connect(function()
-    if not autoFarmEnabled then return end
+    if not autoFarmEnabled or isEvadingDamage then return end
     
     local char = player.Character
     if not char then return end
@@ -301,7 +357,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Мгновенный удар M1 (экран + RemoteEvent)
+-- Выполнение удара M1
 local function executeInstantM1()
     pcall(function()
         local punchBtn = getTouchPunchButton()
@@ -324,10 +380,9 @@ local function executeInstantM1()
     end)
 end
 
--- Мгновенная активация способности
+-- Выполнение способности
 local function executeInstantSkill(skillNumber)
     pcall(function()
-        -- Ищем мобильную кнопку способности на экране
         for _, gui in ipairs(playerGui:GetChildren()) do
             if gui:IsA("ScreenGui") and gui.Name ~= "MoneyHubGui" then
                 for _, btn in ipairs(gui:GetDescendants()) do
@@ -342,7 +397,6 @@ local function executeInstantSkill(skillNumber)
             end
         end
 
-        -- Отправка через RemoteEvent
         for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
             if obj:IsA("RemoteEvent") then
                 local name = obj.Name:lower()
@@ -356,34 +410,49 @@ local function executeInstantSkill(skillNumber)
 end
 
 -- ==========================================
--- ТОЧНАЯ РОТАЦИЯ: 4x M1 -> 1-я Способность -> 2x 2-я Способность
+-- УМНЫЙ БОЕВОЙ ЦИКЛ С ПРОВЕРКОЙ ДИСТАНЦИИ (Умный пропуск промахов)
 -- ==========================================
 task.spawn(function()
     while true do
         task.wait(0.05)
-        if autoFarmEnabled and currentTarget then
+        if autoFarmEnabled and currentTarget and not isEvadingDamage then
             pcall(function()
-                -- 1. Ровно 4 быстрых удара M1 подряд
+                local char = player.Character
+                local enemyChar = currentTarget.Character
+                if not char or not enemyChar then return end
+                
+                local myRoot = char:FindFirstChild("HumanoidRootPart")
+                local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
+                if not myRoot or not enemyRoot then return end
+
+                -- 1. Бьем 4 удара, но постоянно проверяем дистанцию (если враг далеко/уклонился — прерываем удары сразу!)
                 for i = 1, 4 do
-                    if not autoFarmEnabled or not currentTarget then break end
+                    if not autoFarmEnabled or isEvadingDamage or not currentTarget then break end
+                    
+                    -- Проверка: если враг дальше 7 студов (уклонился / отлетел), прекращаем бить пустые удары
+                    local dist = (myRoot.Position - enemyRoot.Position).Magnitude
+                    if dist > 7 then 
+                        break 
+                    end
+
                     executeInstantM1()
-                    task.wait(0.08) -- Очень быстрая пауза между ударами
+                    task.wait(0.08)
                 end
 
-                if not autoFarmEnabled or not currentTarget then return end
+                if not autoFarmEnabled or isEvadingDamage or not currentTarget then return end
 
-                -- 2. Сразу 1-я способность
+                -- 2. Сразу прожимаем 1-ю способность
                 executeInstantSkill(1)
                 task.wait(0.15)
 
-                if not autoFarmEnabled or not currentTarget then return end
+                if not autoFarmEnabled or isEvadingDamage or not currentTarget then return end
 
-                -- 3. Сразу 2-я способность (2 раза подряд)
+                -- 3. Прожимаем 2-ю способность два раза подряд
                 executeInstantSkill(2)
                 task.wait(0.1)
                 executeInstantSkill(2)
 
-                task.wait(0.3) -- Пауза перед началом следующего комбо-цикла
+                task.wait(0.3)
             end)
         else
             task.wait(0.4)
