@@ -1,7 +1,7 @@
 --[[
     ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Smart Combo & Anti-Damage Edition)
-    DESCRIPTION: Glass UI, Green/Black Toggles, No Strokes, Server Invisibility, Shift-Lock AimLock, Smart Distance Hit Check & 2s Map Escape on Damage.
+    PROJECT: MONEYHUB PREMIUM GUI (Ultra Beautiful & Safe Escape Edition)
+    DESCRIPTION: Stunning Glass UI, Smooth Animated Gradients, No Strokes, Safe Sky Escape on Damage (No Void Death), Smart Distance Combo & Mobile Optimized.
     COMPATIBILITY: Roblox Mobile Injectors
     ==================================================
 ]]
@@ -44,30 +44,32 @@ end
 local targetPosition = UDim2.new(0.5, -280, 0.5, -180)
 local hiddenPosition = UDim2.new(0.5, -280, 0.5, 300)
 
--- Главное окно (без обводок)
+-- Главное окно (Ультра-стекло без обводок)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
 mainFrame.Size = UDim2.new(0, 560, 0, 360)
 mainFrame.Position = hiddenPosition
-mainFrame.BackgroundColor3 = Color3.fromRGB(12, 10, 20)
-mainFrame.BackgroundTransparency = 1
+mainFrame.BackgroundColor3 = Color3.fromRGB(10, 8, 16)
+mainFrame.BackgroundTransparency = 0.1
 mainFrame.BorderSizePixel = 0
 mainFrame.ClipsDescendants = true
 mainFrame.Parent = screenGui
 
 local mainCorner = Instance.new("UICorner")
-mainCorner.CornerRadius = UDim.new(0, 14)
+mainCorner.CornerRadius = UDim.new(0, 16)
 mainCorner.Parent = mainFrame
 
+-- Красивый переливающийся градиент фона
 local mainGradient = Instance.new("UIGradient")
 mainGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(22, 16, 35)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(8, 6, 12))
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(28, 14, 45)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(15, 10, 25)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(8, 5, 12))
 })
-mainGradient.Rotation = 45
+mainGradient.Rotation = 135
 mainGradient.Parent = mainFrame
 
--- Пыль
+-- Пыль (задний план)
 local particleContainer = Instance.new("Frame")
 particleContainer.Name = "ParticleContainer"
 particleContainer.Size = UDim2.new(1, 0, 1, 0)
@@ -85,95 +87,106 @@ contentContainer.Parent = mainFrame
 -- Верхняя панель
 local topBar = Instance.new("Frame")
 topBar.Name = "TopBar"
-topBar.Size = UDim2.new(1, 0, 0, 45)
+topBar.Size = UDim2.new(1, 0, 0, 48)
 topBar.BackgroundTransparency = 1
 topBar.ZIndex = 2
 topBar.Parent = contentContainer
 
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Name = "TitleLabel"
-titleLabel.Size = UDim2.new(0, 200, 1, 0)
-titleLabel.Position = UDim2.new(0, 18, 0, 0)
+titleLabel.Size = UDim2.new(0, 250, 1, 0)
+titleLabel.Position = UDim2.new(0, 20, 0, 0)
 titleLabel.BackgroundTransparency = 1
 titleLabel.Font = Enum.Font.GothamBold
-titleLabel.Text = "MONEYHUB"
-titleLabel.TextColor3 = Color3.fromRGB(240, 225, 255)
-titleLabel.TextSize = 18
+titleLabel.Text = "MONEYHUB  •  PREMIUM"
+titleLabel.TextColor3 = Color3.fromRGB(235, 215, 255)
+titleLabel.TextSize = 16
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.ZIndex = 2
 titleLabel.Parent = topBar
 
+-- Кнопка закрытия (×)
 local closeBtn = Instance.new("TextButton")
 closeBtn.Name = "CloseButton"
-closeBtn.Size = UDim2.new(0, 30, 0, 30)
-closeBtn.Position = UDim2.new(1, -40, 0.5, -15)
-closeBtn.BackgroundColor3 = Color3.fromRGB(45, 20, 55)
-closeBtn.BackgroundTransparency = 0.5
+closeBtn.Size = UDim2.new(0, 32, 0, 32)
+closeBtn.Position = UDim2.new(1, -44, 0.5, -16)
+closeBtn.BackgroundColor3 = Color3.fromRGB(50, 20, 40)
+closeBtn.BackgroundTransparency = 0.4
 closeBtn.Text = "×"
-closeBtn.TextColor3 = Color3.fromRGB(255, 100, 100)
+closeBtn.TextColor3 = Color3.fromRGB(255, 110, 110)
 closeBtn.TextSize = 20
 closeBtn.Font = Enum.Font.GothamBold
 closeBtn.ZIndex = 3
 closeBtn.Parent = topBar
 
 local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(0, 8)
+closeCorner.CornerRadius = UDim.new(0, 10)
 closeCorner.Parent = closeBtn
 
+-- Кнопка сворачивания (−)
 local minBtn = Instance.new("TextButton")
 minBtn.Name = "MinimizeButton"
-minBtn.Size = UDim2.new(0, 30, 0, 30)
-minBtn.Position = UDim2.new(1, -76, 0.5, -15)
-minBtn.BackgroundColor3 = Color3.fromRGB(45, 20, 55)
-minBtn.BackgroundTransparency = 0.5
+minBtn.Size = UDim2.new(0, 32, 0, 32)
+minBtn.Position = UDim2.new(1, -84, 0.5, -16)
+minBtn.BackgroundColor3 = Color3.fromRGB(35, 20, 50)
+minBtn.BackgroundTransparency = 0.4
 minBtn.Text = "−"
-minBtn.TextColor3 = Color3.fromRGB(200, 200, 200)
+minBtn.TextColor3 = Color3.fromRGB(210, 210, 210)
 minBtn.TextSize = 16
 minBtn.Font = Enum.Font.GothamBold
 minBtn.ZIndex = 3
 minBtn.Parent = topBar
 
 local minCorner = Instance.new("UICorner")
-minCorner.CornerRadius = UDim.new(0, 8)
+minCorner.CornerRadius = UDim.new(0, 10)
 minCorner.Parent = minBtn
 
--- Сайдбар
+-- Сайдбар слева
 local sidebar = Instance.new("Frame")
 sidebar.Name = "Sidebar"
-sidebar.Size = UDim2.new(0, 140, 1, -55)
-sidebar.Position = UDim2.new(0, 12, 0, 50)
-sidebar.BackgroundColor3 = Color3.fromRGB(18, 14, 28)
-sidebar.BackgroundTransparency = 0.4
+sidebar.Size = UDim2.new(0, 150, 1, -62)
+sidebar.Position = UDim2.new(0, 14, 0, 54)
+sidebar.BackgroundColor3 = Color3.fromRGB(18, 12, 30)
+sidebar.BackgroundTransparency = 0.5
 sidebar.BorderSizePixel = 0
 sidebar.ZIndex = 2
 sidebar.Parent = contentContainer
 
 local sidebarCorner = Instance.new("UICorner")
-sidebarCorner.CornerRadius = UDim.new(0, 10)
+sidebarCorner.CornerRadius = UDim.new(0, 12)
 sidebarCorner.Parent = sidebar
 
+-- Вкладка Main
 local mainTabBtn = Instance.new("TextButton")
 mainTabBtn.Name = "MainTabButton"
-mainTabBtn.Size = UDim2.new(1, -16, 0, 38)
-mainTabBtn.Position = UDim2.new(0, 8, 0, 10)
-mainTabBtn.BackgroundColor3 = Color3.fromRGB(138, 43, 226)
-mainTabBtn.BackgroundTransparency = 0.3
-mainTabBtn.Text = "  Main"
+mainTabBtn.Size = UDim2.new(1, -16, 0, 40)
+mainTabBtn.Position = UDim2.new(0, 8, 0, 12)
+mainTabBtn.BackgroundColor3 = Color3.fromRGB(120, 40, 210)
+mainTabBtn.BackgroundTransparency = 0.2
+mainTabBtn.Text = "   Main Functions"
 mainTabBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-mainTabBtn.TextSize = 14
+mainTabBtn.TextSize = 13
 mainTabBtn.Font = Enum.Font.GothamBold
 mainTabBtn.TextXAlignment = Enum.TextXAlignment.Left
 mainTabBtn.ZIndex = 3
 mainTabBtn.Parent = sidebar
 
 local mainTabCorner = Instance.new("UICorner")
-mainTabCorner.CornerRadius = UDim.new(0, 8)
+mainTabCorner.CornerRadius = UDim.new(0, 10)
 mainTabCorner.Parent = mainTabBtn
 
+local mainTabGrad = Instance.new("UIGradient")
+mainTabGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(140, 50, 240)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(90, 20, 170))
+})
+mainTabGrad.Parent = mainTabBtn
+
+-- Рабочая зона контента
 local mainContentArea = Instance.new("Frame")
 mainContentArea.Name = "MainContentArea"
-mainContentArea.Size = UDim2.new(1, -170, 1, -65)
-mainContentArea.Position = UDim2.new(0, 160, 0, 55)
+mainContentArea.Size = UDim2.new(1, -182, 1, -68)
+mainContentArea.Position = UDim2.new(0, 174, 0, 58)
 mainContentArea.BackgroundTransparency = 1
 mainContentArea.ZIndex = 2
 mainContentArea.Parent = contentContainer
@@ -182,24 +195,24 @@ local tabTitle = Instance.new("TextLabel")
 tabTitle.Size = UDim2.new(1, 0, 0, 25)
 tabTitle.BackgroundTransparency = 1
 tabTitle.Font = Enum.Font.GothamBold
-tabTitle.Text = "Main Functions"
-tabTitle.TextColor3 = Color3.fromRGB(230, 215, 255)
-tabTitle.TextSize = 15
+tabTitle.Text = "Combat Automation"
+tabTitle.TextColor3 = Color3.fromRGB(220, 200, 255)
+tabTitle.TextSize = 14
 tabTitle.TextXAlignment = Enum.TextXAlignment.Left
 tabTitle.ZIndex = 2
 tabTitle.Parent = mainContentArea
 
--- Кнопка Auto Farm (ЧЁРНЫЙ / ЗЕЛЁНЫЙ)
+-- Кнопка Auto Farm (Черный/Зеленый индикатор)
 local autoFarmEnabled = false
 
 local autoFarmBtn = Instance.new("TextButton")
 autoFarmBtn.Name = "AutoFarmButton"
-autoFarmBtn.Size = UDim2.new(1, 0, 0, 42)
-autoFarmBtn.Position = UDim2.new(0, 0, 0, 35)
-autoFarmBtn.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+autoFarmBtn.Size = UDim2.new(1, 0, 0, 46)
+autoFarmBtn.Position = UDim2.new(0, 0, 0, 34)
+autoFarmBtn.BackgroundColor3 = Color3.fromRGB(22, 18, 32)
 autoFarmBtn.BackgroundTransparency = 0.3
 autoFarmBtn.Text = "  Auto Farm: OFF"
-autoFarmBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+autoFarmBtn.TextColor3 = Color3.fromRGB(160, 160, 175)
 autoFarmBtn.TextSize = 13
 autoFarmBtn.Font = Enum.Font.GothamMedium
 autoFarmBtn.TextXAlignment = Enum.TextXAlignment.Left
@@ -207,7 +220,7 @@ autoFarmBtn.ZIndex = 2
 autoFarmBtn.Parent = mainContentArea
 
 local autoFarmCorner = Instance.new("UICorner")
-autoFarmCorner.CornerRadius = UDim.new(0, 8)
+autoFarmCorner.CornerRadius = UDim.new(0, 10)
 autoFarmCorner.Parent = autoFarmBtn
 
 -- Настоящая серверная невидимость
@@ -232,12 +245,12 @@ autoFarmBtn.MouseButton1Click:Connect(function()
     if autoFarmEnabled then
         autoFarmBtn.Text = "  Auto Farm: ON"
         autoFarmBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        TweenService:Create(autoFarmBtn, TweenInfo.new(0.25), {BackgroundColor3 = Color3.fromRGB(0, 180, 80)}):Play()
+        TweenService:Create(autoFarmBtn, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(0, 190, 85)}):Play()
         toggleServerDesync(true)
     else
         autoFarmBtn.Text = "  Auto Farm: OFF"
-        autoFarmBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
-        TweenService:Create(autoFarmBtn, TweenInfo.new(0.25), {BackgroundColor3 = Color3.fromRGB(20, 20, 25)}):Play()
+        autoFarmBtn.TextColor3 = Color3.fromRGB(160, 160, 175)
+        TweenService:Create(autoFarmBtn, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(22, 18, 32)}):Play()
         toggleServerDesync(false)
     end
 end)
@@ -280,7 +293,7 @@ local function getNextTarget()
     return nil
 end
 
--- Система отслеживания получения урона (Anti-Damage Escape)
+-- БЕЗОПАСНАЯ СИСТЕМА УХОДА ОТ УРОНА (Телепорт в небо Y = 500 вместо пустоты)
 local lastHealth = 100
 player.CharacterAdded:Connect(function(char)
     local humanoid = char:WaitForChild("Humanoid", 5)
@@ -289,15 +302,15 @@ player.CharacterAdded:Connect(function(char)
         humanoid.HealthChanged:Connect(function(newHealth)
             if autoFarmEnabled and not isEvadingDamage then
                 if newHealth < lastHealth then
-                    -- Получил урон! Телепортируемся на 2 секунды за карту
                     isEvadingDamage = true
                     task.spawn(function()
                         pcall(function()
                             local root = char:FindFirstChild("HumanoidRootPart")
                             if root then
                                 local safePos = root.CFrame
-                                root.CFrame = CFrame.new(0, -500, 0)
-                                task.wait(2.0) -- Ждем 2 секунды за картой
+                                -- Телепортируемся высоко в небо (безопасно от kill-зон под картой)
+                                root.CFrame = CFrame.new(safePos.X, 500, safePos.Z)
+                                task.wait(2.0)
                                 root.CFrame = safePos
                             end
                         end)
@@ -322,7 +335,7 @@ if player.Character and player.Character:FindFirstChild("Humanoid") then
                         local root = player.Character:FindFirstChild("HumanoidRootPart")
                         if root then
                             local safePos = root.CFrame
-                            root.CFrame = CFrame.new(0, -500, 0)
+                            root.CFrame = CFrame.new(safePos.X, 500, safePos.Z)
                             task.wait(2.0)
                             root.CFrame = safePos
                         end
@@ -335,7 +348,7 @@ if player.Character and player.Character:FindFirstChild("Humanoid") then
     end)
 end
 
--- Следование за спиной + Аимлок (если не в эвакуации от урона)
+-- Следование за спиной + Аимлок
 RunService.RenderStepped:Connect(function()
     if not autoFarmEnabled or isEvadingDamage then return end
     
@@ -409,9 +422,7 @@ local function executeInstantSkill(skillNumber)
     end)
 end
 
--- ==========================================
--- УМНЫЙ БОЕВОЙ ЦИКЛ С ПРОВЕРКОЙ ДИСТАНЦИИ (Умный пропуск промахов)
--- ==========================================
+-- Умный боевой цикл с проверкой дистанции и пропуском пустых ударов
 task.spawn(function()
     while true do
         task.wait(0.05)
@@ -425,11 +436,10 @@ task.spawn(function()
                 local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
                 if not myRoot or not enemyRoot then return end
 
-                -- 1. Бьем 4 удара, но постоянно проверяем дистанцию (если враг далеко/уклонился — прерываем удары сразу!)
+                -- 4 удара с проверкой дистанции (если промахнулся — сразу прерываем серию и переходим к скиллам!)
                 for i = 1, 4 do
                     if not autoFarmEnabled or isEvadingDamage or not currentTarget then break end
                     
-                    -- Проверка: если враг дальше 7 студов (уклонился / отлетел), прекращаем бить пустые удары
                     local dist = (myRoot.Position - enemyRoot.Position).Magnitude
                     if dist > 7 then 
                         break 
@@ -441,13 +451,11 @@ task.spawn(function()
 
                 if not autoFarmEnabled or isEvadingDamage or not currentTarget then return end
 
-                -- 2. Сразу прожимаем 1-ю способность
                 executeInstantSkill(1)
                 task.wait(0.15)
 
                 if not autoFarmEnabled or isEvadingDamage or not currentTarget then return end
 
-                -- 3. Прожимаем 2-ю способность два раза подряд
                 executeInstantSkill(2)
                 task.wait(0.1)
                 executeInstantSkill(2)
@@ -460,15 +468,15 @@ task.spawn(function()
     end
 end)
 
--- Плавающая кнопка
+-- Красивая плавающая кнопка
 local floatBtn = Instance.new("TextButton")
 floatBtn.Name = "FloatingButton"
 floatBtn.Size = UDim2.new(0, 140, 0, 42)
 floatBtn.Position = UDim2.new(0.5, -70, 0, -60)
-floatBtn.BackgroundColor3 = Color3.fromRGB(15, 12, 25)
+floatBtn.BackgroundColor3 = Color3.fromRGB(25, 15, 40)
 floatBtn.BackgroundTransparency = 0.2
 floatBtn.Text = "MONEYHUB"
-floatBtn.TextColor3 = Color3.fromRGB(230, 200, 255)
+floatBtn.TextColor3 = Color3.fromRGB(240, 210, 255)
 floatBtn.TextSize = 14
 floatBtn.Font = Enum.Font.GothamBold
 floatBtn.Visible = false
@@ -478,6 +486,13 @@ floatBtn.Parent = screenGui
 local floatCorner = Instance.new("UICorner")
 floatCorner.CornerRadius = UDim.new(0, 21)
 floatCorner.Parent = floatBtn
+
+local floatGrad = Instance.new("UIGradient")
+floatGrad.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(130, 40, 220)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 20, 110))
+})
+floatGrad.Parent = floatBtn
 
 local function enableDragging(frame, handle)
     local dragging, dragInput, dragStart, startPos
@@ -547,16 +562,16 @@ end)
 
 animateOpen()
 
--- Медленная пыль
-local maxParticles = 16
+-- Красивая медленная пыль
+local maxParticles = 18
 local particles = {}
 
 for i = 1, maxParticles do
     local particle = Instance.new("Frame")
-    local size = math.random(2, 4)
+    local size = math.random(2, 5)
     particle.Size = UDim2.new(0, size, 0, size)
-    particle.BackgroundColor3 = Color3.new(1, 1, 1)
-    particle.BackgroundTransparency = math.random(50, 80) / 100
+    particle.BackgroundColor3 = Color3.fromRGB(220, 180, 255)
+    particle.BackgroundTransparency = math.random(40, 75) / 100
     particle.BorderSizePixel = 0
     particle.ZIndex = 1
     particle.Parent = particleContainer
@@ -569,7 +584,7 @@ for i = 1, maxParticles do
         instance = particle,
         x = math.random(),
         y = math.random(),
-        speed = math.random(3, 7) / 10000
+        speed = math.random(2, 6) / 10000
     })
 end
 
@@ -582,7 +597,7 @@ RunService.RenderStepped:Connect(function(dt)
         if p.y > 1.05 then
             p.y = -0.05
             p.x = math.random()
-            p.speed = math.random(3, 7) / 10000
+            p.speed = math.random(2, 6) / 10000
         end
         p.instance.Position = UDim2.new(p.x, 0, p.y, 0)
     end
