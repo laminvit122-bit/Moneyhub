@@ -1,9 +1,9 @@
 --[[
     ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Yellow-Orange OPUS Style + Custom Texture ID)
-    DESCRIPTION: Redesigned to Yellow-Orange Amber Theme with Image Texture (ID: 9343433823),
-                 Modern Toggle Cards, Search Bar, Randomized Attack & Skill Auto Farm,
-                 Safe Coordinates Escape on Damage & Mobile Touch Engine.
+    PROJECT: MONEYHUB PREMIUM GUI (Clean Cards & Texture Fix)
+    DESCRIPTION: OPUS Client Style (Yellow-Orange Amber Theme), Texture ID only near MONEYHUB title,
+                 Settings Tab (Snow & Falling Leaves 🍁), Fixed Mobile Abilities + M1 Random Auto Farm,
+                 Safe Escape to Vector3.new(-200.7, 675.7, 357.3) & Server Desync.
     COMPATIBILITY: Roblox Mobile Injectors
     ==================================================
 ]]
@@ -52,7 +52,7 @@ end
 local targetPosition = UDim2.new(0.5, -290, 0.5, -185)
 local hiddenPosition = UDim2.new(0.5, -290, 0.5, 350)
 
--- Главное окно (Жёлто-оранжевая гамма)
+-- Главное окно
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
 mainFrame.Size = UDim2.new(0, 580, 0, 370)
@@ -66,6 +66,14 @@ mainFrame.Parent = screenGui
 local mainCorner = Instance.new("UICorner")
 mainCorner.CornerRadius = UDim.new(0, 14)
 mainCorner.Parent = mainFrame
+
+-- Контейнер для визуальных эффектов (снег и листья)
+local effectsContainer = Instance.new("Frame")
+effectsContainer.Name = "EffectsContainer"
+effectsContainer.Size = UDim2.new(1, 0, 1, 0)
+effectsContainer.BackgroundTransparency = 1
+effectsContainer.ZIndex = 1
+effectsContainer.Parent = mainFrame
 
 -- Контейнер для контента
 local contentContainer = Instance.new("Frame")
@@ -90,7 +98,7 @@ local sidebarCorner = Instance.new("UICorner")
 sidebarCorner.CornerRadius = UDim.new(0, 10)
 sidebarCorner.Parent = sidebar
 
--- Иконка с вашей текстурой в сайдбаре
+-- Текстура строго возле названия MONEYHUB в сайдбаре
 local logoTexture = Instance.new("ImageLabel")
 logoTexture.Name = "LogoTexture"
 logoTexture.Size = UDim2.new(0, 20, 0, 20)
@@ -104,7 +112,6 @@ local logoTextureCorner = Instance.new("UICorner")
 logoTextureCorner.CornerRadius = UDim.new(0, 4)
 logoTextureCorner.Parent = logoTexture
 
--- Логотип MONEYHUB
 local logoLabel = Instance.new("TextLabel")
 logoLabel.Name = "LogoLabel"
 logoLabel.Size = UDim2.new(1, -38, 0, 35)
@@ -118,29 +125,28 @@ logoLabel.TextXAlignment = Enum.TextXAlignment.Left
 logoLabel.ZIndex = 3
 logoLabel.Parent = sidebar
 
--- Заголовок секции сайдбара
+-- Секция Modules
 local modulesHeader = Instance.new("TextLabel")
 modulesHeader.Size = UDim2.new(1, -20, 0, 20)
-modulesHeader.Position = UDim2.new(0, 12, 0, 50)
+modulesHeader.Position = UDim2.new(0, 12, 0, 48)
 modulesHeader.BackgroundTransparency = 1
 modulesHeader.Font = Enum.Font.GothamBold
 modulesHeader.Text = "▾ Modules"
 modulesHeader.TextColor3 = Color3.fromRGB(210, 150, 90)
-modulesHeader.TextSize = 12
+modulesHeader.TextSize = 11
 modulesHeader.TextXAlignment = Enum.TextXAlignment.Left
 modulesHeader.ZIndex = 3
 modulesHeader.Parent = sidebar
 
--- Вкладка Main
 local mainTabBtn = Instance.new("TextButton")
 mainTabBtn.Name = "MainTabButton"
-mainTabBtn.Size = UDim2.new(1, -20, 0, 32)
-mainTabBtn.Position = UDim2.new(0, 10, 0, 75)
+mainTabBtn.Size = UDim2.new(1, -20, 0, 30)
+mainTabBtn.Position = UDim2.new(0, 10, 0, 70)
 mainTabBtn.BackgroundColor3 = Color3.fromRGB(85, 50, 22)
 mainTabBtn.BackgroundTransparency = 0.2
 mainTabBtn.Text = "   ●  Main"
 mainTabBtn.TextColor3 = Color3.fromRGB(255, 225, 180)
-mainTabBtn.TextSize = 13
+mainTabBtn.TextSize = 12
 mainTabBtn.Font = Enum.Font.GothamMedium
 mainTabBtn.TextXAlignment = Enum.TextXAlignment.Left
 mainTabBtn.ZIndex = 3
@@ -149,6 +155,37 @@ mainTabBtn.Parent = sidebar
 local mainTabCorner = Instance.new("UICorner")
 mainTabCorner.CornerRadius = UDim.new(0, 6)
 mainTabCorner.Parent = mainTabBtn
+
+-- Секция Settings
+local settingsHeader = Instance.new("TextLabel")
+settingsHeader.Size = UDim2.new(1, -20, 0, 20)
+settingsHeader.Position = UDim2.new(0, 12, 0, 110)
+settingsHeader.BackgroundTransparency = 1
+settingsHeader.Font = Enum.Font.GothamBold
+settingsHeader.Text = "▾ Settings"
+settingsHeader.TextColor3 = Color3.fromRGB(210, 150, 90)
+settingsHeader.TextSize = 11
+settingsHeader.TextXAlignment = Enum.TextXAlignment.Left
+settingsHeader.ZIndex = 3
+settingsHeader.Parent = sidebar
+
+local settingsTabBtn = Instance.new("TextButton")
+settingsTabBtn.Name = "SettingsTabButton"
+settingsTabBtn.Size = UDim2.new(1, -20, 0, 30)
+settingsTabBtn.Position = UDim2.new(0, 10, 0, 132)
+settingsTabBtn.BackgroundColor3 = Color3.fromRGB(54, 34, 18)
+settingsTabBtn.BackgroundTransparency = 0.5
+settingsTabBtn.Text = "   ○  Visuals"
+settingsTabBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+settingsTabBtn.TextSize = 12
+settingsTabBtn.Font = Enum.Font.GothamMedium
+settingsTabBtn.TextXAlignment = Enum.TextXAlignment.Left
+settingsTabBtn.ZIndex = 3
+settingsTabBtn.Parent = sidebar
+
+local settingsTabCorner = Instance.new("UICorner")
+settingsTabCorner.CornerRadius = UDim.new(0, 6)
+settingsTabCorner.Parent = settingsTabBtn
 
 -- Верхняя рабочая панель
 local topBarArea = Instance.new("Frame")
@@ -159,7 +196,6 @@ topBarArea.BackgroundTransparency = 1
 topBarArea.ZIndex = 2
 topBarArea.Parent = contentContainer
 
--- Поисковая строка
 local searchBar = Instance.new("Frame")
 searchBar.Name = "SearchBar"
 searchBar.Size = UDim2.new(0, 180, 0, 30)
@@ -233,7 +269,7 @@ local avatarCorner = Instance.new("UICorner")
 avatarCorner.CornerRadius = UDim.new(1, 0)
 avatarCorner.Parent = profileAvatar
 
--- Кнопки закрытия и сворачивания
+-- Кнопки управления окном
 local closeBtn = Instance.new("TextButton")
 closeBtn.Name = "CloseButton"
 closeBtn.Size = UDim2.new(0, 22, 0, 22)
@@ -268,7 +304,6 @@ local minCorner = Instance.new("UICorner")
 minCorner.CornerRadius = UDim.new(0, 6)
 minCorner.Parent = minBtn
 
--- Подзаголовок раздела
 local sectionTitle = Instance.new("TextLabel")
 sectionTitle.Size = UDim2.new(1, -175, 0, 20)
 sectionTitle.Position = UDim2.new(0, 165, 0, 48)
@@ -281,16 +316,48 @@ sectionTitle.TextXAlignment = Enum.TextXAlignment.Left
 sectionTitle.ZIndex = 2
 sectionTitle.Parent = contentContainer
 
--- Рабочая зона
-local mainContentArea = Instance.new("Frame")
-mainContentArea.Name = "MainContentArea"
-mainContentArea.Size = UDim2.new(1, -175, 1, -80)
-mainContentArea.Position = UDim2.new(0, 165, 0, 72)
-mainContentArea.BackgroundTransparency = 1
-mainContentArea.ZIndex = 2
-mainContentArea.Parent = contentContainer
+-- Рабочие страницы
+local mainPage = Instance.new("Frame")
+mainPage.Name = "MainPage"
+mainPage.Size = UDim2.new(1, -175, 1, -80)
+mainPage.Position = UDim2.new(0, 165, 0, 72)
+mainPage.BackgroundTransparency = 1
+mainPage.Visible = true
+mainPage.ZIndex = 2
+mainPage.Parent = contentContainer
 
--- КАРТОЧКА ФУНКЦИИ AUTO FARM (Жёлто-оранжевая с Текстурой)
+local settingsPage = Instance.new("Frame")
+settingsPage.Name = "SettingsPage"
+settingsPage.Size = UDim2.new(1, -175, 1, -80)
+settingsPage.Position = UDim2.new(0, 165, 0, 72)
+settingsPage.BackgroundTransparency = 1
+settingsPage.Visible = false
+settingsPage.ZIndex = 2
+settingsPage.Parent = contentContainer
+
+mainTabBtn.MouseButton1Click:Connect(function()
+    mainPage.Visible = true
+    settingsPage.Visible = false
+    sectionTitle.Text = "Modules / Main"
+    mainTabBtn.BackgroundColor3 = Color3.fromRGB(85, 50, 22)
+    mainTabBtn.TextColor3 = Color3.fromRGB(255, 225, 180)
+    settingsTabBtn.BackgroundColor3 = Color3.fromRGB(54, 34, 18)
+    settingsTabBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+end)
+
+settingsTabBtn.MouseButton1Click:Connect(function()
+    mainPage.Visible = false
+    settingsPage.Visible = true
+    sectionTitle.Text = "Settings / Visuals"
+    settingsTabBtn.BackgroundColor3 = Color3.fromRGB(85, 50, 22)
+    settingsTabBtn.TextColor3 = Color3.fromRGB(255, 225, 180)
+    mainTabBtn.BackgroundColor3 = Color3.fromRGB(54, 34, 18)
+    mainTabBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+end)
+
+-- ==========================================
+-- КАРТОЧКА AUTO FARM (Чистая, без текстур на самой карточке)
+-- ==========================================
 local autoFarmCard = Instance.new("Frame")
 autoFarmCard.Name = "AutoFarmCard"
 autoFarmCard.Size = UDim2.new(0, 190, 0, 70)
@@ -299,28 +366,15 @@ autoFarmCard.BackgroundColor3 = Color3.fromRGB(58, 36, 20)
 autoFarmCard.BackgroundTransparency = 0.2
 autoFarmCard.BorderSizePixel = 0
 autoFarmCard.ZIndex = 2
-autoFarmCard.Parent = mainContentArea
+autoFarmCard.Parent = mainPage
 
 local cardCorner = Instance.new("UICorner")
 cardCorner.CornerRadius = UDim.new(0, 10)
 cardCorner.Parent = autoFarmCard
 
--- Иконка карточки с вашей текстурой
-local cardIconTexture = Instance.new("ImageLabel")
-cardIconTexture.Size = UDim2.new(0, 22, 0, 22)
-cardIconTexture.Position = UDim2.new(0, 10, 0, 10)
-cardIconTexture.BackgroundTransparency = 1
-cardIconTexture.Image = TEXTURE_ID
-cardIconTexture.ZIndex = 3
-cardIconTexture.Parent = autoFarmCard
-
-local cardIconCorner = Instance.new("UICorner")
-cardIconCorner.CornerRadius = UDim.new(0, 6)
-cardIconCorner.Parent = cardIconTexture
-
 local cardTitle = Instance.new("TextLabel")
-cardTitle.Size = UDim2.new(0, 100, 0, 20)
-cardTitle.Position = UDim2.new(0, 38, 0, 10)
+cardTitle.Size = UDim2.new(0, 130, 0, 20)
+cardTitle.Position = UDim2.new(0, 12, 0, 10)
 cardTitle.BackgroundTransparency = 1
 cardTitle.Font = Enum.Font.GothamBold
 cardTitle.Text = "Auto Farm"
@@ -332,19 +386,17 @@ cardTitle.Parent = autoFarmCard
 
 local cardDesc = Instance.new("TextLabel")
 cardDesc.Size = UDim2.new(1, -20, 0, 28)
-cardDesc.Position = UDim2.new(0, 10, 0, 36)
+cardDesc.Position = UDim2.new(0, 12, 0, 36)
 cardDesc.BackgroundTransparency = 1
 cardDesc.Font = Enum.Font.Gotham
 cardDesc.Text = "Рандомные удары и способности за спиной"
 cardDesc.TextColor3 = Color3.fromRGB(180, 130, 80)
 cardDesc.TextSize = 10
 cardDesc.TextWrapped = true
-cardDesc.TextYAlignment = Enum.TextYAlignment.Top
 cardDesc.TextXAlignment = Enum.TextXAlignment.Left
 cardDesc.ZIndex = 3
 cardDesc.Parent = autoFarmCard
 
--- Тумблер Оранжевый
 local toggleFrame = Instance.new("Frame")
 toggleFrame.Name = "ToggleFrame"
 toggleFrame.Size = UDim2.new(0, 34, 0, 18)
@@ -365,7 +417,7 @@ toggleDot.Position = UDim2.new(0, 2, 0, 2)
 toggleDot.BackgroundColor3 = Color3.fromRGB(150, 115, 80)
 toggleDot.BorderSizePixel = 0
 toggleDot.ZIndex = 4
-toggleDot.Parent = autoFarmCard
+toggleDot.Parent = toggleFrame
 
 local dotCorner = Instance.new("UICorner")
 dotCorner.CornerRadius = UDim.new(1, 0)
@@ -378,7 +430,6 @@ clickButton.Text = ""
 clickButton.ZIndex = 5
 clickButton.Parent = autoFarmCard
 
--- Логика переключения Auto Farm
 local autoFarmEnabled = false
 
 local desyncConnection = nil
@@ -410,7 +461,237 @@ clickButton.MouseButton1Click:Connect(function()
     end
 end)
 
--- Поиск мобильной кнопки в GUI
+-- ==========================================
+-- НАСТРОЙКИ (Снег и Листья 🍁)
+-- ==========================================
+local snowEnabled = false
+local leavesEnabled = false
+
+local snowCard = Instance.new("Frame")
+snowCard.Size = UDim2.new(0, 190, 0, 70)
+snowCard.Position = UDim2.new(0, 0, 0, 0)
+snowCard.BackgroundColor3 = Color3.fromRGB(58, 36, 20)
+snowCard.BackgroundTransparency = 0.2
+snowCard.BorderSizePixel = 0
+snowCard.ZIndex = 2
+snowCard.Parent = settingsPage
+
+local snowCorner = Instance.new("UICorner")
+snowCorner.CornerRadius = UDim.new(0, 10)
+snowCorner.Parent = snowCard
+
+local snowTitle = Instance.new("TextLabel")
+snowTitle.Size = UDim2.new(0, 130, 0, 20)
+snowTitle.Position = UDim2.new(0, 12, 0, 10)
+snowTitle.BackgroundTransparency = 1
+snowTitle.Font = Enum.Font.GothamBold
+snowTitle.Text = "Snow (Пыль)"
+snowTitle.TextColor3 = Color3.fromRGB(250, 220, 170)
+snowTitle.TextSize = 13
+snowTitle.TextXAlignment = Enum.TextXAlignment.Left
+snowTitle.ZIndex = 3
+snowTitle.Parent = snowCard
+
+local snowDesc = Instance.new("TextLabel")
+snowDesc.Size = UDim2.new(1, -20, 0, 28)
+snowDesc.Position = UDim2.new(0, 12, 0, 36)
+snowDesc.BackgroundTransparency = 1
+snowDesc.Font = Enum.Font.Gotham
+snowDesc.Text = "Падающие частицы снега на фоне"
+snowDesc.TextColor3 = Color3.fromRGB(180, 130, 80)
+snowDesc.TextSize = 10
+snowDesc.TextWrapped = true
+snowDesc.TextXAlignment = Enum.TextXAlignment.Left
+snowDesc.ZIndex = 3
+snowDesc.Parent = snowCard
+
+local snowToggleFrame = Instance.new("Frame")
+snowToggleFrame.Size = UDim2.new(0, 34, 0, 18)
+snowToggleFrame.Position = UDim2.new(1, -42, 0, 11)
+snowToggleFrame.BackgroundColor3 = Color3.fromRGB(40, 24, 15)
+snowToggleFrame.BorderSizePixel = 0
+snowToggleFrame.ZIndex = 3
+snowToggleFrame.Parent = snowCard
+
+local snowTCorner = Instance.new("UICorner")
+snowTCorner.CornerRadius = UDim.new(1, 0)
+snowTCorner.Parent = snowToggleFrame
+
+local snowDot = Instance.new("Frame")
+snowDot.Size = UDim2.new(0, 14, 0, 14)
+snowDot.Position = UDim2.new(0, 2, 0, 2)
+snowDot.BackgroundColor3 = Color3.fromRGB(150, 115, 80)
+snowDot.BorderSizePixel = 0
+snowDot.ZIndex = 4
+snowDot.Parent = snowToggleFrame
+
+local snowDC = Instance.new("UICorner")
+snowDC.CornerRadius = UDim.new(1, 0)
+snowDC.Parent = snowDot
+
+local snowClick = Instance.new("TextButton")
+snowClick.Size = UDim2.new(1, 0, 1, 0)
+snowClick.BackgroundTransparency = 1
+snowClick.Text = ""
+snowClick.ZIndex = 5
+snowClick.Parent = snowCard
+
+snowClick.MouseButton1Click:Connect(function()
+    snowEnabled = not snowEnabled
+    if snowEnabled then
+        TweenService:Create(snowToggleFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 120, 0)}):Play()
+        TweenService:Create(snowDot, TweenInfo.new(0.2), {Position = UDim2.new(1, -16, 0, 2), BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+    else
+        TweenService:Create(snowToggleFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 24, 15)}):Play()
+        TweenService:Create(snowDot, TweenInfo.new(0.2), {Position = UDim2.new(0, 2, 0, 2), BackgroundColor3 = Color3.fromRGB(150, 115, 80)}):Play()
+    end
+end)
+
+-- Карточка Листьев (🍁)
+local leavesCard = Instance.new("Frame")
+leavesCard.Size = UDim2.new(0, 190, 0, 70)
+leavesCard.Position = UDim2.new(0, 200, 0, 0)
+leavesCard.BackgroundColor3 = Color3.fromRGB(58, 36, 20)
+leavesCard.BackgroundTransparency = 0.2
+leavesCard.BorderSizePixel = 0
+leavesCard.ZIndex = 2
+leavesCard.Parent = settingsPage
+
+local leavesCorner = Instance.new("UICorner")
+leavesCorner.CornerRadius = UDim.new(0, 10)
+leavesCorner.Parent = leavesCard
+
+local leavesTitle = Instance.new("TextLabel")
+leavesTitle.Size = UDim2.new(0, 130, 0, 20)
+leavesTitle.Position = UDim2.new(0, 12, 0, 10)
+leavesTitle.BackgroundTransparency = 1
+leavesTitle.Font = Enum.Font.GothamBold
+leavesTitle.Text = "Leaves 🍁"
+leavesTitle.TextColor3 = Color3.fromRGB(250, 220, 170)
+leavesTitle.TextSize = 13
+leavesTitle.TextXAlignment = Enum.TextXAlignment.Left
+leavesTitle.ZIndex = 3
+leavesTitle.Parent = leavesCard
+
+local leavesDesc = Instance.new("TextLabel")
+leavesDesc.Size = UDim2.new(1, -20, 0, 28)
+leavesDesc.Position = UDim2.new(0, 12, 0, 36)
+leavesDesc.BackgroundTransparency = 1
+leavesDesc.Font = Enum.Font.Gotham
+leavesDesc.Text = "Падающие осенние листья клёна"
+leavesDesc.TextColor3 = Color3.fromRGB(180, 130, 80)
+leavesDesc.TextSize = 10
+leavesDesc.TextWrapped = true
+leavesDesc.TextXAlignment = Enum.TextXAlignment.Left
+leavesDesc.ZIndex = 3
+leavesDesc.Parent = leavesCard
+
+local leavesToggleFrame = Instance.new("Frame")
+leavesToggleFrame.Size = UDim2.new(0, 34, 0, 18)
+leavesToggleFrame.Position = UDim2.new(1, -42, 0, 11)
+leavesToggleFrame.BackgroundColor3 = Color3.fromRGB(40, 24, 15)
+leavesToggleFrame.BorderSizePixel = 0
+leavesToggleFrame.ZIndex = 3
+leavesToggleFrame.Parent = leavesCard
+
+local leavesTCorner = Instance.new("UICorner")
+leavesTCorner.CornerRadius = UDim.new(1, 0)
+leavesTCorner.Parent = leavesToggleFrame
+
+local leavesDot = Instance.new("Frame")
+leavesDot.Size = UDim2.new(0, 14, 0, 14)
+leavesDot.Position = UDim2.new(0, 2, 0, 2)
+leavesDot.BackgroundColor3 = Color3.fromRGB(150, 115, 80)
+leavesDot.BorderSizePixel = 0
+leavesDot.ZIndex = 4
+leavesDot.Parent = leavesToggleFrame
+
+local leavesDC = Instance.new("UICorner")
+leavesDC.CornerRadius = UDim.new(1, 0)
+leavesDC.Parent = leavesDot
+
+local leavesClick = Instance.new("TextButton")
+leavesClick.Size = UDim2.new(1, 0, 1, 0)
+leavesClick.BackgroundTransparency = 1
+leavesClick.Text = ""
+leavesClick.ZIndex = 5
+leavesClick.Parent = leavesCard
+
+leavesClick.MouseButton1Click:Connect(function()
+    leavesEnabled = not leavesEnabled
+    if leavesEnabled then
+        TweenService:Create(leavesToggleFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 120, 0)}):Play()
+        TweenService:Create(leavesDot, TweenInfo.new(0.2), {Position = UDim2.new(1, -16, 0, 2), BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+    else
+        TweenService:Create(leavesToggleFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 24, 15)}):Play()
+        TweenService:Create(leavesDot, TweenInfo.new(0.2), {Position = UDim2.new(0, 2, 0, 2), BackgroundColor3 = Color3.fromRGB(150, 115, 80)}):Play()
+    end
+end)
+
+-- Рендер частиц снега и листьев
+local particles = {}
+for i = 1, 24 do
+    local snow = Instance.new("Frame")
+    snow.Size = UDim2.new(0, math.random(2, 4), 0, math.random(2, 4))
+    snow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    snow.BackgroundTransparency = 0.4
+    snow.BorderSizePixel = 0
+    snow.ZIndex = 1
+    snow.Visible = false
+    snow.Parent = effectsContainer
+    local sCorner = Instance.new("UICorner")
+    sCorner.CornerRadius = UDim.new(1, 0)
+    sCorner.Parent = snow
+
+    local leaf = Instance.new("TextLabel")
+    leaf.Size = UDim2.new(0, 16, 0, 16)
+    leaf.BackgroundTransparency = 1
+    leaf.Font = Enum.Font.GothamBold
+    leaf.Text = "🍁"
+    leaf.TextSize = math.random(10, 16)
+    leaf.ZIndex = 1
+    leaf.Visible = false
+    leaf.Parent = effectsContainer
+
+    table.insert(particles, {
+        snow = snow,
+        leaf = leaf,
+        x = math.random(),
+        y = math.random(),
+        speed = math.random(2, 5) / 10000,
+        sway = math.random(1, 10)
+    })
+end
+
+RunService.RenderStepped:Connect(function(dt)
+    if not screenGui.Parent then return end
+    local scaledDt = dt * 60
+    for _, p in ipairs(particles) do
+        p.y = p.y + (p.speed * scaledDt)
+        if p.y > 1.05 then
+            p.y = -0.05
+            p.x = math.random()
+        end
+        
+        if snowEnabled and mainFrame.Visible then
+            p.snow.Visible = true
+            p.snow.Position = UDim2.new(p.x, math.sin(tick() + p.sway) * 15, p.y, 0)
+        else
+            p.snow.Visible = false
+        end
+
+        if leavesEnabled and mainFrame.Visible then
+            p.leaf.Visible = true
+            p.leaf.Position = UDim2.new(p.x, math.cos(tick() * 2 + p.sway) * 25, p.y, 0)
+        else
+            p.leaf.Visible = false
+        end
+    end
+end)
+
+-- ==========================================
+-- ЛОГИКА БОЯ И АВТОФАРМА
+-- ==========================================
 local function getTouchButton(nameKeyword)
     for _, gui in ipairs(playerGui:GetChildren()) do
         if gui:IsA("ScreenGui") and gui.Name ~= "MoneyHubGui" then
@@ -440,14 +721,13 @@ local function getNextTarget()
             end
         end
     end
-
     if #validPlayers > 0 then
         return validPlayers[math.random(1, #validPlayers)]
     end
     return nil
 end
 
--- Телепорт в координаты SAFE_COORDS при получении урона
+-- Защитный телепорт в точные SAFE_COORDS при получении урона
 local lastHealth = 100
 player.CharacterAdded:Connect(function(char)
     local humanoid = char:WaitForChild("Humanoid", 5)
@@ -501,7 +781,7 @@ if player.Character and player.Character:FindFirstChild("Humanoid") then
     end)
 end
 
--- Следование за спиной + Аимлок
+-- Привязка за спину + Аимлок
 RunService.RenderStepped:Connect(function()
     if not autoFarmEnabled or isEvadingDamage then return end
     
@@ -523,7 +803,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Мобильный удар M1
 local function executeInstantM1()
     pcall(function()
         local punchBtn = getTouchButton("punch") or getTouchButton("attack") or getTouchButton("m1")
@@ -546,7 +825,6 @@ local function executeInstantM1()
     end)
 end
 
--- Мобильное нажатие способностей (1, 2, 3, 4)
 local function executeInstantSkill(skillNumber)
     pcall(function()
         local skillBtn = getTouchButton(tostring(skillNumber))
@@ -555,6 +833,15 @@ local function executeInstantSkill(skillNumber)
             firesignal(skillBtn.Activated)
             firesignal(skillBtn.MouseButton1Up)
         end
+
+        local keyEnum = Enum.KeyCode.One
+        if skillNumber == 2 then keyEnum = Enum.KeyCode.Two
+        elseif skillNumber == 3 then keyEnum = Enum.KeyCode.Three
+        elseif skillNumber == 4 then keyEnum = Enum.KeyCode.Four end
+        
+        game:GetService("VirtualInputManager"):SendKeyEvent(true, keyEnum, false, game)
+        task.wait(0.02)
+        game:GetService("VirtualInputManager"):SendKeyEvent(false, keyEnum, false, game)
 
         for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
             if obj:IsA("RemoteEvent") then
@@ -568,7 +855,7 @@ local function executeInstantSkill(skillNumber)
     end)
 end
 
--- ПОЛНОСТЬЮ РАНДОМНЫЙ БОЕВОЙ ЦИКЛ
+-- Рандомный боевой цикл
 task.spawn(function()
     while true do
         task.wait(0.08)
@@ -584,7 +871,7 @@ task.spawn(function()
 
                 local dist = (myRoot.Position - enemyRoot.Position).Magnitude
                 if dist <= 8 then
-                    local randomAction = math.random(1, 7)
+                    local randomAction = math.random(1, 6)
                     if randomAction <= 3 then
                         executeInstantM1()
                     else
@@ -636,7 +923,7 @@ end
 
 enableDragging(mainFrame, topBarArea)
 
--- Плавающая кнопка разворачивания (с вашей текстурой)
+-- Плавающая кнопка разворачивания (содержит текстуру строго около названия)
 local floatBtn = Instance.new("Frame")
 floatBtn.Name = "FloatingButton"
 floatBtn.Size = UDim2.new(0, 130, 0, 36)
