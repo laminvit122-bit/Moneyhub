@@ -1,12 +1,3 @@
---[[
-    ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Ultimate Bugfixed Edition)
-    DESCRIPTION: Fixed Lua syntax error, Sidebar Icons, Config UI Sync,
-                 Working AutoFarm & Aim Assist, Notifications with Timer Line.
-    COMPATIBILITY: Roblox Mobile Injectors
-    ==================================================
-]]
-
 if not game:IsLoaded() then
     game.Loaded:Wait()
 end
@@ -55,9 +46,7 @@ else
     screenGui.Parent = playerGui
 end
 
--- ==========================================
 -- СИСТЕМА УВЕДОМЛЕНИЙ В ПРАВОМ НИЖНЕМ УГЛУ
--- ==========================================
 local notificationsContainer = Instance.new("Frame")
 notificationsContainer.Name = "NotificationsContainer"
 notificationsContainer.Size = UDim2.new(0, 240, 1, 0)
@@ -126,9 +115,7 @@ local function showNotification(title, stateText)
     end)
 end
 
--- ==========================================
 -- ГЛАВНОЕ ОКНО И ИНТЕРФЕЙС
--- ==========================================
 local targetPosition = UDim2.new(0.5, -320, 0.5, -205)
 local hiddenPosition = UDim2.new(0.5, -320, 0.5, 380)
 
@@ -600,9 +587,7 @@ _, setLeavesUIState = createModuleCard(visualsPage, visualsCards, "Leaves 🍁",
     leavesEnabled = state
 end, false)
 
--- ==========================================
 -- МЕНЕДЖЕР КОНФИГОВ (ИМПОРТ И СИНХРОНИЗАЦИЯ UI)
--- ==========================================
 local configsFolder = "MoneyHubConfigs"
 
 local configNameBox = Instance.new("TextBox")
@@ -755,9 +740,7 @@ end)
 
 refreshConfigList()
 
--- ==========================================
 -- ПЛАВНЫЙ СНЕГ И ЛИСТЬЯ 🍁
--- ==========================================
 local particles = {}
 for i = 1, 26 do
     local snow = Instance.new("Frame")
@@ -795,9 +778,7 @@ RunService.RenderStepped:Connect(function(dt)
     end
 end)
 
--- ==========================================
 -- ПОЛНЫЙ АВТОФАРМ И AIM ASSIST (АКТИВНЫЙ БОЙ)
--- ==========================================
 local function getTouchButton(nameKeyword)
     for _, gui in ipairs(playerGui:GetChildren()) do
         if gui:IsA("ScreenGui") and gui.Name ~= "MoneyHubGui" then
