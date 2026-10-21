@@ -1,9 +1,8 @@
 --[[
     ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Ultimate Full Edition)
-    DESCRIPTION: OPUS Client Style, Fixed Sidebar Icon Alignment,
-                 Restored Full AutoFarm, Aim Assist (Head/Torso),
-                 Config Manager with Image Icons, Smooth Animations.
+    PROJECT: MONEYHUB PREMIUM GUI (Ultimate Fixed & Notified Edition)
+    DESCRIPTION: Fixed Sidebar Icons, Restored Working AutoFarm & Aim Assist with UI Sync on Config Load,
+                 Bottom-Right Notifications with Timer Line, Full Script Output.
     COMPATIBILITY: Roblox Mobile Injectors
     ==================================================
 ]]
@@ -56,6 +55,83 @@ else
     screenGui.Parent = playerGui
 end
 
+-- ==========================================
+-- СИСТЕМА УВЕДОМЛЕНИЙ В ПРАВОМ НИЖНЕМ УГЛУ
+-- ==========================================
+local notificationsContainer = Instance.new("Frame")
+notificationsContainer.Name = "NotificationsContainer"
+notificationsContainer.Size = UDim2.new(0, 240, 1, 0)
+notificationsContainer.Position = UDim2.new(1, -250, 0, 0)
+notificationsContainer.BackgroundTransparency = 1
+notificationsContainer.ZIndex = 500
+notificationsContainer.Parent = screenGui
+
+local activeNotifications = 0
+
+local function showNotification(title, stateText)
+    activeNotifications = activeNotifications + 1
+    local yPos = - (activeNotifications * 55)
+
+    local notifFrame = Instance.new("Frame")
+    notifFrame.Size = UDim2.new(1, 0, 0, 45)
+    notifFrame.Position = UDim2.new(1, 50, 1, yPos - 10)
+    notifFrame.BackgroundColor3 = Color3.fromRGB(45, 26, 13)
+    notifFrame.BackgroundTransparency = 0.1
+    notifFrame.BorderSizePixel = 0
+    notifFrame.ZIndex = 501
+    notifFrame.Parent = notificationsContainer
+
+    local nCorner = Instance.new("UICorner")
+    nCorner.CornerRadius = UDim.new(0, 8)
+    nCorner.Parent = notifFrame
+
+    local titleLbl = Instance.new("TextLabel")
+    titleLbl.Size = UDim2.new(1, -15, 0, 22)
+    titleLbl.Position = UDim2.new(0, 10, 0, 4)
+    titleLbl.BackgroundTransparency = 1
+    titleLbl.Font = Enum.Font.GothamBold
+    titleLbl.Text = title .. ": " .. stateText
+    titleLbl.TextColor3 = Color3.fromRGB(255, 200, 120)
+    titleLbl.TextSize = 11
+    titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+    titleLbl.ZIndex = 502
+    titleLbl.Parent = notifFrame
+
+    -- Шкала времени (линия справа налево)
+    local lineBg = Instance.new("Frame")
+    lineBg.Size = UDim2.new(1, -20, 0, 3)
+    lineBg.Position = UDim2.new(0, 10, 1, -8)
+    lineBg.BackgroundColor3 = Color3.fromRGB(60, 35, 18)
+    lineBg.BorderSizePixel = 0
+    lineBg.ZIndex = 502
+    lineBg.Parent = notifFrame
+    local lbCorner = Instance.new("UICorner") lbCorner.CornerRadius = UDim.new(1,0) lbCorner.Parent = lineBg
+
+    local lineFill = Instance.new("Frame")
+    lineFill.Size = UDim2.new(1, 0, 1, 0)
+    lineFill.Position = UDim2.new(0, 0, 0, 0)
+    lineFill.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
+    lineFill.BorderSizePixel = 0
+    lineFill.ZIndex = 503
+    lineFill.Parent = lineBg
+    local lfCorner = Instance.new("UICorner") lfCorner.CornerRadius = UDim.new(1,0) lfCorner.Parent = lineFill
+
+    -- Анимация появления
+    TweenService:Create(notifFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(0, 0, 1, yPos - 10)}):Play()
+    -- Анимация уменьшения линии за 3 секунды
+    TweenService:Create(lineFill, TweenInfo.new(3.0, Enum.EasingStyle.Linear), {Size = UDim2.new(0, 0, 1, 0)}):Play()
+
+    task.delay(3.0, function()
+        TweenService:Create(notifFrame, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Position = UDim2.new(1, 50, 1, yPos - 10), BackgroundTransparency = 1}):Play()
+        task.wait(0.3)
+        notifFrame:Destroy()
+        activeNotifications = math.max(0, activeNotifications - 1)
+    end)
+end
+
+-- ==========================================
+// ГЛАВНОЕ ОВНО И ИНТЕРФЕЙС
+-- ==========================================
 local targetPosition = UDim2.new(0.5, -320, 0.5, -205)
 local hiddenPosition = UDim2.new(0.5, -320, 0.5, 380)
 
@@ -102,15 +178,15 @@ local logoLabel = Instance.new("TextLabel") logoLabel.Size = UDim2.new(1, -38, 0
 
 -- Секция Modules
 local modulesIconImg = Instance.new("ImageLabel") modulesIconImg.Size = UDim2.new(0, 14, 0, 14) modulesIconImg.Position = UDim2.new(0, 12, 0, 51) modulesIconImg.BackgroundTransparency = 1 modulesIconImg.Image = MODULES_ICON modulesIconImg.ZIndex = 3 modulesIconImg.Parent = sidebar
-local modulesHeader = Instance.new("TextLabel") modulesHeader.Size = UDim2.new(1, -32, 0, 20) modulesHeader.Position = UDim2.new(0, 32, 0, 48) modulesHeader.BackgroundTransparency = 1 modulesHeader.Font = Enum.Font.GothamBold modulesHeader.Text = "Modules" modulesHeader.TextColor3 = Color3.fromRGB(210, 150, 90) modulesHeader.TextSize = 11 modulesHeader.TextXAlignment = Enum.TextXAlignment.Left modulesHeader.ZIndex = 3 modulesHeader.Parent = sidebar
+local modulesHeader = Instance.new("TextLabel") modulesHeader.Size = UDim2.new(1, -32, 0, 20) modulesHeader.Position = UDim2.new(0, 34, 0, 48) modulesHeader.BackgroundTransparency = 1 modulesHeader.Font = Enum.Font.GothamBold modulesHeader.Text = "Modules" modulesHeader.TextColor3 = Color3.fromRGB(210, 150, 90) modulesHeader.TextSize = 11 modulesHeader.TextXAlignment = Enum.TextXAlignment.Left modulesHeader.ZIndex = 3 modulesHeader.Parent = sidebar
 
--- Кнопка Main (Текст сдвинут вправо, иконка отдельно без наложений)
+-- Кнопка Main (смещенный текст, чтобы иконка не наползала)
 local mainTabBtn = Instance.new("TextButton")
 mainTabBtn.Size = UDim2.new(1, -20, 0, 30)
 mainTabBtn.Position = UDim2.new(0, 10, 0, 72)
 mainTabBtn.BackgroundColor3 = Color3.fromRGB(85, 50, 22)
 mainTabBtn.BackgroundTransparency = 0.2
-mainTabBtn.Text = "        Main"
+mainTabBtn.Text = "          Main"
 mainTabBtn.TextColor3 = Color3.fromRGB(255, 225, 180)
 mainTabBtn.TextSize = 12
 mainTabBtn.Font = Enum.Font.GothamMedium
@@ -119,11 +195,11 @@ mainTabBtn.ZIndex = 3
 mainTabBtn.Parent = sidebar
 
 local mainTabCorner = Instance.new("UICorner") mainTabCorner.CornerRadius = UDim.new(0, 6) mainTabCorner.Parent = mainTabBtn
-local mainIconImg = Instance.new("ImageLabel") mainIconImg.Size = UDim2.new(0, 14, 0, 14) mainIconImg.Position = UDim2.new(0, 10, 0, 8) mainIconImg.BackgroundTransparency = 1 mainIconImg.Image = MAIN_ICON mainIconImg.ZIndex = 4 mainIconImg.Parent = mainTabBtn
+local mainIconImg = Instance.new("ImageLabel") mainIconImg.Size = UDim2.new(0, 14, 0, 14) mainIconImg.Position = UDim2.new(0, 12, 0, 8) mainIconImg.BackgroundTransparency = 1 mainIconImg.Image = MAIN_ICON mainIconImg.ZIndex = 4 mainIconImg.Parent = mainTabBtn
 
 -- Секция Settings
 local settingsIconImg = Instance.new("ImageLabel") settingsIconImg.Size = UDim2.new(0, 14, 0, 14) settingsIconImg.Position = UDim2.new(0, 12, 0, 115) settingsIconImg.BackgroundTransparency = 1 settingsIconImg.Image = SETTINGS_ICON settingsIconImg.ZIndex = 3 settingsIconImg.Parent = sidebar
-local settingsHeader = Instance.new("TextLabel") settingsHeader.Size = UDim2.new(1, -32, 0, 20) settingsHeader.Position = UDim2.new(0, 32, 0, 112) settingsHeader.BackgroundTransparency = 1 settingsHeader.Font = Enum.Font.GothamBold settingsHeader.Text = "Settings" settingsHeader.TextColor3 = Color3.fromRGB(210, 150, 90) settingsHeader.TextSize = 11 settingsHeader.TextXAlignment = Enum.TextXAlignment.Left settingsHeader.ZIndex = 3 settingsHeader.Parent = sidebar
+local settingsHeader = Instance.new("TextLabel") settingsHeader.Size = UDim2.new(1, -32, 0, 20) settingsHeader.Position = UDim2.new(0, 34, 0, 112) settingsHeader.BackgroundTransparency = 1 settingsHeader.Font = Enum.Font.GothamBold settingsHeader.Text = "Settings" settingsHeader.TextColor3 = Color3.fromRGB(210, 150, 90) settingsHeader.TextSize = 11 settingsHeader.TextXAlignment = Enum.TextXAlignment.Left settingsHeader.ZIndex = 3 settingsHeader.Parent = sidebar
 
 -- Кнопка Visuals
 local visualsTabBtn = Instance.new("TextButton")
@@ -131,7 +207,7 @@ visualsTabBtn.Size = UDim2.new(1, -20, 0, 28)
 visualsTabBtn.Position = UDim2.new(0, 10, 0, 136)
 visualsTabBtn.BackgroundColor3 = Color3.fromRGB(54, 34, 18)
 visualsTabBtn.BackgroundTransparency = 0.5
-visualsTabBtn.Text = "        Visuals"
+visualsTabBtn.Text = "          Visuals"
 visualsTabBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
 visualsTabBtn.TextSize = 11
 visualsTabBtn.Font = Enum.Font.GothamMedium
@@ -140,7 +216,7 @@ visualsTabBtn.ZIndex = 3
 visualsTabBtn.Parent = sidebar
 
 local visualsTabCorner = Instance.new("UICorner") visualsTabCorner.CornerRadius = UDim.new(0, 6) visualsTabCorner.Parent = visualsTabBtn
-local visualsIconImg = Instance.new("ImageLabel") visualsIconImg.Size = UDim2.new(0, 14, 0, 14) visualsIconImg.Position = UDim2.new(0, 10, 0, 7) visualsIconImg.BackgroundTransparency = 1 visualsIconImg.Image = VISUALS_ICON visualsIconImg.ZIndex = 4 visualsIconImg.Parent = visualsTabBtn
+local visualsIconImg = Instance.new("ImageLabel") visualsIconImg.Size = UDim2.new(0, 14, 0, 14) visualsIconImg.Position = UDim2.new(0, 12, 0, 7) visualsIconImg.BackgroundTransparency = 1 visualsIconImg.Image = VISUALS_ICON visualsIconImg.ZIndex = 4 visualsIconImg.Parent = visualsTabBtn
 
 -- Кнопка Configs
 local configTabBtn = Instance.new("TextButton")
@@ -148,7 +224,7 @@ configTabBtn.Size = UDim2.new(1, -20, 0, 28)
 configTabBtn.Position = UDim2.new(0, 10, 0, 170)
 configTabBtn.BackgroundColor3 = Color3.fromRGB(54, 34, 18)
 configTabBtn.BackgroundTransparency = 0.5
-configTabBtn.Text = "        Configs"
+configTabBtn.Text = "          Configs"
 configTabBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
 configTabBtn.TextSize = 11
 configTabBtn.Font = Enum.Font.GothamMedium
@@ -157,7 +233,7 @@ configTabBtn.ZIndex = 3
 configTabBtn.Parent = sidebar
 
 local configTabCorner = Instance.new("UICorner") configTabCorner.CornerRadius = UDim.new(0, 6) configTabCorner.Parent = configTabBtn
-local configIconImg = Instance.new("ImageLabel") configIconImg.Size = UDim2.new(0, 14, 0, 14) configIconImg.Position = UDim2.new(0, 10, 0, 7) configIconImg.BackgroundTransparency = 1 configIconImg.Image = CONFIGS_ICON configIconImg.ZIndex = 4 configIconImg.Parent = configTabBtn
+local configIconImg = Instance.new("ImageLabel") configIconImg.Size = UDim2.new(0, 14, 0, 14) configIconImg.Position = UDim2.new(0, 12, 0, 7) configIconImg.BackgroundTransparency = 1 configIconImg.Image = CONFIGS_ICON configIconImg.ZIndex = 4 configIconImg.Parent = configTabBtn
 
 -- Верхняя панель
 local topBarArea = Instance.new("Frame")
@@ -337,6 +413,13 @@ local function updateCardPositions(parentTable)
     end
 end
 
+-- Ссылки на функции обновления интерфейса тумблеров извне (для конфигов)
+local setAutoFarmUIState = nil
+local setAimAssistUIState = nil
+local setSnowUIState = nil
+local setLeavesUIState = nil
+local updateAimButtonsVisual = nil
+
 local function createModuleCard(parent, parentTable, title, desc, callbackToggle, hasSettings, customSettingsBuilder)
     local card = Instance.new("Frame")
     card.Size = UDim2.new(0, 215, 0, 70)
@@ -388,8 +471,8 @@ local function createModuleCard(parent, parentTable, title, desc, callbackToggle
     local clickBtn = Instance.new("TextButton") clickBtn.Size = UDim2.new(1, 0, 1, 0) clickBtn.BackgroundTransparency = 1 clickBtn.Text = "" clickBtn.ZIndex = 5 clickBtn.Parent = card
 
     local isEnabled = false
-    clickBtn.MouseButton1Click:Connect(function()
-        isEnabled = not isEnabled
+    local function setVisualState(val, noNotify)
+        isEnabled = val
         if isEnabled then
             TweenService:Create(toggleFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 120, 0)}):Play()
             TweenService:Create(toggleDot, TweenInfo.new(0.2), {Position = UDim2.new(1, -16, 0, 2), BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
@@ -398,6 +481,13 @@ local function createModuleCard(parent, parentTable, title, desc, callbackToggle
             TweenService:Create(toggleDot, TweenInfo.new(0.2), {Position = UDim2.new(0, 2, 0, 2), BackgroundColor3 = Color3.fromRGB(150, 115, 80)}):Play()
         end
         if callbackToggle then callbackToggle(isEnabled) end
+        if not noNotify then
+            showNotification(title, isEnabled and "Включено" | "Выключено")
+        end
+    end
+
+    clickBtn.MouseButton1Click:Connect(function()
+        setVisualState(not isEnabled, false)
     end)
 
     if hasSettings then
@@ -436,25 +526,15 @@ local function createModuleCard(parent, parentTable, title, desc, callbackToggle
     table.insert(parentTable, cardData)
     updateCardPositions(parentTable)
 
-    return card, function(val)
-        isEnabled = val
-        if isEnabled then
-            toggleFrame.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
-            toggleDot.Position = UDim2.new(1, -16, 0, 2)
-            toggleDot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        else
-            toggleFrame.BackgroundColor3 = Color3.fromRGB(40, 24, 15)
-            toggleDot.Position = UDim2.new(0, 2, 0, 2)
-            toggleDot.BackgroundColor3 = Color3.fromRGB(150, 115, 80)
-        end
-    end
+    return card, setVisualState
 end
 
-createModuleCard(mainPage, mainCards, "AutoFarm", "Рандомные удары и способности", function(state)
+_, setAutoFarmUIState = createModuleCard(mainPage, mainCards, "AutoFarm", "Рандомные удары и способности", function(state)
     autoFarmEnabled = state
 end, false)
 
-createModuleCard(mainPage, mainCards, "Aim Assist", "Автонаведение на цель", function(state)
+local setAimUIFunc
+_, setAimUIFunc = createModuleCard(mainPage, mainCards, "Aim Assist", "Автонаведение на цель", function(state)
     aimAssistEnabled = state
 end, true, function(panel)
     local lbl = Instance.new("TextLabel")
@@ -492,33 +572,42 @@ end, true, function(panel)
     headBtn.Parent = panel
     local hbC = Instance.new("UICorner") hbC.CornerRadius = UDim.new(0, 6) hbC.Parent = headBtn
 
+    updateAimButtonsVisual = function(partName)
+        if partName == "Torso" then
+            torsoBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
+            torsoBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            headBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
+            headBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+        else
+            headBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
+            headBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+            torsoBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
+            torsoBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+        end
+    end
+
     torsoBtn.MouseButton1Click:Connect(function()
         aimTargetPart = "Torso"
-        torsoBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
-        torsoBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        headBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
-        headBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+        updateAimButtonsVisual("Torso")
     end)
 
     headBtn.MouseButton1Click:Connect(function()
         aimTargetPart = "Head"
-        headBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
-        headBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        torsoBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
-        torsoBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+        updateAimButtonsVisual("Head")
     end)
 end)
+setAimAssistUIState = setAimUIFunc
 
-createModuleCard(visualsPage, visualsCards, "Snow (Пыль)", "Плавные круглые точки снега", function(state)
+_, setSnowUIState = createModuleCard(visualsPage, visualsCards, "Snow (Пыль)", "Плавные круглые точки снега", function(state)
     snowEnabled = state
 end, false)
 
-createModuleCard(visualsPage, visualsCards, "Leaves 🍁", "Падающие осенние листья", function(state)
+_, setLeavesUIState = createModuleCard(visualsPage, visualsCards, "Leaves 🍁", "Падающие осенние листья", function(state)
     leavesEnabled = state
 end, false)
 
 -- ==========================================
--- МЕНЕДЖЕР КОНФИГОВ
+-- МЕНЕДЖЕР КОНФИГОВ (ИМПОРТ И СИНХРОНИЗАЦИЯ UI)
 -- ==========================================
 local configsFolder = "MoneyHubConfigs"
 
@@ -619,22 +708,39 @@ local function refreshConfigList()
         saveBtn.MouseButton1Click:Connect(function()
             local data = { AutoFarm = autoFarmEnabled, AimAssist = aimAssistEnabled, AimTarget = aimTargetPart, Snow = snowEnabled, Leaves = leavesEnabled }
             writefile(configsFolder .. "/" .. cfgName .. ".json", HttpService:JSONEncode(data))
+            showNotification("Configs", "Сохранено: " .. cfgName)
         end)
         
         loadBtn.MouseButton1Click:Connect(function()
             pcall(function()
                 local content = readfile(configsFolder .. "/" .. cfgName .. ".json")
                 local data = HttpService:JSONDecode(content)
+                
                 autoFarmEnabled = data.AutoFarm or false
+                if setAutoFarmUIState then setAutoFarmUIState(autoFarmEnabled, true) end
+                
                 aimAssistEnabled = data.AimAssist or false
+                if setAimAssistUIState then setAimAssistUIState(aimAssistEnabled, true) end
+                
                 aimTargetPart = data.AimTarget or "Torso"
+                if updateAimButtonsVisual then updateAimButtonsVisual(aimTargetPart) end
+                
                 snowEnabled = data.Snow or false
+                if setSnowUIState then setSnowUIState(snowEnabled, true) end
+                
                 leavesEnabled = data.Leaves or false
+                if setLeavesUIState then setLeavesUIState(leavesEnabled, true) end
+                
+                showNotification("Configs", "Загружено: " .. cfgName)
             end)
         end)
         
         delBtn.MouseButton1Click:Connect(function()
-            if delfile then delfile(configsFolder .. "/" .. cfgName .. ".json") refreshConfigList() end
+            if delfile then
+                delfile(configsFolder .. "/" .. cfgName .. ".json")
+                refreshConfigList()
+                showNotification("Configs", "Удалено: " .. cfgName)
+            end
         end)
         
         yOffset = yOffset + 42
@@ -649,6 +755,7 @@ createCfgBtn.MouseButton1Click:Connect(function()
         writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", Snow = false, Leaves = false }))
         configNameBox.Text = ""
         refreshConfigList()
+        showNotification("Configs", "Создан конфиг")
     end
 end)
 
@@ -695,7 +802,7 @@ RunService.RenderStepped:Connect(function(dt)
 end)
 
 -- ==========================================
--- ПОЛНЫЙ АВТОФАРМ И AIM ASSIST (ВОССТАНОВЛЕНО)
+-- ПОЛНЫЙ АВТОФАРМ И AIM ASSIST (АКТИВНЫЙ БОЙ)
 -- ==========================================
 local function getTouchButton(nameKeyword)
     for _, gui in ipairs(playerGui:GetChildren()) do
