@@ -1,11 +1,9 @@
 --[[
     ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Ultimate Expanded Amber Edition)
-    DESCRIPTION: Larger Window, Top-Right Close/Minimize Buttons near profile,
-                 All requested Asset IDs added for headers and tabs,
-                 Dynamic card expansion for settings without overlap,
-                 Aim Assist Target Selector (Head / Torso, default Torso),
-                 Smooth Animations & Config System.
+    PROJECT: MONEYHUB PREMIUM GUI (Final Clean Icons Edition)
+    DESCRIPTION: OPUS Client Style, Texture ID near MONEYHUB, Custom Asset Icons
+                 for Configs (Save: 11768914234, Import: 6953990743, Delete: 11768918600),
+                 Fixed Icon Overlaps & Text Positioning.
     COMPATIBILITY: Roblox Mobile Injectors
     ==================================================
 ]]
@@ -26,7 +24,6 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local camera = Workspace.CurrentCamera
 
--- Текстуры
 local TEXTURE_ID = "rbxassetid://9343433823"
 local MODULES_ICON = "rbxassetid://82633060732202"
 local SETTINGS_ICON = "rbxassetid://138028255370142"
@@ -34,7 +31,11 @@ local MAIN_ICON = "rbxassetid://14502433595"
 local VISUALS_ICON = "rbxassetid://11322089611"
 local CONFIGS_ICON = "rbxassetid://90837140373377"
 local GEAR_ICON = "rbxassetid://6953984741"
+
+-- Новые иконки для конфигов
+local SAVE_ICON = "rbxassetid://11768914234"
 local IMPORT_ICON = "rbxassetid://6953990743"
+local DELETE_ICON = "rbxassetid://11768918600"
 
 local SAFE_COORDS = Vector3.new(-200.7, 675.7, 357.3)
 
@@ -59,7 +60,6 @@ end
 local targetPosition = UDim2.new(0.5, -320, 0.5, -205)
 local hiddenPosition = UDim2.new(0.5, -320, 0.5, 380)
 
--- Увеличенное главное окно (640x410)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
 mainFrame.Size = UDim2.new(0, 640, 0, 410)
@@ -70,9 +70,7 @@ mainFrame.BorderSizePixel = 0
 mainFrame.ClipsDescendants = true
 mainFrame.Parent = screenGui
 
-local mainCorner = Instance.new("UICorner")
-mainCorner.CornerRadius = UDim.new(0, 14)
-mainCorner.Parent = mainFrame
+local mainCorner = Instance.new("UICorner") mainCorner.CornerRadius = UDim.new(0, 14) mainCorner.Parent = mainFrame
 
 local effectsContainer = Instance.new("Frame")
 effectsContainer.Name = "EffectsContainer"
@@ -88,7 +86,6 @@ contentContainer.BackgroundTransparency = 1
 contentContainer.ZIndex = 2
 contentContainer.Parent = mainFrame
 
--- Сайдбар
 local sidebar = Instance.new("Frame")
 sidebar.Name = "Sidebar"
 sidebar.Size = UDim2.new(0, 160, 1, -20)
@@ -99,52 +96,14 @@ sidebar.BorderSizePixel = 0
 sidebar.ZIndex = 2
 sidebar.Parent = contentContainer
 
-local sidebarCorner = Instance.new("UICorner")
-sidebarCorner.CornerRadius = UDim.new(0, 10)
-sidebarCorner.Parent = sidebar
+local sidebarCorner = Instance.new("UICorner") sidebarCorner.CornerRadius = UDim.new(0, 10) sidebarCorner.Parent = sidebar
 
-local logoTexture = Instance.new("ImageLabel")
-logoTexture.Size = UDim2.new(0, 20, 0, 20)
-logoTexture.Position = UDim2.new(0, 10, 0, 17)
-logoTexture.BackgroundTransparency = 1
-logoTexture.Image = TEXTURE_ID
-logoTexture.ZIndex = 3
-logoTexture.Parent = sidebar
+local logoTexture = Instance.new("ImageLabel") logoTexture.Size = UDim2.new(0, 20, 0, 20) logoTexture.Position = UDim2.new(0, 10, 0, 17) logoTexture.BackgroundTransparency = 1 logoTexture.Image = TEXTURE_ID logoTexture.ZIndex = 3 logoTexture.Parent = sidebar
+local logoLabel = Instance.new("TextLabel") logoLabel.Size = UDim2.new(1, -38, 0, 35) logoLabel.Position = UDim2.new(0, 34, 0, 10) logoLabel.BackgroundTransparency = 1 logoLabel.Font = Enum.Font.GothamBold logoLabel.Text = "MONEYHUB" logoLabel.TextColor3 = Color3.fromRGB(255, 195, 80) logoLabel.TextSize = 14 logoLabel.TextXAlignment = Enum.TextXAlignment.Left logoLabel.ZIndex = 3 logoLabel.Parent = sidebar
 
-local logoLabel = Instance.new("TextLabel")
-logoLabel.Size = UDim2.new(1, -38, 0, 35)
-logoLabel.Position = UDim2.new(0, 34, 0, 10)
-logoLabel.BackgroundTransparency = 1
-logoLabel.Font = Enum.Font.GothamBold
-logoLabel.Text = "MONEYHUB"
-logoLabel.TextColor3 = Color3.fromRGB(255, 195, 80)
-logoLabel.TextSize = 14
-logoLabel.TextXAlignment = Enum.TextXAlignment.Left
-logoLabel.ZIndex = 3
-logoLabel.Parent = sidebar
+local modulesIconImg = Instance.new("ImageLabel") modulesIconImg.Size = UDim2.new(0, 14, 0, 14) modulesIconImg.Position = UDim2.new(0, 12, 0, 51) modulesIconImg.BackgroundTransparency = 1 modulesIconImg.Image = MODULES_ICON modulesIconImg.ZIndex = 3 modulesIconImg.Parent = sidebar
+local modulesHeader = Instance.new("TextLabel") modulesHeader.Size = UDim2.new(1, -32, 0, 20) modulesHeader.Position = UDim2.new(0, 30, 0, 48) modulesHeader.BackgroundTransparency = 1 modulesHeader.Font = Enum.Font.GothamBold modulesHeader.Text = "Modules" modulesHeader.TextColor3 = Color3.fromRGB(210, 150, 90) modulesHeader.TextSize = 11 modulesHeader.TextXAlignment = Enum.TextXAlignment.Left modulesHeader.ZIndex = 3 modulesHeader.Parent = sidebar
 
--- Иконка Modules
-local modulesIconImg = Instance.new("ImageLabel")
-modulesIconImg.Size = UDim2.new(0, 14, 0, 14)
-modulesIconImg.Position = UDim2.new(0, 12, 0, 51)
-modulesIconImg.BackgroundTransparency = 1
-modulesIconImg.Image = MODULES_ICON
-modulesIconImg.ZIndex = 3
-modulesIconImg.Parent = sidebar
-
-local modulesHeader = Instance.new("TextLabel")
-modulesHeader.Size = UDim2.new(1, -32, 0, 20)
-modulesHeader.Position = UDim2.new(0, 30, 0, 48)
-modulesHeader.BackgroundTransparency = 1
-modulesHeader.Font = Enum.Font.GothamBold
-modulesHeader.Text = "Modules"
-modulesHeader.TextColor3 = Color3.fromRGB(210, 150, 90)
-modulesHeader.TextSize = 11
-modulesHeader.TextXAlignment = Enum.TextXAlignment.Left
-modulesHeader.ZIndex = 3
-modulesHeader.Parent = sidebar
-
--- Кнопка Main с иконкой 14502433595
 local mainTabBtn = Instance.new("TextButton")
 mainTabBtn.Size = UDim2.new(1, -20, 0, 30)
 mainTabBtn.Position = UDim2.new(0, 10, 0, 70)
@@ -161,28 +120,9 @@ mainTabBtn.Parent = sidebar
 local mainTabCorner = Instance.new("UICorner") mainTabCorner.CornerRadius = UDim.new(0, 6) mainTabCorner.Parent = mainTabBtn
 local mainIconImg = Instance.new("ImageLabel") mainIconImg.Size = UDim2.new(0, 14, 0, 14) mainIconImg.Position = UDim2.new(0, 10, 0, 8) mainIconImg.BackgroundTransparency = 1 mainIconImg.Image = MAIN_ICON mainIconImg.ZIndex = 4 mainIconImg.Parent = mainTabBtn
 
--- Иконка Settings
-local settingsIconImg = Instance.new("ImageLabel")
-settingsIconImg.Size = UDim2.new(0, 14, 0, 14)
-settingsIconImg.Position = UDim2.new(0, 12, 0, 113)
-settingsIconImg.BackgroundTransparency = 1
-settingsIconImg.Image = SETTINGS_ICON
-settingsIconImg.ZIndex = 3
-settingsIconImg.Parent = sidebar
+local settingsIconImg = Instance.new("ImageLabel") settingsIconImg.Size = UDim2.new(0, 14, 0, 14) settingsIconImg.Position = UDim2.new(0, 12, 0, 113) settingsIconImg.BackgroundTransparency = 1 settingsIconImg.Image = SETTINGS_ICON settingsIconImg.ZIndex = 3 settingsIconImg.Parent = sidebar
+local settingsHeader = Instance.new("TextLabel") settingsHeader.Size = UDim2.new(1, -32, 0, 20) settingsHeader.Position = UDim2.new(0, 30, 0, 110) settingsHeader.BackgroundTransparency = 1 settingsHeader.Font = Enum.Font.GothamBold settingsHeader.Text = "Settings" settingsHeader.TextColor3 = Color3.fromRGB(210, 150, 90) settingsHeader.TextSize = 11 settingsHeader.TextXAlignment = Enum.TextXAlignment.Left settingsHeader.ZIndex = 3 settingsHeader.Parent = sidebar
 
-local settingsHeader = Instance.new("TextLabel")
-settingsHeader.Size = UDim2.new(1, -32, 0, 20)
-settingsHeader.Position = UDim2.new(0, 30, 0, 110)
-settingsHeader.BackgroundTransparency = 1
-settingsHeader.Font = Enum.Font.GothamBold
-settingsHeader.Text = "Settings"
-settingsHeader.TextColor3 = Color3.fromRGB(210, 150, 90)
-settingsHeader.TextSize = 11
-settingsHeader.TextXAlignment = Enum.TextXAlignment.Left
-settingsHeader.ZIndex = 3
-settingsHeader.Parent = sidebar
-
--- Кнопка Visuals с иконкой 11322089611
 local visualsTabBtn = Instance.new("TextButton")
 visualsTabBtn.Size = UDim2.new(1, -20, 0, 28)
 visualsTabBtn.Position = UDim2.new(0, 10, 0, 134)
@@ -199,7 +139,6 @@ visualsTabBtn.Parent = sidebar
 local visualsTabCorner = Instance.new("UICorner") visualsTabCorner.CornerRadius = UDim.new(0, 6) visualsTabCorner.Parent = visualsTabBtn
 local visualsIconImg = Instance.new("ImageLabel") visualsIconImg.Size = UDim2.new(0, 14, 0, 14) visualsIconImg.Position = UDim2.new(0, 10, 0, 7) visualsIconImg.BackgroundTransparency = 1 visualsIconImg.Image = VISUALS_ICON visualsIconImg.ZIndex = 4 visualsIconImg.Parent = visualsTabBtn
 
--- Кнопка Configs с иконкой 90837140373377
 local configTabBtn = Instance.new("TextButton")
 configTabBtn.Size = UDim2.new(1, -20, 0, 28)
 configTabBtn.Position = UDim2.new(0, 10, 0, 168)
@@ -216,7 +155,6 @@ configTabBtn.Parent = sidebar
 local configTabCorner = Instance.new("UICorner") configTabCorner.CornerRadius = UDim.new(0, 6) configTabCorner.Parent = configTabBtn
 local configIconImg = Instance.new("ImageLabel") configIconImg.Size = UDim2.new(0, 14, 0, 14) configIconImg.Position = UDim2.new(0, 10, 0, 7) configIconImg.BackgroundTransparency = 1 configIconImg.Image = CONFIGS_ICON configIconImg.ZIndex = 4 configIconImg.Parent = configTabBtn
 
--- Верхняя панель и поиск
 local topBarArea = Instance.new("Frame")
 topBarArea.Name = "TopBarArea"
 topBarArea.Size = UDim2.new(1, -190, 0, 45)
@@ -249,7 +187,6 @@ searchInput.Font = Enum.Font.Gotham
 searchInput.ZIndex = 3
 searchInput.Parent = searchBar
 
--- Профиль (ник и аватарка справа вверху)
 local profileFrame = Instance.new("Frame")
 profileFrame.Size = UDim2.new(0, 130, 0, 30)
 profileFrame.Position = UDim2.new(1, -215, 0, 5)
@@ -280,7 +217,6 @@ profileAvatar.Parent = profileFrame
 
 local avatarCorner = Instance.new("UICorner") avatarCorner.CornerRadius = UDim.new(1, 0) avatarCorner.Parent = profileAvatar
 
--- Кнопки сворачивания (−) и закрытия (×) расположены возле ники и головы
 local minBtn = Instance.new("TextButton")
 minBtn.Name = "MinimizeButton"
 minBtn.Size = UDim2.new(0, 24, 0, 24)
@@ -323,7 +259,6 @@ sectionTitle.TextXAlignment = Enum.TextXAlignment.Left
 sectionTitle.ZIndex = 2
 sectionTitle.Parent = contentContainer
 
--- Контейнеры страниц (ScrollingFrame)
 local mainPage = Instance.new("ScrollingFrame")
 mainPage.Name = "MainPage"
 mainPage.Size = UDim2.new(1, -190, 1, -90)
@@ -382,11 +317,10 @@ configTabBtn.MouseButton1Click:Connect(function() switchTab("Configs") end)
 
 local autoFarmEnabled = false
 local aimAssistEnabled = false
-local aimTargetPart = "Torso" -- по умолчанию туловище
+local aimTargetPart = "Torso"
 local snowEnabled = false
 local leavesEnabled = false
 
--- Список карточек для динамического смещения вниз при открытии настроек
 local mainCards = {}
 local visualsCards = {}
 
@@ -398,9 +332,6 @@ local function updateCardPositions(parentTable)
     end
 end
 
--- ==========================================
--- УНИВЕРСАЛЬНАЯ КАРТОЧКА С ДИНАМИЧЕСКИМ СМЕЩЕНИЕМ И НАСТРОЙКАМИ
--- ==========================================
 local function createModuleCard(parent, parentTable, title, desc, callbackToggle, hasSettings, customSettingsBuilder)
     local card = Instance.new("Frame")
     card.Size = UDim2.new(0, 215, 0, 70)
@@ -514,7 +445,6 @@ local function createModuleCard(parent, parentTable, title, desc, callbackToggle
     end
 end
 
--- Создаем карточки на Main
 createModuleCard(mainPage, mainCards, "AutoFarm", "Рандомные удары и способности", function(state)
     autoFarmEnabled = state
 end, false)
@@ -574,7 +504,6 @@ end, true, function(panel)
     end)
 end)
 
--- Создаем карточки на Visuals
 createModuleCard(visualsPage, visualsCards, "Snow (Пыль)", "Плавные круглые точки снега", function(state)
     snowEnabled = state
 end, false)
@@ -584,7 +513,7 @@ createModuleCard(visualsPage, visualsCards, "Leaves 🍁", "Падающие о�
 end, false)
 
 -- ==========================================
--- МЕНЕДЖЕР КОНФИГОВ
+-- МЕНЕДЖЕР КОНФИГОВ (Исправленные кнопки с новыми иконками)
 -- ==========================================
 local configsFolder = "MoneyHubConfigs"
 
@@ -637,7 +566,7 @@ local function refreshConfigList()
         local cfgName = file:match("([^/]+)$"):gsub(".json", "")
         
         local itemFrame = Instance.new("Frame")
-        itemFrame.Size = UDim2.new(1, -5, 0, 32)
+        itemFrame.Size = UDim2.new(1, -5, 0, 36)
         itemFrame.Position = UDim2.new(0, 0, 0, yOffset)
         itemFrame.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
         itemFrame.BackgroundTransparency = 0.3
@@ -646,9 +575,10 @@ local function refreshConfigList()
         
         local itCorner = Instance.new("UICorner") itCorner.CornerRadius = UDim.new(0, 6) itCorner.Parent = itemFrame
         
+        -- Увеличено пространство для названия, чтобы иконки не наезжали
         local lbl = Instance.new("TextLabel")
-        lbl.Size = UDim2.new(0, 90, 1, 0)
-        lbl.Position = UDim2.new(0, 8, 0, 0)
+        lbl.Size = UDim2.new(0, 130, 1, 0)
+        lbl.Position = UDim2.new(0, 10, 0, 0)
         lbl.BackgroundTransparency = 1
         lbl.Text = cfgName
         lbl.TextColor3 = Color3.fromRGB(255, 220, 170)
@@ -658,37 +588,32 @@ local function refreshConfigList()
         lbl.ZIndex = 4
         lbl.Parent = itemFrame
         
-        local saveBtn = Instance.new("TextButton")
-        saveBtn.Size = UDim2.new(0, 34, 0, 22)
-        saveBtn.Position = UDim2.new(1, -112, 0, 5)
-        saveBtn.BackgroundColor3 = Color3.fromRGB(80, 45, 20)
-        saveBtn.Text = "Сохр"
-        saveBtn.TextColor3 = Color3.fromRGB(255, 200, 150)
-        saveBtn.TextSize = 9
-        saveBtn.Font = Enum.Font.GothamBold
+        -- Кнопка сохранения с текстурой 11768914234
+        local saveBtn = Instance.new("ImageButton")
+        saveBtn.Size = UDim2.new(0, 24, 0, 24)
+        saveBtn.Position = UDim2.new(1, -100, 0, 6)
+        saveBtn.BackgroundTransparency = 1
+        saveBtn.Image = SAVE_ICON
         saveBtn.ZIndex = 4
         saveBtn.Parent = itemFrame
-        local sbC = Instance.new("UICorner") sbC.CornerRadius = UDim.new(0, 4) sbC.Parent = saveBtn
         
+        -- Кнопка импорта с текстурой 6953990743
         local loadBtn = Instance.new("ImageButton")
-        loadBtn.Size = UDim2.new(0, 24, 0, 22)
-        loadBtn.Position = UDim2.new(1, -72, 0, 5)
+        loadBtn.Size = UDim2.new(0, 24, 0, 24)
+        loadBtn.Position = UDim2.new(1, -66, 0, 6)
         loadBtn.BackgroundTransparency = 1
         loadBtn.Image = IMPORT_ICON
         loadBtn.ZIndex = 4
         loadBtn.Parent = itemFrame
         
-        local delBtn = Instance.new("TextButton")
-        delBtn.Size = UDim2.new(0, 30, 0, 22)
-        delBtn.Position = UDim2.new(1, -34, 0, 5)
-        delBtn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
-        delBtn.Text = "Удал"
-        delBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        delBtn.TextSize = 9
-        delBtn.Font = Enum.Font.GothamBold
+        -- Кнопка удаления с текстурой 11768918600
+        local delBtn = Instance.new("ImageButton")
+        delBtn.Size = UDim2.new(0, 24, 0, 24)
+        delBtn.Position = UDim2.new(1, -32, 0, 6)
+        delBtn.BackgroundTransparency = 1
+        delBtn.Image = DELETE_ICON
         delBtn.ZIndex = 4
         delBtn.Parent = itemFrame
-        local dbC = Instance.new("UICorner") dbC.CornerRadius = UDim.new(0, 4) dbC.Parent = delBtn
         
         saveBtn.MouseButton1Click:Connect(function()
             local data = { AutoFarm = autoFarmEnabled, AimAssist = aimAssistEnabled, AimTarget = aimTargetPart, Snow = snowEnabled, Leaves = leavesEnabled }
@@ -711,7 +636,7 @@ local function refreshConfigList()
             if delfile then delfile(configsFolder .. "/" .. cfgName .. ".json") refreshConfigList() end
         end)
         
-        yOffset = yOffset + 38
+        yOffset = yOffset + 42
     end
     configListContainer.CanvasSize = UDim2.new(0, 0, 0, yOffset)
 end
@@ -899,7 +824,6 @@ task.spawn(function()
     end
 end)
 
--- Перетаскивание
 local function enableDragging(frame, handle)
     local dragging, dragInput, dragStart, startPos
     handle.InputBegan:Connect(function(input)
