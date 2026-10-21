@@ -1,6 +1,6 @@
 --[[
     ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Final Opus Amber Edition + Configs & AimAssist)
+    PROJECT: MONEYHUB PREMIUM GUI (Fixed Config List ScrollingFrame & AimAssist)
     DESCRIPTION: OPUS Client Style (Yellow-Orange Amber Theme), Texture ID only near MONEYHUB title,
                  Settings Tab (Snow points, Falling Leaves 🍁, Config Manager), Aim Assist (Torso Lock),
                  Extended 3-Dot Options Menu for Modules, Fixed Window Close/Minimize Buttons.
@@ -368,7 +368,8 @@ local function switchTab(tabName)
     configPage.Visible = (tabName == "Configs")
 
     sectionTitle.Text = "Modules / " .. tabName
-    if tabName == "Settings" then sectionTitle.Text = "Settings / Visuals" end
+    if tabName == "Visuals" then sectionTitle.Text = "Settings / Visuals" end
+    if tabName == "Configs" then sectionTitle.Text = "Settings / Configs" end
 
     mainTabBtn.BackgroundColor3 = (tabName == "Main") and Color3.fromRGB(85, 50, 22) or Color3.fromRGB(54, 34, 18)
     mainTabBtn.TextColor3 = (tabName == "Main") and Color3.fromRGB(255, 225, 180) or Color3.fromRGB(200, 160, 120)
@@ -393,7 +394,7 @@ local leavesEnabled = false
 -- ==========================================
 -- УНИВЕРСАЛЬНАЯ КАРТОЧКА ФУНКЦИИ С КНОПКОЙ НАСТРОЕК (3 ТОЧКИ ⋮)
 -- ==========================================
-local function createModuleCard(parent, title, desc, yPos, callbackToggle, hasSettings, settingsCallback)
+local function createModuleCard(parent, title, desc, yPos, callbackToggle, hasSettings)
     local card = Instance.new("Frame")
     card.Size = UDim2.new(0, 190, 0, 70)
     card.Position = UDim2.new(0, 0, 0, yPos)
@@ -476,7 +477,6 @@ local function createModuleCard(parent, title, desc, yPos, callbackToggle, hasSe
         if callbackToggle then callbackToggle(isEnabled) end
     end)
 
-    -- Кнопка с тремя точками (⋮) для настроек под функцией
     if hasSettings then
         local settingsBtn = Instance.new("TextButton")
         settingsBtn.Size = UDim2.new(0, 20, 0, 18)
@@ -553,7 +553,7 @@ end, false)
 
 
 -- ==========================================
--- МЕНЕДЖЕР КОНФИГОВ (Создание, Сохранение, Загрузка, Удаление)
+-- МЕНЕДЖЕР КОНФИГОВ (Исправленный ScrollingFrame)
 -- ==========================================
 local configsFolder = "MoneyHubConfigs"
 
@@ -590,10 +590,14 @@ local ccCorner = Instance.new("UICorner")
 ccCorner.CornerRadius = UDim.new(0, 6)
 ccCorner.Parent = createCfgBtn
 
-local configListContainer = Instance.new("Frame")
-configListContainer.Size = UDim2.new(1, 0, 0, 200)
+-- ИСПРАВЛЕНО: Теперь это ScrollingFrame, ошибки CanvasSize больше не будет
+local configListContainer = Instance.new("ScrollingFrame")
+configListContainer.Name = "ConfigListContainer"
+configListContainer.Size = UDim2.new(1, 0, 0, 220)
 configListContainer.Position = UDim2.new(0, 0, 0, 50)
 configListContainer.BackgroundTransparency = 1
+configListContainer.BorderSizePixel = 0
+configListContainer.ScrollBarThickness = 3
 configListContainer.ZIndex = 2
 configListContainer.Parent = configPage
 
@@ -613,7 +617,7 @@ local function refreshConfigList()
         local cfgName = file:match("([^/]+)$"):gsub(".json", "")
         
         local itemFrame = Instance.new("Frame")
-        itemFrame.Size = UDim2.new(1, 0, 0, 32)
+        itemFrame.Size = UDim2.new(1, -5, 0, 32)
         itemFrame.Position = UDim2.new(0, 0, 0, yOffset)
         itemFrame.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
         itemFrame.BackgroundTransparency = 0.3
@@ -625,7 +629,7 @@ local function refreshConfigList()
         itCorner.Parent = itemFrame
         
         local lbl = Instance.new("TextLabel")
-        lbl.Size = UDim2.new(0, 80, 1, 0)
+        lbl.Size = UDim2.new(0, 75, 1, 0)
         lbl.Position = UDim2.new(0, 8, 0, 0)
         lbl.BackgroundTransparency = 1
         lbl.Text = cfgName
@@ -636,7 +640,6 @@ local function refreshConfigList()
         lbl.ZIndex = 4
         lbl.Parent = itemFrame
         
-        -- Кнопка сохранения в конфиг
         local saveBtn = Instance.new("TextButton")
         saveBtn.Size = UDim2.new(0, 32, 0, 22)
         saveBtn.Position = UDim2.new(1, -112, 0, 5)
@@ -650,7 +653,6 @@ local function refreshConfigList()
         
         local sbC = Instance.new("UICorner") sbC.CornerRadius = UDim.new(0, 4) sbC.Parent = saveBtn
         
-        -- Кнопка импорта (загрузки)
         local loadBtn = Instance.new("TextButton")
         loadBtn.Size = UDim2.new(0, 38, 0, 22)
         loadBtn.Position = UDim2.new(1, -76, 0, 5)
@@ -664,7 +666,6 @@ local function refreshConfigList()
         
         local lbC = Instance.new("UICorner") lbC.CornerRadius = UDim.new(0, 4) lbC.Parent = loadBtn
         
-        -- Кнопка удаления
         local delBtn = Instance.new("TextButton")
         delBtn.Size = UDim2.new(0, 30, 0, 22)
         delBtn.Position = UDim2.new(1, -34, 0, 5)
@@ -740,7 +741,6 @@ refreshConfigList()
 -- ==========================================
 local particles = {}
 for i = 1, 26 do
-    -- Снег (круглые точки)
     local snow = Instance.new("Frame")
     snow.Size = UDim2.new(0, math.random(3, 5), 0, math.random(3, 5))
     snow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -751,10 +751,9 @@ for i = 1, 26 do
     snow.Parent = effectsContainer
     
     local sCorner = Instance.new("UICorner")
-    sCorner.CornerRadius = UDim.new(1, 0) -- Идеальный круг (точка)
+    sCorner.CornerRadius = UDim.new(1, 0)
     sCorner.Parent = snow
 
-    -- Листики 🍁
     local leaf = Instance.new("TextLabel")
     leaf.Size = UDim2.new(0, 16, 0, 16)
     leaf.BackgroundTransparency = 1
@@ -785,7 +784,6 @@ RunService.RenderStepped:Connect(function(dt)
             p.x = math.random()
         end
         
-        -- Абсолютно плавная отрисовка точек снега
         if snowEnabled and mainFrame.Visible then
             p.snow.Visible = true
             p.snow.Position = UDim2.new(p.x, math.sin(tick() + p.sway) * 12, p.y, 0)
@@ -793,7 +791,6 @@ RunService.RenderStepped:Connect(function(dt)
             p.snow.Visible = false
         end
 
-        -- Отрисовка листьев
         if leavesEnabled and mainFrame.Visible then
             p.leaf.Visible = true
             p.leaf.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 20, p.y, 0)
@@ -805,7 +802,7 @@ end)
 
 
 -- ==========================================
--- БОЙ, АВТОФАРМ И НОВЫЙ AIM ASSIST (ТУЛОВИЩЕ)
+-- БОЙ, АВТОФАРМ И AIM ASSIST (ТУЛОВИЩЕ)
 -- ==========================================
 local function getTouchButton(nameKeyword)
     for _, gui in ipairs(playerGui:GetChildren()) do
@@ -847,21 +844,18 @@ local function getClosestPlayer()
     return nearest
 end
 
--- Новый Aim Assist: плавное автонаведение камеры на туловище противника
 RunService.RenderStepped:Connect(function()
     local char = player.Character
     if not char then return end
     local myRoot = char:FindFirstChild("HumanoidRootPart")
     if not myRoot then return end
 
-    -- Поиск цели для Aim Assist или Auto Farm
     local target = getClosestPlayer()
     currentTarget = target
 
     if aimAssistEnabled and target and target.Character then
         local torso = target.Character:FindFirstChild("HumanoidRootPart") or target.Character:FindFirstChild("Torso")
         if torso then
-            -- Плавное наведение камеры на туловище
             camera.CFrame = camera.CFrame:Lerp(CFrame.new(camera.CFrame.Position, torso.Position), 0.2)
         end
     end
@@ -874,7 +868,6 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- Защитный телепорт в SAFE_COORDS при уроне[span_3](start_span)[span_3](end_span)
 local lastHealth = 100
 player.CharacterAdded:Connect(function(char)
     local humanoid = char:WaitForChild("Humanoid", 5)
@@ -952,7 +945,6 @@ local function executeInstantSkill(skillNumber)
     end)
 end
 
--- Рандомный автофарм ударов и способностей
 task.spawn(function()
     while true do
         task.wait(0.08)
