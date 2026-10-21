@@ -189,7 +189,7 @@ visualsTabBtn.Size = UDim2.new(1, -20, 0, 28)
 visualsTabBtn.Position = UDim2.new(0, 10, 0, 136)
 visualsTabBtn.BackgroundColor3 = Color3.fromRGB(54, 34, 18)
 visualsTabBtn.BackgroundTransparency = 0.5
-visualsTabBtn.Text = "          Visuals"
+visualsTabBtn.Text = "             Visuals"
 visualsTabBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
 visualsTabBtn.TextSize = 11
 visualsTabBtn.Font = Enum.Font.GothamMedium
@@ -205,7 +205,7 @@ configTabBtn.Size = UDim2.new(1, -20, 0, 28)
 configTabBtn.Position = UDim2.new(0, 10, 0, 170)
 configTabBtn.BackgroundColor3 = Color3.fromRGB(54, 34, 18)
 configTabBtn.BackgroundTransparency = 0.5
-configTabBtn.Text = "          Configs"
+configTabBtn.Text = "             Configs"
 configTabBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
 configTabBtn.TextSize = 11
 configTabBtn.Font = Enum.Font.GothamMedium
@@ -929,18 +929,18 @@ end
 
 enableDragging(mainFrame, topBarArea)
 
+-- Уменьшенная аккуратная плавающая кнопка (свёрнутое состояние)
 local floatBtn = Instance.new("Frame")
-floatBtn.Size = UDim2.new(0, 130, 0, 36)
-floatBtn.Position = UDim2.new(0.5, -65, 0, -50)
+floatBtn.Size = UDim2.new(0, 36, 0, 36)
+floatBtn.Position = UDim2.new(0.5, -18, 0, -50)
 floatBtn.BackgroundColor3 = Color3.fromRGB(54, 34, 18)
 floatBtn.BackgroundTransparency = 0.15
 floatBtn.Visible = false
 floatBtn.ZIndex = 100
 floatBtn.Parent = screenGui
 
-local floatCorner = Instance.new("UICorner") floatCorner.CornerRadius = UDim.new(0, 18) floatCorner.Parent = floatBtn
-local floatTexture = Instance.new("ImageLabel") floatTexture.Size = UDim2.new(0, 18, 0, 18) floatTexture.Position = UDim2.new(0, 10, 0.5, -9) floatTexture.BackgroundTransparency = 1 floatTexture.Image = TEXTURE_ID floatTexture.ZIndex = 101 floatTexture.Parent = floatBtn
-local floatTitle = Instance.new("TextLabel") floatTitle.Size = UDim2.new(1, -34, 1, 0) floatTitle.Position = UDim2.new(0, 30, 0, 0) floatTitle.BackgroundTransparency = 1 floatTitle.Font = Enum.Font.GothamBold floatTitle.Text = "MONEYHUB" floatTitle.TextColor3 = Color3.fromRGB(255, 195, 80) floatTitle.TextSize = 12 floatTitle.TextXAlignment = Enum.TextXAlignment.Left floatTitle.ZIndex = 101 floatTitle.Parent = floatBtn
+local floatCorner = Instance.new("UICorner") floatCorner.CornerRadius = UDim.new(1, 0) floatCorner.Parent = floatBtn
+local floatTexture = Instance.new("ImageLabel") floatTexture.Size = UDim2.new(0, 22, 0, 22) floatTexture.Position = UDim2.new(0.5, -11, 0.5, -11) floatTexture.BackgroundTransparency = 1 floatTexture.Image = TEXTURE_ID floatTexture.ZIndex = 101 floatTexture.Parent = floatBtn
 local floatClick = Instance.new("TextButton") floatClick.Size = UDim2.new(1, 0, 1, 0) floatClick.BackgroundTransparency = 1 floatClick.Text = "" floatClick.ZIndex = 102 floatClick.Parent = floatBtn
 
 enableDragging(floatBtn, floatBtn)
@@ -956,12 +956,12 @@ minBtn.MouseButton1Click:Connect(function()
     task.wait(0.3)
     mainFrame.Visible = false
     floatBtn.Visible = true
-    floatBtn.Position = UDim2.new(0.5, -65, 0, -50)
-    TweenService:Create(floatBtn, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -65, 0.05, 0)}):Play()
+    floatBtn.Position = UDim2.new(0.5, -18, 0, -50)
+    TweenService:Create(floatBtn, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -18, 0.05, 0)}):Play()
 end)
 
 floatClick.MouseButton1Click:Connect(function()
-    TweenService:Create(floatBtn, TweenInfo.new(0.2), {Position = UDim2.new(0.5, -65, 0, -50)}):Play()
+    TweenService:Create(floatBtn, TweenInfo.new(0.2), {Position = UDim2.new(0.5, -18, 0, -50)}):Play()
     task.wait(0.2)
     floatBtn.Visible = false
     mainFrame.Visible = true
