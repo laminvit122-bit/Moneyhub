@@ -1,9 +1,9 @@
 --[[
     ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Final Stable Opus Edition)
-    DESCRIPTION: OPUS Client Style (Yellow-Orange Amber Theme), Texture ID only near MONEYHUB title,
-                 Settings Tab (Snow points, Falling Leaves 🍁, Config Manager), Aim Assist (Torso Lock),
-                 Extended 3-Dot Options Menu for Modules, Fixed Window Close/Minimize Buttons & ScrollingFrames.
+    PROJECT: MONEYHUB PREMIUM GUI (Final Custom Textures Edition)
+    DESCRIPTION: OPUS Client Style, Texture ID near MONEYHUB, Custom Asset Icons
+                 for Settings (6953984741) and Config Import (6953990743),
+                 Fixed Window Close/Minimize buttons & ScrollingFrames.
     COMPATIBILITY: Roblox Mobile Injectors
     ==================================================
 ]]
@@ -25,6 +25,8 @@ local playerGui = player:WaitForChild("PlayerGui")
 local camera = Workspace.CurrentCamera
 
 local TEXTURE_ID = "rbxassetid://9343433823"
+local SETTINGS_ICON = "rbxassetid://6953984741"
+local IMPORT_ICON = "rbxassetid://6953990743"
 local SAFE_COORDS = Vector3.new(-200.7, 675.7, 357.3)
 
 if playerGui:FindFirstChild("MoneyHubGui") then
@@ -63,7 +65,7 @@ local mainCorner = Instance.new("UICorner")
 mainCorner.CornerRadius = UDim.new(0, 14)
 mainCorner.Parent = mainFrame
 
--- Контейнер частиц (снег и листья)
+-- Контейнер частиц
 local effectsContainer = Instance.new("Frame")
 effectsContainer.Name = "EffectsContainer"
 effectsContainer.Size = UDim2.new(1, 0, 1, 0)
@@ -78,7 +80,7 @@ contentContainer.BackgroundTransparency = 1
 contentContainer.ZIndex = 2
 contentContainer.Parent = mainFrame
 
--- Левый сайдбар
+-- Сайдбар
 local sidebar = Instance.new("Frame")
 sidebar.Name = "Sidebar"
 sidebar.Size = UDim2.new(0, 145, 1, -20)
@@ -93,7 +95,6 @@ local sidebarCorner = Instance.new("UICorner")
 sidebarCorner.CornerRadius = UDim.new(0, 10)
 sidebarCorner.Parent = sidebar
 
--- Текстура строго возле названия MONEYHUB
 local logoTexture = Instance.new("ImageLabel")
 logoTexture.Name = "LogoTexture"
 logoTexture.Size = UDim2.new(0, 20, 0, 20)
@@ -120,7 +121,6 @@ logoLabel.TextXAlignment = Enum.TextXAlignment.Left
 logoLabel.ZIndex = 3
 logoLabel.Parent = sidebar
 
--- Секция Modules
 local modulesHeader = Instance.new("TextLabel")
 modulesHeader.Size = UDim2.new(1, -20, 0, 20)
 modulesHeader.Position = UDim2.new(0, 12, 0, 48)
@@ -151,7 +151,6 @@ local mainTabCorner = Instance.new("UICorner")
 mainTabCorner.CornerRadius = UDim.new(0, 6)
 mainTabCorner.Parent = mainTabBtn
 
--- Секция Settings
 local settingsHeader = Instance.new("TextLabel")
 settingsHeader.Size = UDim2.new(1, -20, 0, 20)
 settingsHeader.Position = UDim2.new(0, 12, 0, 110)
@@ -200,7 +199,7 @@ local configTabCorner = Instance.new("UICorner")
 configTabCorner.CornerRadius = UDim.new(0, 6)
 configTabCorner.Parent = configTabBtn
 
--- Верхняя панель управления
+-- Верхняя панель
 local topBarArea = Instance.new("Frame")
 topBarArea.Name = "TopBarArea"
 topBarArea.Size = UDim2.new(1, -175, 0, 40)
@@ -281,24 +280,7 @@ local avatarCorner = Instance.new("UICorner")
 avatarCorner.CornerRadius = UDim.new(1, 0)
 avatarCorner.Parent = profileAvatar
 
--- Кнопки закрытия (×) и сворачивания (−)
-local closeBtn = Instance.new("TextButton")
-closeBtn.Name = "CloseButton"
-closeBtn.Size = UDim2.new(0, 22, 0, 22)
-closeBtn.Position = UDim2.new(1, 40, 0, -2)
-closeBtn.BackgroundColor3 = Color3.fromRGB(85, 35, 20)
-closeBtn.BackgroundTransparency = 0.3
-closeBtn.Text = "×"
-closeBtn.TextColor3 = Color3.fromRGB(255, 150, 120)
-closeBtn.TextSize = 16
-closeBtn.Font = Enum.Font.GothamBold
-closeBtn.ZIndex = 4
-closeBtn.Parent = topBarArea
-
-local closeCorner = Instance.new("UICorner")
-closeCorner.CornerRadius = UDim.new(0, 6)
-closeCorner.Parent = closeBtn
-
+-- Кнопки сворачивания (−) и закрытия (×)
 local minBtn = Instance.new("TextButton")
 minBtn.Name = "MinimizeButton"
 minBtn.Size = UDim2.new(0, 22, 0, 22)
@@ -316,6 +298,23 @@ local minCorner = Instance.new("UICorner")
 minCorner.CornerRadius = UDim.new(0, 6)
 minCorner.Parent = minBtn
 
+local closeBtn = Instance.new("TextButton")
+closeBtn.Name = "CloseButton"
+closeBtn.Size = UDim2.new(0, 22, 0, 22)
+closeBtn.Position = UDim2.new(1, 40, 0, -2)
+closeBtn.BackgroundColor3 = Color3.fromRGB(85, 35, 20)
+closeBtn.BackgroundTransparency = 0.3
+closeBtn.Text = "×"
+closeBtn.TextColor3 = Color3.fromRGB(255, 150, 120)
+closeBtn.TextSize = 16
+closeBtn.Font = Enum.Font.GothamBold
+closeBtn.ZIndex = 4
+closeBtn.Parent = topBarArea
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 6)
+closeCorner.Parent = closeBtn
+
 local sectionTitle = Instance.new("TextLabel")
 sectionTitle.Size = UDim2.new(1, -175, 0, 20)
 sectionTitle.Position = UDim2.new(0, 165, 0, 48)
@@ -328,7 +327,7 @@ sectionTitle.TextXAlignment = Enum.TextXAlignment.Left
 sectionTitle.ZIndex = 2
 sectionTitle.Parent = contentContainer
 
--- Страницы контента (Строго ScrollingFrame)
+-- Страницы (ScrollingFrame)
 local mainPage = Instance.new("ScrollingFrame")
 mainPage.Name = "MainPage"
 mainPage.Size = UDim2.new(1, -175, 1, -80)
@@ -385,14 +384,13 @@ mainTabBtn.MouseButton1Click:Connect(function() switchTab("Main") end)
 visualsTabBtn.MouseButton1Click:Connect(function() switchTab("Visuals") end)
 configTabBtn.MouseButton1Click:Connect(function() switchTab("Configs") end)
 
--- Переменные функций
 local autoFarmEnabled = false
 local aimAssistEnabled = false
 local snowEnabled = false
 local leavesEnabled = false
 
 -- ==========================================
--- УНИВЕРСАЛЬНАЯ КАРТОЧКА ФУНКЦИИ С КНОПКОЙ НАСТРОЕК (3 ТОЧКИ ⋮)
+-- КАРТОЧКА ФУНКЦИИ С ИКОНКОЙ НАСТРОЕК (6953984741)
 -- ==========================================
 local function createModuleCard(parent, title, desc, yPos, callbackToggle, hasSettings)
     local card = Instance.new("Frame")
@@ -478,14 +476,11 @@ local function createModuleCard(parent, title, desc, yPos, callbackToggle, hasSe
     end)
 
     if hasSettings then
-        local settingsBtn = Instance.new("TextButton")
-        settingsBtn.Size = UDim2.new(0, 20, 0, 18)
-        settingsBtn.Position = UDim2.new(1, -66, 0, 11)
+        local settingsBtn = Instance.new("ImageButton")
+        settingsBtn.Size = UDim2.new(0, 16, 0, 16)
+        settingsBtn.Position = UDim2.new(1, -64, 0, 12)
         settingsBtn.BackgroundTransparency = 1
-        settingsBtn.Font = Enum.Font.GothamBold
-        settingsBtn.Text = "⋮"
-        settingsBtn.TextColor3 = Color3.fromRGB(200, 150, 100)
-        settingsBtn.TextSize = 14
+        settingsBtn.Image = SETTINGS_ICON
         settingsBtn.ZIndex = 5
         settingsBtn.Parent = card
 
@@ -533,27 +528,25 @@ local function createModuleCard(parent, title, desc, yPos, callbackToggle, hasSe
     end
 end
 
--- Добавление карточек на Main
-local _, setAutoFarmUI = createModuleCard(mainPage, "AutoFarm", "Рандомные удары и способности", 0, function(state)
+createModuleCard(mainPage, "AutoFarm", "Рандомные удары и способности", 0, function(state)
     autoFarmEnabled = state
 end, true)
 
-local _, setAimAssistUI = createModuleCard(mainPage, "Aim Assist", "Автонаведение на туловище", 80, function(state)
+createModuleCard(mainPage, "Aim Assist", "Автонаведение на туловище", 80, function(state)
     aimAssistEnabled = state
 end, true)
 
--- Добавление карточек на Visuals
-local _, setSnowUI = createModuleCard(visualsPage, "Snow (Пыль)", "Плавные круглые точки снега", 0, function(state)
+createModuleCard(visualsPage, "Snow (Пыль)", "Плавные круглые точки снега", 0, function(state)
     snowEnabled = state
 end, false)
 
-local _, setLeavesUI = createModuleCard(visualsPage, "Leaves 🍁", "Падающие осенние листья", 80, function(state)
+createModuleCard(visualsPage, "Leaves 🍁", "Падающие осенние листья", 80, function(state)
     leavesEnabled = state
 end, false)
 
 
 -- ==========================================
--- МЕНЕДЖЕР КОНФИГОВ (Исправлено создание ScrollingFrame)
+-- МЕНЕДЖЕР КОНФИГОВ (Импорт с текстурой 6953990743)
 -- ==========================================
 local configsFolder = "MoneyHubConfigs"
 
@@ -571,9 +564,7 @@ configNameBox.Font = Enum.Font.Gotham
 configNameBox.ZIndex = 3
 configNameBox.Parent = configPage
 
-local cnCorner = Instance.new("UICorner")
-cnCorner.CornerRadius = UDim.new(0, 6)
-cnCorner.Parent = configNameBox
+local cnCorner = Instance.new("UICorner") cnCorner.CornerRadius = UDim.new(0, 6) cnCorner.Parent = configNameBox
 
 local createCfgBtn = Instance.new("TextButton")
 createCfgBtn.Size = UDim2.new(0, 65, 0, 28)
@@ -586,11 +577,8 @@ createCfgBtn.Font = Enum.Font.GothamBold
 createCfgBtn.ZIndex = 3
 createCfgBtn.Parent = configPage
 
-local ccCorner = Instance.new("UICorner")
-ccCorner.CornerRadius = UDim.new(0, 6)
-ccCorner.Parent = createCfgBtn
+local ccCorner = Instance.new("UICorner") ccCorner.CornerRadius = UDim.new(0, 6) ccCorner.Parent = createCfgBtn
 
--- ГАРАНТИРОВАННО ScrollingFrame
 local configListContainer = Instance.new("ScrollingFrame")
 configListContainer.Name = "ConfigListContainer"
 configListContainer.Size = UDim2.new(1, 0, 0, 220)
@@ -606,10 +594,7 @@ local function refreshConfigList()
         ch:Destroy()
     end
     
-    if not isfolder(configsFolder) then
-        makefolder(configsFolder)
-    end
-    
+    if not isfolder(configsFolder) then makefolder(configsFolder) end
     local files = listfiles(configsFolder)
     local yOffset = 0
     
@@ -624,9 +609,7 @@ local function refreshConfigList()
         itemFrame.ZIndex = 3
         itemFrame.Parent = configListContainer
         
-        local itCorner = Instance.new("UICorner")
-        itCorner.CornerRadius = UDim.new(0, 6)
-        itCorner.Parent = itemFrame
+        local itCorner = Instance.new("UICorner") itCorner.CornerRadius = UDim.new(0, 6) itCorner.Parent = itemFrame
         
         local lbl = Instance.new("TextLabel")
         lbl.Size = UDim2.new(0, 75, 1, 0)
@@ -650,21 +633,16 @@ local function refreshConfigList()
         saveBtn.Font = Enum.Font.GothamBold
         saveBtn.ZIndex = 4
         saveBtn.Parent = itemFrame
-        
         local sbC = Instance.new("UICorner") sbC.CornerRadius = UDim.new(0, 4) sbC.Parent = saveBtn
         
-        local loadBtn = Instance.new("TextButton")
-        loadBtn.Size = UDim2.new(0, 38, 0, 22)
-        loadBtn.Position = UDim2.new(1, -76, 0, 5)
-        loadBtn.BackgroundColor3 = Color3.fromRGB(0, 160, 80)
-        loadBtn.Text = "Импорт"
-        loadBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        loadBtn.TextSize = 9
-        loadBtn.Font = Enum.Font.GothamBold
+        -- Кнопка импорта с текстурой 6953990743
+        local loadBtn = Instance.new("ImageButton")
+        loadBtn.Size = UDim2.new(0, 24, 0, 22)
+        loadBtn.Position = UDim2.new(1, -72, 0, 5)
+        loadBtn.BackgroundTransparency = 1
+        loadBtn.Image = IMPORT_ICON
         loadBtn.ZIndex = 4
         loadBtn.Parent = itemFrame
-        
-        local lbC = Instance.new("UICorner") lbC.CornerRadius = UDim.new(0, 4) lbC.Parent = loadBtn
         
         local delBtn = Instance.new("TextButton")
         delBtn.Size = UDim2.new(0, 30, 0, 22)
@@ -676,38 +654,22 @@ local function refreshConfigList()
         delBtn.Font = Enum.Font.GothamBold
         delBtn.ZIndex = 4
         delBtn.Parent = itemFrame
-        
         local dbC = Instance.new("UICorner") dbC.CornerRadius = UDim.new(0, 4) dbC.Parent = delBtn
         
         saveBtn.MouseButton1Click:Connect(function()
-            local data = {
-                AutoFarm = autoFarmEnabled,
-                AimAssist = aimAssistEnabled,
-                Snow = snowEnabled,
-                Leaves = leavesEnabled
-            }
+            local data = { AutoFarm = autoFarmEnabled, AimAssist = aimAssistEnabled, Snow = snowEnabled, Leaves = leavesEnabled }
             writefile(configsFolder .. "/" .. cfgName .. ".json", HttpService:JSONEncode(data))
         end)
         
         loadBtn.MouseButton1Click:Connect(function()
-            if pcall(function()
+            pcall(function()
                 local content = readfile(configsFolder .. "/" .. cfgName .. ".json")
                 local data = HttpService:JSONDecode(content)
-                
                 autoFarmEnabled = data.AutoFarm or false
-                setAutoFarmUI(autoFarmEnabled)
-                
                 aimAssistEnabled = data.AimAssist or false
-                setAimAssistUI(aimAssistEnabled)
-                
                 snowEnabled = data.Snow or false
-                setSnowUI(snowEnabled)
-                
                 leavesEnabled = data.Leaves or false
-                setLeavesUI(leavesEnabled)
-            end) then
-                print("Config loaded successfully!")
-            end
+            end)
         end)
         
         delBtn.MouseButton1Click:Connect(function()
@@ -726,8 +688,7 @@ createCfgBtn.MouseButton1Click:Connect(function()
     local name = configNameBox.Text
     if name and name ~= "" then
         if not isfolder(configsFolder) then makefolder(configsFolder) end
-        local defaultData = { AutoFarm = false, AimAssist = false, Snow = false, Leaves = false }
-        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode(defaultData))
+        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, Snow = false, Leaves = false }))
         configNameBox.Text = ""
         refreshConfigList()
     end
@@ -735,9 +696,8 @@ end)
 
 refreshConfigList()
 
-
 -- ==========================================
--- ПЛАВНЫЙ СНЕГ (ТОЧКИ) И ЛИСТЬЯ 🍁
+-- ПЛАВНЫЙ СНЕГ И ЛИСТЬЯ 🍁
 -- ==========================================
 local particles = {}
 for i = 1, 26 do
@@ -749,10 +709,7 @@ for i = 1, 26 do
     snow.ZIndex = 1
     snow.Visible = false
     snow.Parent = effectsContainer
-    
-    local sCorner = Instance.new("UICorner")
-    sCorner.CornerRadius = UDim.new(1, 0)
-    sCorner.Parent = snow
+    local sCorner = Instance.new("UICorner") sCorner.CornerRadius = UDim.new(1, 0) sCorner.Parent = snow
 
     local leaf = Instance.new("TextLabel")
     leaf.Size = UDim2.new(0, 16, 0, 16)
@@ -764,14 +721,7 @@ for i = 1, 26 do
     leaf.Visible = false
     leaf.Parent = effectsContainer
 
-    table.insert(particles, {
-        snow = snow,
-        leaf = leaf,
-        x = math.random(),
-        y = math.random(),
-        speed = math.random(20, 50) / 100000,
-        sway = math.random(1, 10)
-    })
+    table.insert(particles, { snow = snow, leaf = leaf, x = math.random(), y = math.random(), speed = math.random(20, 50) / 100000, sway = math.random(1, 10) })
 end
 
 RunService.RenderStepped:Connect(function(dt)
@@ -779,30 +729,18 @@ RunService.RenderStepped:Connect(function(dt)
     local scaledDt = dt * 60
     for _, p in ipairs(particles) do
         p.y = p.y + (p.speed * scaledDt)
-        if p.y > 1.05 then
-            p.y = -0.05
-            p.x = math.random()
-        end
+        if p.y > 1.05 then p.y = -0.05 p.x = math.random() end
         
-        if snowEnabled and mainFrame.Visible then
-            p.snow.Visible = true
-            p.snow.Position = UDim2.new(p.x, math.sin(tick() + p.sway) * 12, p.y, 0)
-        else
-            p.snow.Visible = false
-        end
+        p.snow.Visible = (snowEnabled and mainFrame.Visible)
+        if p.snow.Visible then p.snow.Position = UDim2.new(p.x, math.sin(tick() + p.sway) * 12, p.y, 0) end
 
-        if leavesEnabled and mainFrame.Visible then
-            p.leaf.Visible = true
-            p.leaf.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 20, p.y, 0)
-        else
-            p.leaf.Visible = false
-        end
+        p.leaf.Visible = (leavesEnabled and mainFrame.Visible)
+        if p.leaf.Visible then p.leaf.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 20, p.y, 0) end
     end
 end)
 
-
 -- ==========================================
--- БОЙ, АВТОФАРМ И AIM ASSIST (ТУЛОВИЩЕ)
+-- БОЙ, АВТОФАРМ И AIM ASSIST
 -- ==========================================
 local function getTouchButton(nameKeyword)
     for _, gui in ipairs(playerGui:GetChildren()) do
@@ -811,9 +749,7 @@ local function getTouchButton(nameKeyword)
                 if (btn:IsA("ImageButton") or btn:IsA("TextButton")) and btn.Visible then
                     local name = btn.Name:lower()
                     local text = btn:IsA("TextButton") and btn.Text:lower() or ""
-                    if name:find(nameKeyword) or text:find(nameKeyword) then
-                        return btn
-                    end
+                    if name:find(nameKeyword) or text:find(nameKeyword) then return btn end
                 end
             end
         end
@@ -834,10 +770,7 @@ local function getClosestPlayer()
         if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") and p.Character:FindFirstChild("Humanoid") then
             if p.Character.Humanoid.Health > 0 then
                 local dist = (p.Character.HumanoidRootPart.Position - myPos).Magnitude
-                if dist < minDist then
-                    minDist = dist
-                    nearest = p
-                end
+                if dist < minDist then minDist = dist nearest = p end
             end
         end
     end
@@ -855,9 +788,7 @@ RunService.RenderStepped:Connect(function()
 
     if aimAssistEnabled and target and target.Character then
         local torso = target.Character:FindFirstChild("HumanoidRootPart") or target.Character:FindFirstChild("Torso")
-        if torso then
-            camera.CFrame = camera.CFrame:Lerp(CFrame.new(camera.CFrame.Position, torso.Position), 0.2)
-        end
+        if torso then camera.CFrame = camera.CFrame:Lerp(CFrame.new(camera.CFrame.Position, torso.Position), 0.2) end
     end
 
     if not autoFarmEnabled or isEvadingDamage or not target or not target.Character then return end
@@ -897,19 +828,10 @@ end)
 local function executeInstantM1()
     pcall(function()
         local punchBtn = getTouchButton("punch") or getTouchButton("attack") or getTouchButton("m1")
-        if punchBtn then
-            firesignal(punchBtn.MouseButton1Down)
-            firesignal(punchBtn.Activated)
-            firesignal(punchBtn.MouseButton1Up)
-        end
+        if punchBtn then firesignal(punchBtn.MouseButton1Down) firesignal(punchBtn.Activated) firesignal(punchBtn.MouseButton1Up) end
         for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
-            if obj:IsA("RemoteEvent") then
-                local name = obj.Name:lower()
-                if name:find("comm") or name:find("event") or name:find("punch") or name:find("m1") then
-                    obj:FireServer({Goal = "LeftClick"})
-                    obj:FireServer("LeftClick")
-                    obj:FireServer("Punch")
-                end
+            if obj:IsA("RemoteEvent") and (obj.Name:lower():find("comm") or obj.Name:lower():find("event") or obj.Name:lower():find("punch")) then
+                obj:FireServer({Goal = "LeftClick"}) obj:FireServer("LeftClick") obj:FireServer("Punch")
             end
         end
     end)
@@ -918,30 +840,12 @@ end
 local function executeInstantSkill(skillNumber)
     pcall(function()
         local skillBtn = getTouchButton(tostring(skillNumber))
-        if skillBtn then
-            firesignal(skillBtn.MouseButton1Down)
-            firesignal(skillBtn.Activated)
-            firesignal(skillBtn.MouseButton1Up)
-        end
-
+        if skillBtn then firesignal(skillBtn.MouseButton1Down) firesignal(skillBtn.Activated) firesignal(skillBtn.MouseButton1Up) end
         local keyEnum = Enum.KeyCode.One
-        if skillNumber == 2 then keyEnum = Enum.KeyCode.Two
-        elseif skillNumber == 3 then keyEnum = Enum.KeyCode.Three
-        elseif skillNumber == 4 then keyEnum = Enum.KeyCode.Four end
-        
+        if skillNumber == 2 then keyEnum = Enum.KeyCode.Two elseif skillNumber == 3 then keyEnum = Enum.KeyCode.Three elseif skillNumber == 4 then keyEnum = Enum.KeyCode.Four end
         game:GetService("VirtualInputManager"):SendKeyEvent(true, keyEnum, false, game)
         task.wait(0.02)
         game:GetService("VirtualInputManager"):SendKeyEvent(false, keyEnum, false, game)
-
-        for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
-            if obj:IsA("RemoteEvent") then
-                local name = obj.Name:lower()
-                if name:find("comm") or name:find("event") then
-                    obj:FireServer({Goal = "KeyPress", Key = skillNumber})
-                    obj:FireServer("KeyPress", skillNumber)
-                end
-            end
-        end
     end)
 end
 
@@ -950,20 +854,12 @@ task.spawn(function()
         task.wait(0.08)
         if autoFarmEnabled and currentTarget and currentTarget.Character and not isEvadingDamage then
             pcall(function()
-                local char = player.Character
-                local enemyChar = currentTarget.Character
+                local char = player.Character local enemyChar = currentTarget.Character
                 if not char or not enemyChar then return end
-                
-                local myRoot = char:FindFirstChild("HumanoidRootPart")
-                local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
+                local myRoot = char:FindFirstChild("HumanoidRootPart") local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
                 if not myRoot or not enemyRoot then return end
-
                 if (myRoot.Position - enemyRoot.Position).Magnitude <= 8 then
-                    if math.random(1, 6) <= 3 then
-                        executeInstantM1()
-                    else
-                        executeInstantSkill(math.random(1, 4))
-                    end
+                    if math.random(1, 6) <= 3 then executeInstantM1() else executeInstantSkill(math.random(1, 4)) end
                 end
             end)
         else
@@ -972,26 +868,17 @@ task.spawn(function()
     end
 end)
 
-
--- ==========================================
--- ПЕРЕТАСКИВАНИЕ И ПЛАВАЮЩАЯ КНОПКА
--- ==========================================
+-- Перетаскивание и плавающая кнопка
 local function enableDragging(frame, handle)
     local dragging, dragInput, dragStart, startPos
     handle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = frame.Position
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then dragging = false end
-            end)
+            dragging = true dragStart = input.Position startPos = frame.Position
+            input.Changed:Connect(function() if input.UserInputState == Enum.UserInputState.End then dragging = false end end)
         end
     end)
     handle.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
-        end
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dragInput = input end
     end)
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
@@ -1013,36 +900,10 @@ floatBtn.Visible = false
 floatBtn.ZIndex = 100
 floatBtn.Parent = screenGui
 
-local floatCorner = Instance.new("UICorner")
-floatCorner.CornerRadius = UDim.new(0, 18)
-floatCorner.Parent = floatBtn
-
-local floatTexture = Instance.new("ImageLabel")
-floatTexture.Size = UDim2.new(0, 18, 0, 18)
-floatTexture.Position = UDim2.new(0, 10, 0.5, -9)
-floatTexture.BackgroundTransparency = 1
-floatTexture.Image = TEXTURE_ID
-floatTexture.ZIndex = 101
-floatTexture.Parent = floatBtn
-
-local floatTitle = Instance.new("TextLabel")
-floatTitle.Size = UDim2.new(1, -34, 1, 0)
-floatTitle.Position = UDim2.new(0, 30, 0, 0)
-floatTitle.BackgroundTransparency = 1
-floatTitle.Font = Enum.Font.GothamBold
-floatTitle.Text = "MONEYHUB"
-floatTitle.TextColor3 = Color3.fromRGB(255, 195, 80)
-floatTitle.TextSize = 12
-floatTitle.TextXAlignment = Enum.TextXAlignment.Left
-floatTitle.ZIndex = 101
-floatTitle.Parent = floatBtn
-
-local floatClick = Instance.new("TextButton")
-floatClick.Size = UDim2.new(1, 0, 1, 0)
-floatClick.BackgroundTransparency = 1
-floatClick.Text = ""
-floatClick.ZIndex = 102
-floatClick.Parent = floatBtn
+local floatCorner = Instance.new("UICorner") floatCorner.CornerRadius = UDim.new(0, 18) floatCorner.Parent = floatBtn
+local floatTexture = Instance.new("ImageLabel") floatTexture.Size = UDim2.new(0, 18, 0, 18) floatTexture.Position = UDim2.new(0, 10, 0.5, -9) floatTexture.BackgroundTransparency = 1 floatTexture.Image = TEXTURE_ID floatTexture.ZIndex = 101 floatTexture.Parent = floatBtn
+local floatTitle = Instance.new("TextLabel") floatTitle.Size = UDim2.new(1, -34, 1, 0) floatTitle.Position = UDim2.new(0, 30, 0, 0) floatTitle.BackgroundTransparency = 1 floatTitle.Font = Enum.Font.GothamBold floatTitle.Text = "MONEYHUB" floatTitle.TextColor3 = Color3.fromRGB(255, 195, 80) floatTitle.TextSize = 12 floatTitle.TextXAlignment = Enum.TextXAlignment.Left floatTitle.ZIndex = 101 floatTitle.Parent = floatBtn
+local floatClick = Instance.new("TextButton") floatClick.Size = UDim2.new(1, 0, 1, 0) floatClick.BackgroundTransparency = 1 floatClick.Text = "" floatClick.ZIndex = 102 floatClick.Parent = floatBtn
 
 enableDragging(floatBtn, floatBtn)
 
