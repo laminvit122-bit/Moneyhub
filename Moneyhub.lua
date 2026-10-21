@@ -1,8 +1,8 @@
 --[[
     ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Ultimate Fixed & Notified Edition)
-    DESCRIPTION: Fixed Sidebar Icons, Restored Working AutoFarm & Aim Assist with UI Sync on Config Load,
-                 Bottom-Right Notifications with Timer Line, Full Script Output.
+    PROJECT: MONEYHUB PREMIUM GUI (Ultimate Bugfixed Edition)
+    DESCRIPTION: Fixed Lua syntax error, Sidebar Icons, Config UI Sync,
+                 Working AutoFarm & Aim Assist, Notifications with Timer Line.
     COMPATIBILITY: Roblox Mobile Injectors
     ==================================================
 ]]
@@ -97,7 +97,6 @@ local function showNotification(title, stateText)
     titleLbl.ZIndex = 502
     titleLbl.Parent = notifFrame
 
-    -- Шкала времени (линия справа налево)
     local lineBg = Instance.new("Frame")
     lineBg.Size = UDim2.new(1, -20, 0, 3)
     lineBg.Position = UDim2.new(0, 10, 1, -8)
@@ -116,9 +115,7 @@ local function showNotification(title, stateText)
     lineFill.Parent = lineBg
     local lfCorner = Instance.new("UICorner") lfCorner.CornerRadius = UDim.new(1,0) lfCorner.Parent = lineFill
 
-    -- Анимация появления
     TweenService:Create(notifFrame, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = UDim2.new(0, 0, 1, yPos - 10)}):Play()
-    -- Анимация уменьшения линии за 3 секунды
     TweenService:Create(lineFill, TweenInfo.new(3.0, Enum.EasingStyle.Linear), {Size = UDim2.new(0, 0, 1, 0)}):Play()
 
     task.delay(3.0, function()
@@ -130,7 +127,7 @@ local function showNotification(title, stateText)
 end
 
 -- ==========================================
-// ГЛАВНОЕ ОВНО И ИНТЕРФЕЙС
+-- ГЛАВНОЕ ОКНО И ИНТЕРФЕЙС
 -- ==========================================
 local targetPosition = UDim2.new(0.5, -320, 0.5, -205)
 local hiddenPosition = UDim2.new(0.5, -320, 0.5, 380)
@@ -180,7 +177,6 @@ local logoLabel = Instance.new("TextLabel") logoLabel.Size = UDim2.new(1, -38, 0
 local modulesIconImg = Instance.new("ImageLabel") modulesIconImg.Size = UDim2.new(0, 14, 0, 14) modulesIconImg.Position = UDim2.new(0, 12, 0, 51) modulesIconImg.BackgroundTransparency = 1 modulesIconImg.Image = MODULES_ICON modulesIconImg.ZIndex = 3 modulesIconImg.Parent = sidebar
 local modulesHeader = Instance.new("TextLabel") modulesHeader.Size = UDim2.new(1, -32, 0, 20) modulesHeader.Position = UDim2.new(0, 34, 0, 48) modulesHeader.BackgroundTransparency = 1 modulesHeader.Font = Enum.Font.GothamBold modulesHeader.Text = "Modules" modulesHeader.TextColor3 = Color3.fromRGB(210, 150, 90) modulesHeader.TextSize = 11 modulesHeader.TextXAlignment = Enum.TextXAlignment.Left modulesHeader.ZIndex = 3 modulesHeader.Parent = sidebar
 
--- Кнопка Main (смещенный текст, чтобы иконка не наползала)
 local mainTabBtn = Instance.new("TextButton")
 mainTabBtn.Size = UDim2.new(1, -20, 0, 30)
 mainTabBtn.Position = UDim2.new(0, 10, 0, 72)
@@ -201,7 +197,6 @@ local mainIconImg = Instance.new("ImageLabel") mainIconImg.Size = UDim2.new(0, 1
 local settingsIconImg = Instance.new("ImageLabel") settingsIconImg.Size = UDim2.new(0, 14, 0, 14) settingsIconImg.Position = UDim2.new(0, 12, 0, 115) settingsIconImg.BackgroundTransparency = 1 settingsIconImg.Image = SETTINGS_ICON settingsIconImg.ZIndex = 3 settingsIconImg.Parent = sidebar
 local settingsHeader = Instance.new("TextLabel") settingsHeader.Size = UDim2.new(1, -32, 0, 20) settingsHeader.Position = UDim2.new(0, 34, 0, 112) settingsHeader.BackgroundTransparency = 1 settingsHeader.Font = Enum.Font.GothamBold settingsHeader.Text = "Settings" settingsHeader.TextColor3 = Color3.fromRGB(210, 150, 90) settingsHeader.TextSize = 11 settingsHeader.TextXAlignment = Enum.TextXAlignment.Left settingsHeader.ZIndex = 3 settingsHeader.Parent = sidebar
 
--- Кнопка Visuals
 local visualsTabBtn = Instance.new("TextButton")
 visualsTabBtn.Size = UDim2.new(1, -20, 0, 28)
 visualsTabBtn.Position = UDim2.new(0, 10, 0, 136)
@@ -218,7 +213,6 @@ visualsTabBtn.Parent = sidebar
 local visualsTabCorner = Instance.new("UICorner") visualsTabCorner.CornerRadius = UDim.new(0, 6) visualsTabCorner.Parent = visualsTabBtn
 local visualsIconImg = Instance.new("ImageLabel") visualsIconImg.Size = UDim2.new(0, 14, 0, 14) visualsIconImg.Position = UDim2.new(0, 12, 0, 7) visualsIconImg.BackgroundTransparency = 1 visualsIconImg.Image = VISUALS_ICON visualsIconImg.ZIndex = 4 visualsIconImg.Parent = visualsTabBtn
 
--- Кнопка Configs
 local configTabBtn = Instance.new("TextButton")
 configTabBtn.Size = UDim2.new(1, -20, 0, 28)
 configTabBtn.Position = UDim2.new(0, 10, 0, 170)
@@ -413,7 +407,6 @@ local function updateCardPositions(parentTable)
     end
 end
 
--- Ссылки на функции обновления интерфейса тумблеров извне (для конфигов)
 local setAutoFarmUIState = nil
 local setAimAssistUIState = nil
 local setSnowUIState = nil
@@ -482,7 +475,8 @@ local function createModuleCard(parent, parentTable, title, desc, callbackToggle
         end
         if callbackToggle then callbackToggle(isEnabled) end
         if not noNotify then
-            showNotification(title, isEnabled and "Включено" | "Выключено")
+            local statusStr = isEnabled and "Включено" or "Выключено"
+            showNotification(title, statusStr)
         end
     end
 
