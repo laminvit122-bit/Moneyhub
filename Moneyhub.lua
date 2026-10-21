@@ -1,9 +1,9 @@
 --[[
     ==================================================
-    PROJECT: MONEYHUB PREMIUM GUI (Fixed Config List ScrollingFrame & AimAssist)
+    PROJECT: MONEYHUB PREMIUM GUI (Final Stable Opus Edition)
     DESCRIPTION: OPUS Client Style (Yellow-Orange Amber Theme), Texture ID only near MONEYHUB title,
                  Settings Tab (Snow points, Falling Leaves 🍁, Config Manager), Aim Assist (Torso Lock),
-                 Extended 3-Dot Options Menu for Modules, Fixed Window Close/Minimize Buttons.
+                 Extended 3-Dot Options Menu for Modules, Fixed Window Close/Minimize Buttons & ScrollingFrames.
     COMPATIBILITY: Roblox Mobile Injectors
     ==================================================
 ]]
@@ -281,7 +281,7 @@ local avatarCorner = Instance.new("UICorner")
 avatarCorner.CornerRadius = UDim.new(1, 0)
 avatarCorner.Parent = profileAvatar
 
--- Исправленные кнопки закрытия (×) и сворачивания (−)
+-- Кнопки закрытия (×) и сворачивания (−)
 local closeBtn = Instance.new("TextButton")
 closeBtn.Name = "CloseButton"
 closeBtn.Size = UDim2.new(0, 22, 0, 22)
@@ -328,7 +328,7 @@ sectionTitle.TextXAlignment = Enum.TextXAlignment.Left
 sectionTitle.ZIndex = 2
 sectionTitle.Parent = contentContainer
 
--- Страницы контента
+-- Страницы контента (Строго ScrollingFrame)
 local mainPage = Instance.new("ScrollingFrame")
 mainPage.Name = "MainPage"
 mainPage.Size = UDim2.new(1, -175, 1, -80)
@@ -553,7 +553,7 @@ end, false)
 
 
 -- ==========================================
--- МЕНЕДЖЕР КОНФИГОВ (Исправленный ScrollingFrame)
+-- МЕНЕДЖЕР КОНФИГОВ (Исправлено создание ScrollingFrame)
 -- ==========================================
 local configsFolder = "MoneyHubConfigs"
 
@@ -590,7 +590,7 @@ local ccCorner = Instance.new("UICorner")
 ccCorner.CornerRadius = UDim.new(0, 6)
 ccCorner.Parent = createCfgBtn
 
--- ИСПРАВЛЕНО: Теперь это ScrollingFrame, ошибки CanvasSize больше не будет
+-- ГАРАНТИРОВАННО ScrollingFrame
 local configListContainer = Instance.new("ScrollingFrame")
 configListContainer.Name = "ConfigListContainer"
 configListContainer.Size = UDim2.new(1, 0, 0, 220)
