@@ -9,6 +9,7 @@ local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local HttpService = game:GetService("HttpService")
+local Lighting = game:GetService("Lighting")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -380,8 +381,10 @@ configTabBtn.MouseButton1Click:Connect(function() switchTab("Configs") end)
 local autoFarmEnabled = false
 local aimAssistEnabled = false
 local aimTargetPart = "Torso"
+local aimSmoothness = 0.2 -- Плавность аима по умолчанию
 local snowEnabled = false
 local leavesEnabled = false
+local fullbrightEnabled = false
 
 local mainCards = {}
 local visualsCards = {}
@@ -398,7 +401,9 @@ local setAutoFarmUIState = nil
 local setAimAssistUIState = nil
 local setSnowUIState = nil
 local setLeavesUIState = nil
+local setFullbrightUIState = nil
 local updateAimButtonsVisual = nil
+local setAimSliderValue = nil
 
 local function createModuleCard(parent, parentTable, title, desc, callbackToggle, hasSettings, customSettingsBuilder)
     local card = Instance.new("Frame")
@@ -481,7 +486,7 @@ local function createModuleCard(parent, parentTable, title, desc, callbackToggle
         settingsBtn.Parent = card
 
         local settingsPanel = Instance.new("Frame")
-        settingsPanel.Size = UDim2.new(1, -20, 0, 50)
+        settingsPanel.Size = UDim2.new(1, -20, 0, 80)
         settingsPanel.Position = UDim2.new(0, 10, 0, 68)
         settingsPanel.BackgroundTransparency = 1
         settingsPanel.Visible = false
@@ -495,7 +500,7 @@ local function createModuleCard(parent, parentTable, title, desc, callbackToggle
         settingsBtn.MouseButton1Click:Connect(function()
             local isOpen = not settingsPanel.Visible
             settingsPanel.Visible = isOpen
-            local targetH = isOpen and 130 or 70
+            local targetH = isOpen and 150 or 70
             TweenService:Create(card, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {Size = UDim2.new(0, 215, 0, targetH)}):Play()
             task.delay(0.05, function()
                 updateCardPositions(parentTable)
@@ -519,7 +524,7 @@ _, setAimUIFunc = createModuleCard(mainPage, mainCards, "Aim Assist", "Авто�
     aimAssistEnabled = state
 end, true, function(panel)
     local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(1, 0, 0, 20)
+    lbl.Size = UDim2.new(1, 0, 0, 16)
     lbl.BackgroundTransparency = 1
     lbl.Font = Enum.Font.GothamBold
     lbl.Text = "Целься в:"
@@ -530,8 +535,8 @@ end, true, function(panel)
     lbl.Parent = panel
 
     local torsoBtn = Instance.new("TextButton")
-    torsoBtn.Size = UDim2.new(0, 85, 0, 24)
-    torsoBtn.Position = UDim2.new(0, 0, 0, 24)
+    torsoBtn.Size = UDim2.new(0, 85, 0, 22)
+    torsoBtn.Position = UDim2.new(0, 0, 0, 20)
     torsoBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
     torsoBtn.Text = "Туловище"
     torsoBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -542,8 +547,8 @@ end, true, function(panel)
     local tbC = Instance.new("UICorner") tbC.CornerRadius = UDim.new(0, 6) tbC.Parent = torsoBtn
 
     local headBtn = Instance.new("TextButton")
-    headBtn.Size = UDim2.new(0, 85, 0, 24)
-    headBtn.Position = UDim2.new(0, 95, 0, 24)
+    headBtn.Size = UDim2.new(0, 85, 0, 22)
+    headBtn.Position = UDim2.new(0, 95, 0, 20)
     headBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
     headBtn.Text = "Голова"
     headBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
@@ -576,6 +581,90 @@ end, true, function(panel)
         aimTargetPart = "Head"
         updateAimButtonsVisual("Head")
     end)
+
+    -- Слайдер плавности аима (-----•)
+    local sliderLbl = Instance.new("TextLabel")
+    sliderLbl.Size = UDim2.new(1, 0, 0, 16)
+    sliderLbl.Position = UDim2.new(0, 0, 0, 48)
+    sliderLbl.BackgroundTransparency = 1
+    sliderLbl.Font = Enum.Font.GothamBold
+    sliderLbl.Text = "Плавность аима:"
+    sliderLbl.TextColor3 = Color3.fromRGB(250, 220, 170)
+    sliderLbl.TextSize = 11
+    sliderLbl.TextXAlignment = Enum.TextXAlignment.Left
+    sliderLbl.ZIndex = 11
+    sliderLbl.Parent = panel
+
+    local sliderBg = Instance.new("Frame")
+    sliderBg.Size = UDim2.new(0, 180, 0, 6)
+    sliderBg.Position = UDim2.new(0, 5, 0, 72)
+    sliderBg.BackgroundColor3 = Color3.fromRGB(40, 24, 15)
+    sliderBg.BorderSizePixel = 0
+    sliderBg.ZIndex = 11
+    sliderBg.Parent = panel
+    local sBgCorner = Instance.new("UICorner") sBgCorner.CornerRadius = UDim.new(1,0) sBgCorner.Parent = sliderBg
+
+    local sliderFill = Instance.new("Frame")
+    sliderFill.Size = UDim2.new(0.5, 0, 1, 0)
+    sliderFill.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
+    sliderFill.BorderSizePixel = 0
+    sliderFill.ZIndex = 12
+    sliderFill.Parent = sliderBg
+    local sFillCorner = Instance.new("UICorner") sFillCorner.CornerRadius = UDim.new(1,0) sFillCorner.Parent = sliderFill
+
+    local sliderKnob = Instance.new("Frame")
+    sliderKnob.Size = UDim2.new(0, 12, 0, 12)
+    sliderKnob.Position = UDim2.new(0.5, -6, 0.5, -6)
+    sliderKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    sliderKnob.BorderSizePixel = 0
+    sliderKnob.ZIndex = 13
+    sliderKnob.Parent = sliderFill
+    local sKnobCorner = Instance.new("UICorner") sKnobCorner.CornerRadius = UDim.new(1,0) sKnobCorner.Parent = sliderKnob
+
+    local sliderBtn = Instance.new("TextButton")
+    sliderBtn.Size = UDim2.new(1, 20, 1, 20)
+    sliderBtn.Position = UDim2.new(0, -10, 0, -10)
+    sliderBtn.BackgroundTransparency = 1
+    sliderBtn.Text = ""
+    sliderBtn.ZIndex = 14
+    sliderBtn.Parent = sliderBg
+
+    local draggingSlider = false
+
+    setAimSliderValue = function(val)
+        -- val от 0 до 1 (0.05 = быстро/резко, 1.0 = медленно/плавно)
+        local alpha = math.clamp((val - 0.02) / (0.9 - 0.02), 0, 1)
+        sliderFill.Size = UDim2.new(alpha, 0, 1, 0)
+        aimSmoothness = val
+    end
+
+    local function updateSlider(input)
+        local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
+        sliderFill.Size = UDim2.new(pos, 0, 1, 0)
+        -- Переводим позицию в плавность: влево (pos=0) -> жестче (0.05), вправо (pos=1) -> плавнее (0.8)
+        aimSmoothness = 0.05 + (pos * 0.75)
+    end
+
+    sliderBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingSlider = true
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingSlider = false
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if draggingSlider and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateSlider(input)
+        end
+    end)
+
+    -- Инициализация ползунка по умолчанию
+    setAimSliderValue(aimSmoothness)
 end)
 setAimAssistUIState = setAimUIFunc
 
@@ -585,6 +674,22 @@ end, false)
 
 _, setLeavesUIState = createModuleCard(visualsPage, visualsCards, "Leaves 🍁", "Падающие осенние листья", function(state)
     leavesEnabled = state
+end, false)
+
+_, setFullbrightUIState = createModuleCard(visualsPage, visualsCards, "Fullbright", "Максимально светлое освещение карты", function(state)
+    fullbrightEnabled = state
+    if fullbrightEnabled then
+        Lighting.Brightness = 2
+        Lighting.ClockTime = 14
+        Lighting.GlobalShadows = false
+        Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+        Lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+    else
+        Lighting.Brightness = 1
+        Lighting.GlobalShadows = true
+        Lighting.Ambient = Color3.fromRGB(127, 127, 127)
+        Lighting.OutdoorAmbient = Color3.fromRGB(127, 127, 127)
+    end
 end, false)
 
 -- МЕНЕДЖЕР КОНФИГОВ (ИМПОРТ И СИНХРОНИЗАЦИЯ UI)
@@ -685,7 +790,15 @@ local function refreshConfigList()
         delBtn.Parent = itemFrame
         
         saveBtn.MouseButton1Click:Connect(function()
-            local data = { AutoFarm = autoFarmEnabled, AimAssist = aimAssistEnabled, AimTarget = aimTargetPart, Snow = snowEnabled, Leaves = leavesEnabled }
+            local data = { 
+                AutoFarm = autoFarmEnabled, 
+                AimAssist = aimAssistEnabled, 
+                AimTarget = aimTargetPart, 
+                AimSmoothness = aimSmoothness,
+                Snow = snowEnabled, 
+                Leaves = leavesEnabled,
+                Fullbright = fullbrightEnabled
+            }
             writefile(configsFolder .. "/" .. cfgName .. ".json", HttpService:JSONEncode(data))
             showNotification("Configs", "Сохранено: " .. cfgName)
         end)
@@ -703,12 +816,18 @@ local function refreshConfigList()
                 
                 aimTargetPart = data.AimTarget or "Torso"
                 if updateAimButtonsVisual then updateAimButtonsVisual(aimTargetPart) end
+
+                aimSmoothness = data.AimSmoothness or 0.2
+                if setAimSliderValue then setAimSliderValue(aimSmoothness) end
                 
                 snowEnabled = data.Snow or false
                 if setSnowUIState then setSnowUIState(snowEnabled, true) end
                 
                 leavesEnabled = data.Leaves or false
                 if setLeavesUIState then setLeavesUIState(leavesEnabled, true) end
+
+                fullbrightEnabled = data.Fullbright or false
+                if setFullbrightUIState then setFullbrightUIState(fullbrightEnabled, true) end
                 
                 showNotification("Configs", "Загружено: " .. cfgName)
             end)
@@ -731,7 +850,7 @@ createCfgBtn.MouseButton1Click:Connect(function()
     local name = configNameBox.Text
     if name and name ~= "" then
         if not isfolder(configsFolder) then makefolder(configsFolder) end
-        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", Snow = false, Leaves = false }))
+        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, Snow = false, Leaves = false, Fullbright = false }))
         configNameBox.Text = ""
         refreshConfigList()
         showNotification("Configs", "Создан конфиг")
@@ -826,7 +945,8 @@ RunService.RenderStepped:Connect(function()
     if aimAssistEnabled and target and target.Character then
         local aimPart = target.Character:FindFirstChild(aimTargetPart) or target.Character:FindFirstChild("HumanoidRootPart") or target.Character:FindFirstChild("Torso")
         if aimPart then
-            camera.CFrame = camera.CFrame:Lerp(CFrame.new(camera.CFrame.Position, aimPart.Position), 0.2)
+            -- Используем настраиваемую плавность aimSmoothness
+            camera.CFrame = camera.CFrame:Lerp(CFrame.new(camera.CFrame.Position, aimPart.Position), aimSmoothness)
         end
     end
 
