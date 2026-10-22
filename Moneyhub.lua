@@ -582,15 +582,15 @@ end, true, function(panel)
         updateAimButtonsVisual("Head")
     end)
 
-    -- Слайдер плавности аима (-----•)
+    -- Слайдер плавности аима (Влево = Плавнее, Вправо = Резче)
     local sliderLbl = Instance.new("TextLabel")
     sliderLbl.Size = UDim2.new(1, 0, 0, 16)
     sliderLbl.Position = UDim2.new(0, 0, 0, 48)
     sliderLbl.BackgroundTransparency = 1
     sliderLbl.Font = Enum.Font.GothamBold
-    sliderLbl.Text = "Плавность аима:"
+    sliderLbl.Text = "Плавность: Влево (Плавнее) - Вправо (Резче)"
     sliderLbl.TextColor3 = Color3.fromRGB(250, 220, 170)
-    sliderLbl.TextSize = 11
+    sliderLbl.TextSize = 9
     sliderLbl.TextXAlignment = Enum.TextXAlignment.Left
     sliderLbl.ZIndex = 11
     sliderLbl.Parent = panel
@@ -632,17 +632,17 @@ end, true, function(panel)
     local draggingSlider = false
 
     setAimSliderValue = function(val)
-        -- val от 0 до 1 (0.05 = быстро/резко, 1.0 = медленно/плавно)
-        local alpha = math.clamp((val - 0.02) / (0.9 - 0.02), 0, 1)
-        sliderFill.Size = UDim2.new(alpha, 0, 1, 0)
+        -- Переводим плавность в процент ползунка (0.05 = резче (pos=1), 0.8 = плавнее (pos=0))
+        local pos = math.clamp((0.8 - val) / (0.8 - 0.05), 0, 1)
+        sliderFill.Size = UDim2.new(pos, 0, 1, 0)
         aimSmoothness = val
     end
 
     local function updateSlider(input)
         local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
         sliderFill.Size = UDim2.new(pos, 0, 1, 0)
-        -- Переводим позицию в плавность: влево (pos=0) -> жестче (0.05), вправо (pos=1) -> плавнее (0.8)
-        aimSmoothness = 0.05 + (pos * 0.75)
+        -- Влево (pos=0) -> плавнее (0.8), Вправо (pos=1) -> резче (0.05)
+        aimSmoothness = 0.8 - (pos * 0.75)
     end
 
     sliderBtn.InputBegan:Connect(function(input)
@@ -663,7 +663,7 @@ end, true, function(panel)
         end
     end)
 
-    -- Инициализация ползунка по умолчанию
+    -- Инициализация ползунка
     setAimSliderValue(aimSmoothness)
 end)
 setAimAssistUIState = setAimUIFunc
@@ -945,7 +945,6 @@ RunService.RenderStepped:Connect(function()
     if aimAssistEnabled and target and target.Character then
         local aimPart = target.Character:FindFirstChild(aimTargetPart) or target.Character:FindFirstChild("HumanoidRootPart") or target.Character:FindFirstChild("Torso")
         if aimPart then
-            -- Используем настраиваемую плавность aimSmoothness
             camera.CFrame = camera.CFrame:Lerp(CFrame.new(camera.CFrame.Position, aimPart.Position), aimSmoothness)
         end
     end
