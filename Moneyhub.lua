@@ -381,7 +381,7 @@ configTabBtn.MouseButton1Click:Connect(function() switchTab("Configs") end)
 local autoFarmEnabled = false
 local aimAssistEnabled = false
 local aimTargetPart = "Torso"
-local aimSmoothness = 0.2 -- Плавность аима по умолчанию
+local aimSmoothness = 0.2
 local snowEnabled = false
 local leavesEnabled = false
 local fullbrightEnabled = false
@@ -582,7 +582,6 @@ end, true, function(panel)
         updateAimButtonsVisual("Head")
     end)
 
-    -- Слайдер плавности аима (Влево = Плавнее, Вправо = Резче)
     local sliderLbl = Instance.new("TextLabel")
     sliderLbl.Size = UDim2.new(1, 0, 0, 16)
     sliderLbl.Position = UDim2.new(0, 0, 0, 48)
@@ -632,7 +631,6 @@ end, true, function(panel)
     local draggingSlider = false
 
     setAimSliderValue = function(val)
-        -- Переводим плавность в процент ползунка (0.05 = резче (pos=1), 0.8 = плавнее (pos=0))
         local pos = math.clamp((0.8 - val) / (0.8 - 0.05), 0, 1)
         sliderFill.Size = UDim2.new(pos, 0, 1, 0)
         aimSmoothness = val
@@ -641,7 +639,6 @@ end, true, function(panel)
     local function updateSlider(input)
         local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
         sliderFill.Size = UDim2.new(pos, 0, 1, 0)
-        -- Влево (pos=0) -> плавнее (0.8), Вправо (pos=1) -> резче (0.05)
         aimSmoothness = 0.8 - (pos * 0.75)
     end
 
@@ -663,7 +660,6 @@ end, true, function(panel)
         end
     end)
 
-    -- Инициализация ползунка
     setAimSliderValue(aimSmoothness)
 end)
 setAimAssistUIState = setAimUIFunc
