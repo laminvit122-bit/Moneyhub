@@ -10,7 +10,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local HttpService = game:GetService("HttpService")
 local Lighting = game:GetService("Lighting")
-local InsertService = game:GetService("InsertService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -29,7 +28,7 @@ local IMPORT_ICON = "rbxassetid://6953990743"
 local DELETE_ICON = "rbxassetid://11768918600"
 
 local SAFE_COORDS = Vector3.new(-200.7, 675.7, 357.3)
-local SAKURA_SKY_ASSET_ID = 8202961731
+local SAKURA_SKY_ID = "rbxassetid://1276355366"
 
 if playerGui:FindFirstChild("MoneyHubGui") then
     playerGui.MoneyHubGui:Destroy()
@@ -323,7 +322,7 @@ sectionTitle.TextXAlignment = Enum.TextXAlignment.Left
 sectionTitle.ZIndex = 2
 sectionTitle.Parent = contentContainer
 
--- Увеличенный скролл для Main со всеми отступами
+-- Страница Main с расширенным скроллом
 local mainPage = Instance.new("ScrollingFrame")
 mainPage.Name = "MainPage"
 mainPage.Size = UDim2.new(1, -190, 1, -90)
@@ -331,7 +330,8 @@ mainPage.Position = UDim2.new(0, 175, 0, 78)
 mainPage.BackgroundTransparency = 1
 mainPage.CanvasSize = UDim2.new(0, 0, 0, 0)
 mainPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
-mainPage.ScrollBarThickness = 3
+mainPage.ScrollBarThickness = 4
+mainPage.ScrollBarImageColor3 = Color3.fromRGB(255, 120, 0)
 mainPage.Visible = true
 mainPage.ZIndex = 2
 mainPage.Parent = contentContainer
@@ -342,10 +342,11 @@ mainLayout.Padding = UDim.new(0, 10)
 mainLayout.Parent = mainPage
 
 local mainPadding = Instance.new("UIPadding")
-mainPadding.PaddingBottom = UDim.new(0, 20)
+mainPadding.PaddingBottom = UDim.new(0, 30)
+mainPadding.PaddingRight = UDim.new(0, 5)
 mainPadding.Parent = mainPage
 
--- Увеличенный скролл для Visuals
+-- Страница Visuals с расширенным скроллом
 local visualsPage = Instance.new("ScrollingFrame")
 visualsPage.Name = "VisualsPage"
 visualsPage.Size = UDim2.new(1, -190, 1, -90)
@@ -353,7 +354,8 @@ visualsPage.Position = UDim2.new(0, 175, 0, 78)
 visualsPage.BackgroundTransparency = 1
 visualsPage.CanvasSize = UDim2.new(0, 0, 0, 0)
 visualsPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
-visualsPage.ScrollBarThickness = 3
+visualsPage.ScrollBarThickness = 4
+visualsPage.ScrollBarImageColor3 = Color3.fromRGB(255, 120, 0)
 visualsPage.Visible = false
 visualsPage.ZIndex = 2
 visualsPage.Parent = contentContainer
@@ -364,7 +366,8 @@ visualsLayout.Padding = UDim.new(0, 10)
 visualsLayout.Parent = visualsPage
 
 local visualsPadding = Instance.new("UIPadding")
-visualsPadding.PaddingBottom = UDim.new(0, 20)
+visualsPadding.PaddingBottom = UDim.new(0, 30)
+visualsPadding.PaddingRight = UDim.new(0, 5)
 visualsPadding.Parent = visualsPage
 
 local configPage = Instance.new("ScrollingFrame")
@@ -411,7 +414,7 @@ local speedHackEnabled = false
 local walkSpeedValue = 32
 
 local jumpPowerEnabled = false
-local jumpPowerValue = 100
+local jumpPowerValue = 50
 
 local fakeDashEnabled = false
 local fakeDashKey = Enum.KeyCode.Q
@@ -423,7 +426,9 @@ local leavesEnabled = false
 local fullbrightEnabled = false
 local sakuraSkyEnabled = false
 
-local originalSky = nil
+local originalAmbient = Lighting.Ambient
+local originalOutdoorAmbient = Lighting.OutdoorAmbient
+local originalColorShift = Lighting.ColorShift_Top
 
 local setAutoFarmUIState = nil
 local setAimAssistUIState = nil
@@ -731,17 +736,28 @@ end, true, function(panel)
 end)
 setSpeedHackUIState = setSpeedUIFunc
 
--- 4. JumpPower (Супер усиленный обход)
+-- 4. JumpPower (Безопасный нормальный уровень без бесконечного взлета)
 local setJumpUIFunc
 _, setJumpUIFunc = createModuleCard(mainPage, "JumpPower", "Увеличение высоты прыжка", function(state)
     jumpPowerEnabled = state
+    local char = player.Character
+    if char then
+        local humanoid = char:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            if not jumpPowerEnabled then
+                humanoid.UseJumpPower = true
+                humanoid.JumpPower = 50
+                humanoid.JumpHeight = 7.2
+            end
+        end
+    end
 end, true, function(panel)
     local sliderLbl = Instance.new("TextLabel")
     sliderLbl.Size = UDim2.new(1, 0, 0, 16)
     sliderLbl.Position = UDim2.new(0, 0, 0, 10)
     sliderLbl.BackgroundTransparency = 1
     sliderLbl.Font = Enum.Font.GothamBold
-    sliderLbl.Text = "Прыжок (50 - 300):"
+    sliderLbl.Text = "Прыжок (50 - 250):"
     sliderLbl.TextColor3 = Color3.fromRGB(250, 220, 170)
     sliderLbl.TextSize = 10
     sliderLbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -758,7 +774,7 @@ end, true, function(panel)
     local sBgCorner = Instance.new("UICorner") sBgCorner.CornerRadius = UDim.new(1,0) sBgCorner.Parent = sliderBg
 
     local sliderFill = Instance.new("Frame")
-    sliderFill.Size = UDim2.new(0.2, 0, 1, 0)
+    sliderFill.Size = UDim2.new(0.1, 0, 1, 0)
     sliderFill.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
     sliderFill.BorderSizePixel = 0
     sliderFill.ZIndex = 12
@@ -775,7 +791,7 @@ end, true, function(panel)
 
     local draggingJump = false
     setJumpSliderValue = function(val)
-        local pos = math.clamp((val - 50) / (300 - 50), 0, 1)
+        local pos = math.clamp((val - 50) / (250 - 50), 0, 1)
         sliderFill.Size = UDim2.new(pos, 0, 1, 0)
         jumpPowerValue = val
     end
@@ -783,7 +799,7 @@ end, true, function(panel)
     local function updateSlider(input)
         local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
         sliderFill.Size = UDim2.new(pos, 0, 1, 0)
-        jumpPowerValue = math.floor(50 + (pos * (300 - 50)))
+        jumpPowerValue = math.floor(50 + (pos * (250 - 50)))
     end
 
     sliderBtn.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then draggingJump = true end end)
@@ -839,7 +855,7 @@ mdClick.MouseButton1Click:Connect(function()
     end
 end)
 
--- 5. Fake Dash + Настройка моб. кнопки
+-- 5. Fake Dash
 local setDashUIFunc
 _, setDashUIFunc = createModuleCard(mainPage, "Fake Dash", "Анимация и перемещение рывка без урона", function(state)
     fakeDashEnabled = state
@@ -980,50 +996,36 @@ _, setFullbrightUIState = createModuleCard(visualsPage, "Fullbright", "Макс�
     else
         Lighting.Brightness = 1
         Lighting.GlobalShadows = true
-        Lighting.Ambient = Color3.fromRGB(127, 127, 127)
-        Lighting.OutdoorAmbient = Color3.fromRGB(127, 127, 127)
+        Lighting.Ambient = originalAmbient
+        Lighting.OutdoorAmbient = originalOutdoorAmbient
     end
 end, false)
 
--- Функция Sakura 🌸 (Исправлено под Asset ID модели через InsertService)
-_, setSakuraSkyUIState = createModuleCard(visualsPage, "Sakura 🌸", "Красивое розовое небо Сакуры", function(state)
+-- Функция Sakura 🌸 (С твоим ID текстуры: 1276355366)
+_, setSakuraSkyUIState = createModuleCard(visualsPage, "Sakura 🌸", "Красивое небо Сакуры по твоему ID", function(state)
     sakuraSkyEnabled = state
-    local currentSky = Lighting:FindFirstChildOfClass("Sky")
 
+    local existingSky = Lighting:FindFirstChild("MoneyHubSakuraSky")
     if sakuraSkyEnabled then
-        if currentSky and currentSky.Name ~= "MoneyHubSakuraSky" then
-            originalSky = currentSky:Clone()
-            currentSky:Destroy()
+        if not existingSky then
+            local newSky = Instance.new("Sky")
+            newSky.Name = "MoneyHubSakuraSky"
+            newSky.SkyboxBk = SAKURA_SKY_ID
+            newSky.SkyboxDn = SAKURA_SKY_ID
+            newSky.SkyboxFt = SAKURA_SKY_ID
+            newSky.SkyboxLf = SAKURA_SKY_ID
+            newSky.SkyboxRt = SAKURA_SKY_ID
+            newSky.SkyboxUp = SAKURA_SKY_ID
+            newSky.Parent = Lighting
         end
-
-        pcall(function()
-            local model = InsertService:LoadAsset(SAKURA_SKY_ASSET_ID)
-            if model then
-                local skyObj = model:FindFirstChildWhichIsA("Sky", true)
-                if skyObj then
-                    skyObj.Name = "MoneyHubSakuraSky"
-                    skyObj.Parent = Lighting
-                else
-                    -- На случай если это текстура напрямую в пакете
-                    local newSky = Instance.new("Sky")
-                    newSky.Name = "MoneyHubSakuraSky"
-                    newSky.SkyboxBk = "rbxassetid://" .. SAKURA_SKY_ASSET_ID
-                    newSky.SkyboxDn = "rbxassetid://" .. SAKURA_SKY_ASSET_ID
-                    newSky.SkyboxFt = "rbxassetid://" .. SAKURA_SKY_ASSET_ID
-                    newSky.SkyboxLf = "rbxassetid://" .. SAKURA_SKY_ASSET_ID
-                    newSky.SkyboxRt = "rbxassetid://" .. SAKURA_SKY_ASSET_ID
-                    newSky.SkyboxUp = "rbxassetid://" .. SAKURA_SKY_ASSET_ID
-                    newSky.Parent = Lighting
-                end
-                model:Destroy()
-            end
-        end)
+        Lighting.OutdoorAmbient = Color3.fromRGB(255, 180, 220)
+        Lighting.Ambient = Color3.fromRGB(220, 140, 180)
+        Lighting.ColorShift_Top = Color3.fromRGB(255, 170, 200)
     else
-        local customSky = Lighting:FindFirstChild("MoneyHubSakuraSky")
-        if customSky then customSky:Destroy() end
-        if originalSky then
-            originalSky.Parent = Lighting
-        end
+        if existingSky then existingSky:Destroy() end
+        Lighting.OutdoorAmbient = originalOutdoorAmbient
+        Lighting.Ambient = originalAmbient
+        Lighting.ColorShift_Top = originalColorShift
     end
 end, false)
 
@@ -1172,7 +1174,7 @@ local function refreshConfigList()
                 jumpPowerEnabled = data.JumpPowerEnabled or false
                 if setJumpPowerUIState then setJumpPowerUIState(jumpPowerEnabled, true) end
 
-                jumpPowerValue = data.JumpPowerVal or 100
+                jumpPowerValue = data.JumpPowerVal or 50
                 if setJumpSliderValue then setJumpSliderValue(jumpPowerValue) end
 
                 fakeDashEnabled = data.FakeDashEnabled or false
@@ -1218,7 +1220,7 @@ createCfgBtn.MouseButton1Click:Connect(function()
     local name = configNameBox.Text
     if name and name ~= "" then
         if not isfolder(configsFolder) then makefolder(configsFolder) end
-        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, JumpPowerEnabled = false, JumpPowerVal = 100, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Snow = false, Leaves = false, Fullbright = false, SakuraSky = false }))
+        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, JumpPowerEnabled = false, JumpPowerVal = 50, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Snow = false, Leaves = false, Fullbright = false, SakuraSky = false }))
         configNameBox.Text = ""
         refreshConfigList()
         showNotification("Configs", "Создан конфиг")
@@ -1316,13 +1318,6 @@ RunService.RenderStepped:Connect(function()
             humanoid.UseJumpPower = true
             humanoid.JumpPower = jumpPowerValue
             humanoid.JumpHeight = jumpPowerValue / 7
-            
-            -- Усиленный обход: если персонаж пытается прыгнуть, придаем моментальный импульс вверх
-            if root and (humanoid:GetState() == Enum.HumanoidStateType.Jumping or humanoid:GetState() == Enum.HumanoidStateType.Freefall) then
-                if root.AssemblyLinearVelocity.Y > 0 and root.AssemblyLinearVelocity.Y < (jumpPowerValue * 0.4) then
-                    root.AssemblyLinearVelocity = Vector3.new(root.AssemblyLinearVelocity.X, jumpPowerValue * 0.6, root.AssemblyLinearVelocity.Z)
-                end
-            end
         end
     end
 
