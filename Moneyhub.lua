@@ -28,7 +28,7 @@ local IMPORT_ICON = "rbxassetid://6953990743"
 local DELETE_ICON = "rbxassetid://11768918600"
 
 local SAFE_COORDS = Vector3.new(-200.7, 675.7, 357.3)
-local PINK_SKY_ID = "rbxassetid://8202961731"
+local SAKURA_SKY_ID = "rbxassetid://8202961731"
 
 if playerGui:FindFirstChild("MoneyHubGui") then
     playerGui.MoneyHubGui:Destroy()
@@ -322,7 +322,7 @@ sectionTitle.TextXAlignment = Enum.TextXAlignment.Left
 sectionTitle.ZIndex = 2
 sectionTitle.Parent = contentContainer
 
--- Контейнеры страниц с UIListLayout для предотвращения дыр и съезжания
+-- Автоматический порядок через UIListLayout
 local mainPage = Instance.new("ScrollingFrame")
 mainPage.Name = "MainPage"
 mainPage.Size = UDim2.new(1, -190, 1, -90)
@@ -411,7 +411,7 @@ local isDashing = false
 local snowEnabled = false
 local leavesEnabled = false
 local fullbrightEnabled = false
-local pinkSkyEnabled = false
+local sakuraSkyEnabled = false
 
 local originalSky = nil
 
@@ -423,7 +423,7 @@ local setFakeDashUIState = nil
 local setSnowUIState = nil
 local setLeavesUIState = nil
 local setFullbrightUIState = nil
-local setPinkSkyUIState = nil
+local setSakuraSkyUIState = nil
 
 local updateAimButtonsVisual = nil
 local setAimSliderValue = nil
@@ -821,7 +821,7 @@ local mdClick = Instance.new("TextButton") mdClick.Size = UDim2.new(1, 0, 1, 0) 
 
 enableDragging(mobileDashBtn, mobileDashBtn)
 
-local performFakeDash -- объявление заранее
+local performFakeDash
 
 mdClick.MouseButton1Click:Connect(function()
     if fakeDashEnabled and performFakeDash then
@@ -879,14 +879,14 @@ end, true, function(panel)
         end
     end)
 
-    -- Тумблер мобильной кнопки
+    -- Настройка "Кнопка (для тех кто на телефоне)"
     local mobBtnToggle = Instance.new("TextButton")
     mobBtnToggle.Size = UDim2.new(0, 180, 0, 24)
     mobBtnToggle.Position = UDim2.new(0, 0, 0, 48)
     mobBtnToggle.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
-    mobBtnToggle.Text = "Кнопка на экран (для моб.): OFF"
+    mobBtnToggle.Text = "Кнопка (для тех кто на телефоне): OFF"
     mobBtnToggle.TextColor3 = Color3.fromRGB(200, 160, 120)
-    mobBtnToggle.TextSize = 9
+    mobBtnToggle.TextSize = 8
     mobBtnToggle.Font = Enum.Font.GothamBold
     mobBtnToggle.ZIndex = 11
     mobBtnToggle.Parent = panel
@@ -895,12 +895,12 @@ end, true, function(panel)
     mobBtnToggle.MouseButton1Click:Connect(function()
         fakeDashMobileBtnEnabled = not fakeDashMobileBtnEnabled
         if fakeDashMobileBtnEnabled then
-            mobBtnToggle.Text = "Кнопка на экран (для моб.): ON"
+            mobBtnToggle.Text = "Кнопка (для тех кто на телефоне): ON"
             mobBtnToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
             mobBtnToggle.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
             if fakeDashEnabled then mobileDashBtn.Visible = true end
         else
-            mobBtnToggle.Text = "Кнопка на экран (для моб.): OFF"
+            mobBtnToggle.Text = "Кнопка (для тех кто на телефоне): OFF"
             mobBtnToggle.TextColor3 = Color3.fromRGB(200, 160, 120)
             mobBtnToggle.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
             mobileDashBtn.Visible = false
@@ -976,28 +976,28 @@ _, setFullbrightUIState = createModuleCard(visualsPage, "Fullbright", "Макс�
     end
 end, false)
 
--- Функция Pink Sky 🌸
-_, setPinkSkyUIState = createModuleCard(visualsPage, "Pink Sky 🌸", "Розовое красиво оформленное небо", function(state)
-    pinkSkyEnabled = state
+-- Функция Sakura 🌸 (Небо по Вашему запросу)
+_, setSakuraSkyUIState = createModuleCard(visualsPage, "Sakura 🌸", "Красивое розовое небо Сакуры", function(state)
+    sakuraSkyEnabled = state
     local currentSky = Lighting:FindFirstChildOfClass("Sky")
 
-    if pinkSkyEnabled then
-        if currentSky and currentSky.Name ~= "MoneyHubPinkSky" then
+    if sakuraSkyEnabled then
+        if currentSky and currentSky.Name ~= "MoneyHubSakuraSky" then
             originalSky = currentSky:Clone()
             currentSky:Destroy()
         end
 
         local newSky = Instance.new("Sky")
-        newSky.Name = "MoneyHubPinkSky"
-        newSky.SkyboxBk = PINK_SKY_ID
-        newSky.SkyboxDn = PINK_SKY_ID
-        newSky.SkyboxFt = PINK_SKY_ID
-        newSky.SkyboxLf = PINK_SKY_ID
-        newSky.SkyboxRt = PINK_SKY_ID
-        newSky.SkyboxUp = PINK_SKY_ID
+        newSky.Name = "MoneyHubSakuraSky"
+        newSky.SkyboxBk = SAKURA_SKY_ID
+        newSky.SkyboxDn = SAKURA_SKY_ID
+        newSky.SkyboxFt = SAKURA_SKY_ID
+        newSky.SkyboxLf = SAKURA_SKY_ID
+        newSky.SkyboxRt = SAKURA_SKY_ID
+        newSky.SkyboxUp = SAKURA_SKY_ID
         newSky.Parent = Lighting
     else
-        local customSky = Lighting:FindFirstChild("MoneyHubPinkSky")
+        local customSky = Lighting:FindFirstChild("MoneyHubSakuraSky")
         if customSky then customSky:Destroy() end
         if originalSky then
             originalSky.Parent = Lighting
@@ -1118,7 +1118,7 @@ local function refreshConfigList()
                 Snow = snowEnabled, 
                 Leaves = leavesEnabled,
                 Fullbright = fullbrightEnabled,
-                PinkSky = pinkSkyEnabled
+                SakuraSky = sakuraSkyEnabled
             }
             writefile(configsFolder .. "/" .. cfgName .. ".json", HttpService:JSONEncode(data))
             showNotification("Configs", "Сохранено: " .. cfgName)
@@ -1172,8 +1172,8 @@ local function refreshConfigList()
                 fullbrightEnabled = data.Fullbright or false
                 if setFullbrightUIState then setFullbrightUIState(fullbrightEnabled, true) end
 
-                pinkSkyEnabled = data.PinkSky or false
-                if setPinkSkyUIState then setPinkSkyUIState(pinkSkyEnabled, true) end
+                sakuraSkyEnabled = data.SakuraSky or false
+                if setSakuraSkyUIState then setSakuraSkyUIState(sakuraSkyEnabled, true) end
                 
                 showNotification("Configs", "Загружено: " .. cfgName)
             end)
@@ -1196,7 +1196,7 @@ createCfgBtn.MouseButton1Click:Connect(function()
     local name = configNameBox.Text
     if name and name ~= "" then
         if not isfolder(configsFolder) then makefolder(configsFolder) end
-        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, JumpPowerEnabled = false, JumpPowerVal = 100, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Snow = false, Leaves = false, Fullbright = false, PinkSky = false }))
+        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, JumpPowerEnabled = false, JumpPowerVal = 100, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Snow = false, Leaves = false, Fullbright = false, SakuraSky = false }))
         configNameBox.Text = ""
         refreshConfigList()
         showNotification("Configs", "Создан конфиг")
@@ -1291,7 +1291,7 @@ RunService.RenderStepped:Connect(function()
         if jumpPowerEnabled then
             humanoid.UseJumpPower = true
             humanoid.JumpPower = jumpPowerValue
-            humanoid.JumpHeight = jumpPowerValue / 7 -- Поддержка режима JumpHeight в играх
+            humanoid.JumpHeight = jumpPowerValue / 7
         end
     end
 
