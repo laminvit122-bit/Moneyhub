@@ -10,6 +10,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local HttpService = game:GetService("HttpService")
 local Lighting = game:GetService("Lighting")
+local InsertService = game:GetService("InsertService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -28,7 +29,7 @@ local IMPORT_ICON = "rbxassetid://6953990743"
 local DELETE_ICON = "rbxassetid://11768918600"
 
 local SAFE_COORDS = Vector3.new(-200.7, 675.7, 357.3)
-local SAKURA_SKY_ID = "rbxassetid://8202961731"
+local SAKURA_SKY_ASSET_ID = 8202961731
 
 if playerGui:FindFirstChild("MoneyHubGui") then
     playerGui.MoneyHubGui:Destroy()
@@ -322,7 +323,7 @@ sectionTitle.TextXAlignment = Enum.TextXAlignment.Left
 sectionTitle.ZIndex = 2
 sectionTitle.Parent = contentContainer
 
--- Автоматический порядок через UIListLayout
+-- Увеличенный скролл для Main со всеми отступами
 local mainPage = Instance.new("ScrollingFrame")
 mainPage.Name = "MainPage"
 mainPage.Size = UDim2.new(1, -190, 1, -90)
@@ -340,6 +341,11 @@ mainLayout.SortOrder = Enum.SortOrder.LayoutOrder
 mainLayout.Padding = UDim.new(0, 10)
 mainLayout.Parent = mainPage
 
+local mainPadding = Instance.new("UIPadding")
+mainPadding.PaddingBottom = UDim.new(0, 20)
+mainPadding.Parent = mainPage
+
+-- Увеличенный скролл для Visuals
 local visualsPage = Instance.new("ScrollingFrame")
 visualsPage.Name = "VisualsPage"
 visualsPage.Size = UDim2.new(1, -190, 1, -90)
@@ -356,6 +362,10 @@ local visualsLayout = Instance.new("UIListLayout")
 visualsLayout.SortOrder = Enum.SortOrder.LayoutOrder
 visualsLayout.Padding = UDim.new(0, 10)
 visualsLayout.Parent = visualsPage
+
+local visualsPadding = Instance.new("UIPadding")
+visualsPadding.PaddingBottom = UDim.new(0, 20)
+visualsPadding.Parent = visualsPage
 
 local configPage = Instance.new("ScrollingFrame")
 configPage.Name = "ConfigPage"
@@ -721,7 +731,7 @@ end, true, function(panel)
 end)
 setSpeedHackUIState = setSpeedUIFunc
 
--- 4. JumpPower (Исправлен)
+-- 4. JumpPower (Супер усиленный обход)
 local setJumpUIFunc
 _, setJumpUIFunc = createModuleCard(mainPage, "JumpPower", "Увеличение высоты прыжка", function(state)
     jumpPowerEnabled = state
@@ -879,7 +889,6 @@ end, true, function(panel)
         end
     end)
 
-    -- Настройка "Кнопка (для тех кто на телефоне)"
     local mobBtnToggle = Instance.new("TextButton")
     mobBtnToggle.Size = UDim2.new(0, 180, 0, 24)
     mobBtnToggle.Position = UDim2.new(0, 0, 0, 48)
@@ -976,7 +985,7 @@ _, setFullbrightUIState = createModuleCard(visualsPage, "Fullbright", "Макс�
     end
 end, false)
 
--- Функция Sakura 🌸 (Небо по Вашему запросу)
+-- Функция Sakura 🌸 (Исправлено под Asset ID модели через InsertService)
 _, setSakuraSkyUIState = createModuleCard(visualsPage, "Sakura 🌸", "Красивое розовое небо Сакуры", function(state)
     sakuraSkyEnabled = state
     local currentSky = Lighting:FindFirstChildOfClass("Sky")
@@ -987,15 +996,28 @@ _, setSakuraSkyUIState = createModuleCard(visualsPage, "Sakura 🌸", "Крас�
             currentSky:Destroy()
         end
 
-        local newSky = Instance.new("Sky")
-        newSky.Name = "MoneyHubSakuraSky"
-        newSky.SkyboxBk = SAKURA_SKY_ID
-        newSky.SkyboxDn = SAKURA_SKY_ID
-        newSky.SkyboxFt = SAKURA_SKY_ID
-        newSky.SkyboxLf = SAKURA_SKY_ID
-        newSky.SkyboxRt = SAKURA_SKY_ID
-        newSky.SkyboxUp = SAKURA_SKY_ID
-        newSky.Parent = Lighting
+        pcall(function()
+            local model = InsertService:LoadAsset(SAKURA_SKY_ASSET_ID)
+            if model then
+                local skyObj = model:FindFirstChildWhichIsA("Sky", true)
+                if skyObj then
+                    skyObj.Name = "MoneyHubSakuraSky"
+                    skyObj.Parent = Lighting
+                else
+                    -- На случай если это текстура напрямую в пакете
+                    local newSky = Instance.new("Sky")
+                    newSky.Name = "MoneyHubSakuraSky"
+                    newSky.SkyboxBk = "rbxassetid://" .. SAKURA_SKY_ASSET_ID
+                    newSky.SkyboxDn = "rbxassetid://" .. SAKURA_SKY_ASSET_ID
+                    newSky.SkyboxFt = "rbxassetid://" .. SAKURA_SKY_ASSET_ID
+                    newSky.SkyboxLf = "rbxassetid://" .. SAKURA_SKY_ASSET_ID
+                    newSky.SkyboxRt = "rbxassetid://" .. SAKURA_SKY_ASSET_ID
+                    newSky.SkyboxUp = "rbxassetid://" .. SAKURA_SKY_ASSET_ID
+                    newSky.Parent = Lighting
+                end
+                model:Destroy()
+            end
+        end)
     else
         local customSky = Lighting:FindFirstChild("MoneyHubSakuraSky")
         if customSky then customSky:Destroy() end
@@ -1284,6 +1306,8 @@ RunService.RenderStepped:Connect(function()
     if not char then return end
     
     local humanoid = char:FindFirstChildOfClass("Humanoid")
+    local root = char:FindFirstChild("HumanoidRootPart")
+    
     if humanoid then
         if speedHackEnabled then
             humanoid.WalkSpeed = walkSpeedValue
@@ -1292,11 +1316,17 @@ RunService.RenderStepped:Connect(function()
             humanoid.UseJumpPower = true
             humanoid.JumpPower = jumpPowerValue
             humanoid.JumpHeight = jumpPowerValue / 7
+            
+            -- Усиленный обход: если персонаж пытается прыгнуть, придаем моментальный импульс вверх
+            if root and (humanoid:GetState() == Enum.HumanoidStateType.Jumping or humanoid:GetState() == Enum.HumanoidStateType.Freefall) then
+                if root.AssemblyLinearVelocity.Y > 0 and root.AssemblyLinearVelocity.Y < (jumpPowerValue * 0.4) then
+                    root.AssemblyLinearVelocity = Vector3.new(root.AssemblyLinearVelocity.X, jumpPowerValue * 0.6, root.AssemblyLinearVelocity.Z)
+                end
+            end
         end
     end
 
-    local myRoot = char:FindFirstChild("HumanoidRootPart")
-    if not myRoot then return end
+    if not root then return end
 
     local target = getClosestPlayer()
     currentTarget = target
@@ -1312,7 +1342,7 @@ RunService.RenderStepped:Connect(function()
     local enemyRoot = target.Character:FindFirstChild("HumanoidRootPart")
     if enemyRoot then
         local backPos = enemyRoot.CFrame * CFrame.new(0, 0, 2)
-        myRoot.CFrame = CFrame.lookAt(backPos.Position, enemyRoot.Position)
+        root.CFrame = CFrame.lookAt(backPos.Position, enemyRoot.Position)
     end
 end)
 
