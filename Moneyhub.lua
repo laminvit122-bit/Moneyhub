@@ -327,7 +327,7 @@ mainPage.Name = "MainPage"
 mainPage.Size = UDim2.new(1, -190, 1, -90)
 mainPage.Position = UDim2.new(0, 175, 0, 78)
 mainPage.BackgroundTransparency = 1
-mainPage.CanvasSize = UDim2.new(0, 0, 0, 300)
+mainPage.CanvasSize = UDim2.new(0, 0, 0, 440)
 mainPage.ScrollBarThickness = 3
 mainPage.Visible = true
 mainPage.ZIndex = 2
@@ -378,10 +378,22 @@ mainTabBtn.MouseButton1Click:Connect(function() switchTab("Main") end)
 visualsTabBtn.MouseButton1Click:Connect(function() switchTab("Visuals") end)
 configTabBtn.MouseButton1Click:Connect(function() switchTab("Configs") end)
 
+-- Переменные модулей
 local autoFarmEnabled = false
 local aimAssistEnabled = false
 local aimTargetPart = "Torso"
 local aimSmoothness = 0.2
+
+local speedHackEnabled = false
+local walkSpeedValue = 32
+
+local jumpPowerEnabled = false
+local jumpPowerValue = 100
+
+local fakeDashEnabled = false
+local fakeDashKey = Enum.KeyCode.Q
+local isDashing = false
+
 local snowEnabled = false
 local leavesEnabled = false
 local fullbrightEnabled = false
@@ -399,11 +411,17 @@ end
 
 local setAutoFarmUIState = nil
 local setAimAssistUIState = nil
+local setSpeedHackUIState = nil
+local setJumpPowerUIState = nil
+local setFakeDashUIState = nil
 local setSnowUIState = nil
 local setLeavesUIState = nil
 local setFullbrightUIState = nil
+
 local updateAimButtonsVisual = nil
 local setAimSliderValue = nil
+local setSpeedSliderValue = nil
+local setJumpSliderValue = nil
 
 local function createModuleCard(parent, parentTable, title, desc, callbackToggle, hasSettings, customSettingsBuilder)
     local card = Instance.new("Frame")
@@ -515,10 +533,12 @@ local function createModuleCard(parent, parentTable, title, desc, callbackToggle
     return card, setVisualState
 end
 
+-- 1. AutoFarm
 _, setAutoFarmUIState = createModuleCard(mainPage, mainCards, "AutoFarm", "Рандомные удары и способности", function(state)
     autoFarmEnabled = state
 end, false)
 
+-- 2. Aim Assist
 local setAimUIFunc
 _, setAimUIFunc = createModuleCard(mainPage, mainCards, "Aim Assist", "Автонаведение на цель", function(state)
     aimAssistEnabled = state
@@ -664,6 +684,274 @@ end, true, function(panel)
 end)
 setAimAssistUIState = setAimUIFunc
 
+-- 3. SpeedHack (Спидхак)
+local setSpeedUIFunc
+_, setSpeedUIFunc = createModuleCard(mainPage, mainCards, "SpeedHack", "Увеличение скорости бега", function(state)
+    speedHackEnabled = state
+end, true, function(panel)
+    local sliderLbl = Instance.new("TextLabel")
+    sliderLbl.Size = UDim2.new(1, 0, 0, 16)
+    sliderLbl.Position = UDim2.new(0, 0, 0, 10)
+    sliderLbl.BackgroundTransparency = 1
+    sliderLbl.Font = Enum.Font.GothamBold
+    sliderLbl.Text = "Скорость (16 - 150):"
+    sliderLbl.TextColor3 = Color3.fromRGB(250, 220, 170)
+    sliderLbl.TextSize = 10
+    sliderLbl.TextXAlignment = Enum.TextXAlignment.Left
+    sliderLbl.ZIndex = 11
+    sliderLbl.Parent = panel
+
+    local sliderBg = Instance.new("Frame")
+    sliderBg.Size = UDim2.new(0, 180, 0, 6)
+    sliderBg.Position = UDim2.new(0, 5, 0, 35)
+    sliderBg.BackgroundColor3 = Color3.fromRGB(40, 24, 15)
+    sliderBg.BorderSizePixel = 0
+    sliderBg.ZIndex = 11
+    sliderBg.Parent = panel
+    local sBgCorner = Instance.new("UICorner") sBgCorner.CornerRadius = UDim.new(1,0) sBgCorner.Parent = sliderBg
+
+    local sliderFill = Instance.new("Frame")
+    sliderFill.Size = UDim2.new(0.2, 0, 1, 0)
+    sliderFill.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
+    sliderFill.BorderSizePixel = 0
+    sliderFill.ZIndex = 12
+    sliderFill.Parent = sliderBg
+    local sFillCorner = Instance.new("UICorner") sFillCorner.CornerRadius = UDim.new(1,0) sFillCorner.Parent = sliderFill
+
+    local sliderKnob = Instance.new("Frame")
+    sliderKnob.Size = UDim2.new(0, 12, 0, 12)
+    sliderKnob.Position = UDim2.new(1, -6, 0.5, -6)
+    sliderKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    sliderKnob.BorderSizePixel = 0
+    sliderKnob.ZIndex = 13
+    sliderKnob.Parent = sliderFill
+    local sKnobCorner = Instance.new("UICorner") sKnobCorner.CornerRadius = UDim.new(1,0) sKnobCorner.Parent = sliderKnob
+
+    local sliderBtn = Instance.new("TextButton")
+    sliderBtn.Size = UDim2.new(1, 20, 1, 20)
+    sliderBtn.Position = UDim2.new(0, -10, 0, -10)
+    sliderBtn.BackgroundTransparency = 1
+    sliderBtn.Text = ""
+    sliderBtn.ZIndex = 14
+    sliderBtn.Parent = sliderBg
+
+    local draggingSpeed = false
+
+    setSpeedSliderValue = function(val)
+        local pos = math.clamp((val - 16) / (150 - 16), 0, 1)
+        sliderFill.Size = UDim2.new(pos, 0, 1, 0)
+        walkSpeedValue = val
+    end
+
+    local function updateSlider(input)
+        local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
+        sliderFill.Size = UDim2.new(pos, 0, 1, 0)
+        walkSpeedValue = math.floor(16 + (pos * (150 - 16)))
+    end
+
+    sliderBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingSpeed = true
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingSpeed = false
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if draggingSpeed and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateSlider(input)
+        end
+    end)
+
+    setSpeedSliderValue(walkSpeedValue)
+end)
+setSpeedHackUIState = setSpeedUIFunc
+
+-- 4. JumpPower (Сила прыжка)
+local setJumpUIFunc
+_, setJumpUIFunc = createModuleCard(mainPage, mainCards, "JumpPower", "Увеличение высоты прыжка", function(state)
+    jumpPowerEnabled = state
+end, true, function(panel)
+    local sliderLbl = Instance.new("TextLabel")
+    sliderLbl.Size = UDim2.new(1, 0, 0, 16)
+    sliderLbl.Position = UDim2.new(0, 0, 0, 10)
+    sliderLbl.BackgroundTransparency = 1
+    sliderLbl.Font = Enum.Font.GothamBold
+    sliderLbl.Text = "Прыжок (50 - 300):"
+    sliderLbl.TextColor3 = Color3.fromRGB(250, 220, 170)
+    sliderLbl.TextSize = 10
+    sliderLbl.TextXAlignment = Enum.TextXAlignment.Left
+    sliderLbl.ZIndex = 11
+    sliderLbl.Parent = panel
+
+    local sliderBg = Instance.new("Frame")
+    sliderBg.Size = UDim2.new(0, 180, 0, 6)
+    sliderBg.Position = UDim2.new(0, 5, 0, 35)
+    sliderBg.BackgroundColor3 = Color3.fromRGB(40, 24, 15)
+    sliderBg.BorderSizePixel = 0
+    sliderBg.ZIndex = 11
+    sliderBg.Parent = panel
+    local sBgCorner = Instance.new("UICorner") sBgCorner.CornerRadius = UDim.new(1,0) sBgCorner.Parent = sliderBg
+
+    local sliderFill = Instance.new("Frame")
+    sliderFill.Size = UDim2.new(0.2, 0, 1, 0)
+    sliderFill.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
+    sliderFill.BorderSizePixel = 0
+    sliderFill.ZIndex = 12
+    sliderFill.Parent = sliderBg
+    local sFillCorner = Instance.new("UICorner") sFillCorner.CornerRadius = UDim.new(1,0) sFillCorner.Parent = sliderFill
+
+    local sliderKnob = Instance.new("Frame")
+    sliderKnob.Size = UDim2.new(0, 12, 0, 12)
+    sliderKnob.Position = UDim2.new(1, -6, 0.5, -6)
+    sliderKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    sliderKnob.BorderSizePixel = 0
+    sliderKnob.ZIndex = 13
+    sliderKnob.Parent = sliderFill
+    local sKnobCorner = Instance.new("UICorner") sKnobCorner.CornerRadius = UDim.new(1,0) sKnobCorner.Parent = sliderKnob
+
+    local sliderBtn = Instance.new("TextButton")
+    sliderBtn.Size = UDim2.new(1, 20, 1, 20)
+    sliderBtn.Position = UDim2.new(0, -10, 0, -10)
+    sliderBtn.BackgroundTransparency = 1
+    sliderBtn.Text = ""
+    sliderBtn.ZIndex = 14
+    sliderBtn.Parent = sliderBg
+
+    local draggingJump = false
+
+    setJumpSliderValue = function(val)
+        local pos = math.clamp((val - 50) / (300 - 50), 0, 1)
+        sliderFill.Size = UDim2.new(pos, 0, 1, 0)
+        jumpPowerValue = val
+    end
+
+    local function updateSlider(input)
+        local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
+        sliderFill.Size = UDim2.new(pos, 0, 1, 0)
+        jumpPowerValue = math.floor(50 + (pos * (300 - 50)))
+    end
+
+    sliderBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingJump = true
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingJump = false
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if draggingJump and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            updateSlider(input)
+        end
+    end)
+
+    setJumpSliderValue(jumpPowerValue)
+end)
+setJumpPowerUIState = setJumpUIFunc
+
+-- 5. Fake Dash (Рывок без урона)
+local setDashUIFunc
+_, setDashUIFunc = createModuleCard(mainPage, mainCards, "Fake Dash", "Анимация и перемещение рывка без урона", function(state)
+    fakeDashEnabled = state
+end, true, function(panel)
+    local keyLbl = Instance.new("TextLabel")
+    keyLbl.Size = UDim2.new(1, 0, 0, 16)
+    keyLbl.Position = UDim2.new(0, 0, 0, 10)
+    keyLbl.BackgroundTransparency = 1
+    keyLbl.Font = Enum.Font.GothamBold
+    keyLbl.Text = "Клавиша рывка:"
+    keyLbl.TextColor3 = Color3.fromRGB(250, 220, 170)
+    keyLbl.TextSize = 10
+    keyLbl.TextXAlignment = Enum.TextXAlignment.Left
+    keyLbl.ZIndex = 11
+    keyLbl.Parent = panel
+
+    local keyBtn = Instance.new("TextButton")
+    keyBtn.Size = UDim2.new(0, 100, 0, 24)
+    keyBtn.Position = UDim2.new(0, 0, 0, 32)
+    keyBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
+    keyBtn.Text = "[" .. fakeDashKey.Name .. "]"
+    keyBtn.TextColor3 = Color3.fromRGB(255, 180, 90)
+    keyBtn.TextSize = 11
+    keyBtn.Font = Enum.Font.GothamBold
+    keyBtn.ZIndex = 11
+    keyBtn.Parent = panel
+    local kbC = Instance.new("UICorner") kbC.CornerRadius = UDim.new(0, 6) kbC.Parent = keyBtn
+
+    local listeningForKey = false
+
+    keyBtn.MouseButton1Click:Connect(function()
+        listeningForKey = true
+        keyBtn.Text = "[Нажми клавишу...]"
+        keyBtn.TextColor3 = Color3.fromRGB(255, 120, 0)
+    end)
+
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if listeningForKey and input.UserInputType == Enum.UserInputType.Keyboard then
+            listeningForKey = false
+            fakeDashKey = input.KeyCode
+            keyBtn.Text = "[" .. fakeDashKey.Name .. "]"
+            keyBtn.TextColor3 = Color3.fromRGB(255, 180, 90)
+        end
+    end)
+end)
+setFakeDashUIState = setDashUIFunc
+
+-- Функция визуального ложного рывка (Fake Dash)
+local function performFakeDash()
+    local char = player.Character
+    if not char or isDashing then return end
+
+    local root = char:FindFirstChild("HumanoidRootPart")
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if not root or not humanoid then return end
+
+    isDashing = true
+
+    -- Воспроизведение стандартной анимации рывка
+    local animator = humanoid:FindFirstChildOfClass("Animator")
+    if animator then
+        local dashAnim = Instance.new("Animation")
+        dashAnim.AnimationId = "rbxassetid://10479335381" -- Стандартный ID анимации рывка
+        local track = animator:LoadAnimation(dashAnim)
+        track.Priority = Enum.AnimationPriority.Action
+        track:Play()
+    end
+
+    -- Физика перемещения (без вызова урона и серверных эвентов)
+    local moveDir = humanoid.MoveDirection
+    if moveDir.Magnitude == 0 then
+        moveDir = root.CFrame.LookVector
+    end
+
+    local bodyVelocity = Instance.new("BodyVelocity")
+    bodyVelocity.MaxForce = Vector3.new(100000, 0, 100000)
+    bodyVelocity.Velocity = moveDir * 65
+    bodyVelocity.Parent = root
+
+    task.wait(0.25)
+    bodyVelocity:Destroy()
+    isDashing = false
+end
+
+-- Обработка клавиши для Fake Dash
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if fakeDashEnabled and input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode == fakeDashKey then
+        performFakeDash()
+    end
+end)
+
+-- Визуальные эффекты (Visuals)
 _, setSnowUIState = createModuleCard(visualsPage, visualsCards, "Snow (Пыль)", "Плавные круглые точки снега", function(state)
     snowEnabled = state
 end, false)
@@ -791,6 +1079,12 @@ local function refreshConfigList()
                 AimAssist = aimAssistEnabled, 
                 AimTarget = aimTargetPart, 
                 AimSmoothness = aimSmoothness,
+                SpeedHack = speedHackEnabled,
+                WalkSpeed = walkSpeedValue,
+                JumpPowerEnabled = jumpPowerEnabled,
+                JumpPowerVal = jumpPowerValue,
+                FakeDashEnabled = fakeDashEnabled,
+                FakeDashKeyName = fakeDashKey.Name,
                 Snow = snowEnabled, 
                 Leaves = leavesEnabled,
                 Fullbright = fullbrightEnabled
@@ -815,6 +1109,25 @@ local function refreshConfigList()
 
                 aimSmoothness = data.AimSmoothness or 0.2
                 if setAimSliderValue then setAimSliderValue(aimSmoothness) end
+
+                speedHackEnabled = data.SpeedHack or false
+                if setSpeedHackUIState then setSpeedHackUIState(speedHackEnabled, true) end
+
+                walkSpeedValue = data.WalkSpeed or 32
+                if setSpeedSliderValue then setSpeedSliderValue(walkSpeedValue) end
+
+                jumpPowerEnabled = data.JumpPowerEnabled or false
+                if setJumpPowerUIState then setJumpPowerUIState(jumpPowerEnabled, true) end
+
+                jumpPowerValue = data.JumpPowerVal or 100
+                if setJumpSliderValue then setJumpSliderValue(jumpPowerValue) end
+
+                fakeDashEnabled = data.FakeDashEnabled or false
+                if setFakeDashUIState then setFakeDashUIState(fakeDashEnabled, true) end
+
+                if data.FakeDashKeyName and Enum.KeyCode[data.FakeDashKeyName] then
+                    fakeDashKey = Enum.KeyCode[data.FakeDashKeyName]
+                end
                 
                 snowEnabled = data.Snow or false
                 if setSnowUIState then setSnowUIState(snowEnabled, true) end
@@ -846,7 +1159,7 @@ createCfgBtn.MouseButton1Click:Connect(function()
     local name = configNameBox.Text
     if name and name ~= "" then
         if not isfolder(configsFolder) then makefolder(configsFolder) end
-        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, Snow = false, Leaves = false, Fullbright = false }))
+        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, JumpPowerEnabled = false, JumpPowerVal = 100, FakeDashEnabled = false, FakeDashKeyName = "Q", Snow = false, Leaves = false, Fullbright = false }))
         configNameBox.Text = ""
         refreshConfigList()
         showNotification("Configs", "Создан конфиг")
@@ -855,7 +1168,7 @@ end)
 
 refreshConfigList()
 
--- ПЛАВНЫЙ СНЕГ И ЛИСТЬЯ 🍁
+-- ЭФФЕКТЫ СНЕГА И ЛИСТЬЕВ 🍁
 local particles = {}
 for i = 1, 26 do
     local snow = Instance.new("Frame")
@@ -893,7 +1206,7 @@ RunService.RenderStepped:Connect(function(dt)
     end
 end)
 
--- ПОЛНЫЙ АВТОФАРМ И AIM ASSIST (АКТИВНЫЙ БОЙ)
+-- ЛОГИКА ФУНКЦИЙ (SPEEDHACK, JUMPPOWER, AIM, AUTOFARM)
 local function getTouchButton(nameKeyword)
     for _, gui in ipairs(playerGui:GetChildren()) do
         if gui:IsA("ScreenGui") and gui.Name ~= "MoneyHubGui" then
@@ -932,6 +1245,18 @@ end
 RunService.RenderStepped:Connect(function()
     local char = player.Character
     if not char then return end
+    
+    local humanoid = char:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        if speedHackEnabled then
+            humanoid.WalkSpeed = walkSpeedValue
+        end
+        if jumpPowerEnabled then
+            humanoid.UseJumpPower = true
+            humanoid.JumpPower = jumpPowerValue
+        end
+    end
+
     local myRoot = char:FindFirstChild("HumanoidRootPart")
     if not myRoot then return end
 
