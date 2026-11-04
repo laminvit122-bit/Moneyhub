@@ -28,7 +28,7 @@ local IMPORT_ICON = "rbxassetid://6953990743"
 local DELETE_ICON = "rbxassetid://11768918600"
 
 local SAFE_COORDS = Vector3.new(-200.7, 675.7, 357.3)
-local SAKURA_SKY_ID = "rbxassetid://1276355366"
+local SKY_TEXTURE_ID = "rbxassetid://1276355366"
 
 if playerGui:FindFirstChild("MoneyHubGui") then
     playerGui.MoneyHubGui:Destroy()
@@ -322,7 +322,7 @@ sectionTitle.TextXAlignment = Enum.TextXAlignment.Left
 sectionTitle.ZIndex = 2
 sectionTitle.Parent = contentContainer
 
--- Страница Main с расширенным скроллом
+-- Страница Main
 local mainPage = Instance.new("ScrollingFrame")
 mainPage.Name = "MainPage"
 mainPage.Size = UDim2.new(1, -190, 1, -90)
@@ -346,7 +346,7 @@ mainPadding.PaddingBottom = UDim.new(0, 30)
 mainPadding.PaddingRight = UDim.new(0, 5)
 mainPadding.Parent = mainPage
 
--- Страница Visuals с расширенным скроллом
+-- Страница Visuals
 local visualsPage = Instance.new("ScrollingFrame")
 visualsPage.Name = "VisualsPage"
 visualsPage.Size = UDim2.new(1, -190, 1, -90)
@@ -413,18 +413,15 @@ local aimSmoothness = 0.2
 local speedHackEnabled = false
 local walkSpeedValue = 32
 
-local jumpPowerEnabled = false
-local jumpPowerValue = 50
-
 local fakeDashEnabled = false
 local fakeDashKey = Enum.KeyCode.Q
 local fakeDashMobileBtnEnabled = false
 local isDashing = false
 
-local snowEnabled = false
-local leavesEnabled = false
 local fullbrightEnabled = false
-local sakuraSkyEnabled = false
+local skyEnabled = false
+local scriptVisualsEnabled = false
+local currentParticleType = "Snow" -- "Snow", "Leaves", "Sakura"
 
 local originalAmbient = Lighting.Ambient
 local originalOutdoorAmbient = Lighting.OutdoorAmbient
@@ -433,17 +430,14 @@ local originalColorShift = Lighting.ColorShift_Top
 local setAutoFarmUIState = nil
 local setAimAssistUIState = nil
 local setSpeedHackUIState = nil
-local setJumpPowerUIState = nil
 local setFakeDashUIState = nil
-local setSnowUIState = nil
-local setLeavesUIState = nil
 local setFullbrightUIState = nil
-local setSakuraSkyUIState = nil
+local setSkyUIState = nil
+local setScriptVisualsUIState = nil
 
 local updateAimButtonsVisual = nil
 local setAimSliderValue = nil
 local setSpeedSliderValue = nil
-local setJumpSliderValue = nil
 
 local cardOrderIndex = 0
 
@@ -736,80 +730,6 @@ end, true, function(panel)
 end)
 setSpeedHackUIState = setSpeedUIFunc
 
--- 4. JumpPower (Безопасный нормальный уровень без бесконечного взлета)
-local setJumpUIFunc
-_, setJumpUIFunc = createModuleCard(mainPage, "JumpPower", "Увеличение высоты прыжка", function(state)
-    jumpPowerEnabled = state
-    local char = player.Character
-    if char then
-        local humanoid = char:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            if not jumpPowerEnabled then
-                humanoid.UseJumpPower = true
-                humanoid.JumpPower = 50
-                humanoid.JumpHeight = 7.2
-            end
-        end
-    end
-end, true, function(panel)
-    local sliderLbl = Instance.new("TextLabel")
-    sliderLbl.Size = UDim2.new(1, 0, 0, 16)
-    sliderLbl.Position = UDim2.new(0, 0, 0, 10)
-    sliderLbl.BackgroundTransparency = 1
-    sliderLbl.Font = Enum.Font.GothamBold
-    sliderLbl.Text = "Прыжок (50 - 250):"
-    sliderLbl.TextColor3 = Color3.fromRGB(250, 220, 170)
-    sliderLbl.TextSize = 10
-    sliderLbl.TextXAlignment = Enum.TextXAlignment.Left
-    sliderLbl.ZIndex = 11
-    sliderLbl.Parent = panel
-
-    local sliderBg = Instance.new("Frame")
-    sliderBg.Size = UDim2.new(0, 180, 0, 6)
-    sliderBg.Position = UDim2.new(0, 5, 0, 35)
-    sliderBg.BackgroundColor3 = Color3.fromRGB(40, 24, 15)
-    sliderBg.BorderSizePixel = 0
-    sliderBg.ZIndex = 11
-    sliderBg.Parent = panel
-    local sBgCorner = Instance.new("UICorner") sBgCorner.CornerRadius = UDim.new(1,0) sBgCorner.Parent = sliderBg
-
-    local sliderFill = Instance.new("Frame")
-    sliderFill.Size = UDim2.new(0.1, 0, 1, 0)
-    sliderFill.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
-    sliderFill.BorderSizePixel = 0
-    sliderFill.ZIndex = 12
-    sliderFill.Parent = sliderBg
-    local sFillCorner = Instance.new("UICorner") sFillCorner.CornerRadius = UDim.new(1,0) sFillCorner.Parent = sliderFill
-
-    local sliderBtn = Instance.new("TextButton")
-    sliderBtn.Size = UDim2.new(1, 20, 1, 20)
-    sliderBtn.Position = UDim2.new(0, -10, 0, -10)
-    sliderBtn.BackgroundTransparency = 1
-    sliderBtn.Text = ""
-    sliderBtn.ZIndex = 14
-    sliderBtn.Parent = sliderBg
-
-    local draggingJump = false
-    setJumpSliderValue = function(val)
-        local pos = math.clamp((val - 50) / (250 - 50), 0, 1)
-        sliderFill.Size = UDim2.new(pos, 0, 1, 0)
-        jumpPowerValue = val
-    end
-
-    local function updateSlider(input)
-        local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
-        sliderFill.Size = UDim2.new(pos, 0, 1, 0)
-        jumpPowerValue = math.floor(50 + (pos * (250 - 50)))
-    end
-
-    sliderBtn.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then draggingJump = true end end)
-    UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then draggingJump = false end end)
-    UserInputService.InputChanged:Connect(function(input) if draggingJump and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then updateSlider(input) end end)
-
-    setJumpSliderValue(jumpPowerValue)
-end)
-setJumpPowerUIState = setJumpUIFunc
-
 -- Функция перетаскивания объектов
 local function enableDragging(frame, handle)
     local dragging, dragInput, dragStart, startPos
@@ -855,7 +775,7 @@ mdClick.MouseButton1Click:Connect(function()
     end
 end)
 
--- 5. Fake Dash
+-- 4. Fake Dash
 local setDashUIFunc
 _, setDashUIFunc = createModuleCard(mainPage, "Fake Dash", "Анимация и перемещение рывка без урона", function(state)
     fakeDashEnabled = state
@@ -977,14 +897,6 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 end)
 
 -- Visuals
-_, setSnowUIState = createModuleCard(visualsPage, "Snow (Пыль)", "Плавные круглые точки снега", function(state)
-    snowEnabled = state
-end, false)
-
-_, setLeavesUIState = createModuleCard(visualsPage, "Leaves 🍁", "Падающие осенние листья", function(state)
-    leavesEnabled = state
-end, false)
-
 _, setFullbrightUIState = createModuleCard(visualsPage, "Fullbright", "Максимально светлое освещение карты", function(state)
     fullbrightEnabled = state
     if fullbrightEnabled then
@@ -1001,21 +913,21 @@ _, setFullbrightUIState = createModuleCard(visualsPage, "Fullbright", "Макс�
     end
 end, false)
 
--- Функция Sakura 🌸 (С твоим ID текстуры: 1276355366)
-_, setSakuraSkyUIState = createModuleCard(visualsPage, "Sakura 🌸", "Красивое небо Сакуры по твоему ID", function(state)
-    sakuraSkyEnabled = state
+-- Функция Sky (Розовое небо и кастомная текстура)
+_, setSkyUIState = createModuleCard(visualsPage, "Sky", "Розовое небо с текстурой", function(state)
+    skyEnabled = state
 
-    local existingSky = Lighting:FindFirstChild("MoneyHubSakuraSky")
-    if sakuraSkyEnabled then
+    local existingSky = Lighting:FindFirstChild("MoneyHubCustomSky")
+    if skyEnabled then
         if not existingSky then
             local newSky = Instance.new("Sky")
-            newSky.Name = "MoneyHubSakuraSky"
-            newSky.SkyboxBk = SAKURA_SKY_ID
-            newSky.SkyboxDn = SAKURA_SKY_ID
-            newSky.SkyboxFt = SAKURA_SKY_ID
-            newSky.SkyboxLf = SAKURA_SKY_ID
-            newSky.SkyboxRt = SAKURA_SKY_ID
-            newSky.SkyboxUp = SAKURA_SKY_ID
+            newSky.Name = "MoneyHubCustomSky"
+            newSky.SkyboxBk = SKY_TEXTURE_ID
+            newSky.SkyboxDn = SKY_TEXTURE_ID
+            newSky.SkyboxFt = SKY_TEXTURE_ID
+            newSky.SkyboxLf = SKY_TEXTURE_ID
+            newSky.SkyboxRt = SKY_TEXTURE_ID
+            newSky.SkyboxUp = SKY_TEXTURE_ID
             newSky.Parent = Lighting
         end
         Lighting.OutdoorAmbient = Color3.fromRGB(255, 180, 220)
@@ -1028,6 +940,76 @@ _, setSakuraSkyUIState = createModuleCard(visualsPage, "Sakura 🌸", "Крас�
         Lighting.ColorShift_Top = originalColorShift
     end
 end, false)
+
+-- Функция Script Visuals (Падающие элементы: Снег, Листья 🍁, Сакура 🌸)
+local setScriptVisualsUIFunc
+_, setScriptVisualsUIFunc = createModuleCard(visualsPage, "Script Visuals", "Падающие элементы из неба", function(state)
+    scriptVisualsEnabled = state
+end, true, function(panel)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, 0, 0, 16)
+    lbl.BackgroundTransparency = 1
+    lbl.Font = Enum.Font.GothamBold
+    lbl.Text = "Выберите тип:"
+    lbl.TextColor3 = Color3.fromRGB(250, 220, 170)
+    lbl.TextSize = 11
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.ZIndex = 11
+    lbl.Parent = panel
+
+    local snowBtn = Instance.new("TextButton")
+    snowBtn.Size = UDim2.new(0, 56, 0, 24)
+    snowBtn.Position = UDim2.new(0, 0, 0, 22)
+    snowBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
+    snowBtn.Text = "Снег"
+    snowBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    snowBtn.TextSize = 10
+    snowBtn.Font = Enum.Font.GothamBold
+    snowBtn.ZIndex = 11
+    snowBtn.Parent = panel
+    local sbC = Instance.new("UICorner") sbC.CornerRadius = UDim.new(0, 6) sbC.Parent = snowBtn
+
+    local leavesBtn = Instance.new("TextButton")
+    leavesBtn.Size = UDim2.new(0, 56, 0, 24)
+    leavesBtn.Position = UDim2.new(0, 62, 0, 22)
+    leavesBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
+    leavesBtn.Text = "Листья 🍁"
+    leavesBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+    leavesBtn.TextSize = 9
+    leavesBtn.Font = Enum.Font.GothamBold
+    leavesBtn.ZIndex = 11
+    leavesBtn.Parent = panel
+    local lbC = Instance.new("UICorner") lbC.CornerRadius = UDim.new(0, 6) lbC.Parent = leavesBtn
+
+    local sakuraBtn = Instance.new("TextButton")
+    sakuraBtn.Size = UDim2.new(0, 58, 0, 24)
+    sakuraBtn.Position = UDim2.new(0, 124, 0, 22)
+    sakuraBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
+    sakuraBtn.Text = "Сакура 🌸"
+    sakuraBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+    sakuraBtn.TextSize = 9
+    sakuraBtn.Font = Enum.Font.GothamBold
+    sakuraBtn.ZIndex = 11
+    sakuraBtn.Parent = panel
+    local skC = Instance.new("UICorner") skC.CornerRadius = UDim.new(0, 6) skC.Parent = sakuraBtn
+
+    local function updateParticleButtons(pType)
+        currentParticleType = pType
+        snowBtn.BackgroundColor3 = (pType == "Snow") and Color3.fromRGB(255, 120, 0) or Color3.fromRGB(50, 28, 14)
+        snowBtn.TextColor3 = (pType == "Snow") and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 160, 120)
+
+        leavesBtn.BackgroundColor3 = (pType == "Leaves") and Color3.fromRGB(255, 120, 0) or Color3.fromRGB(50, 28, 14)
+        leavesBtn.TextColor3 = (pType == "Leaves") and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 160, 120)
+
+        sakuraBtn.BackgroundColor3 = (pType == "Sakura") and Color3.fromRGB(255, 120, 0) or Color3.fromRGB(50, 28, 14)
+        sakuraBtn.TextColor3 = (pType == "Sakura") and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 160, 120)
+    end
+
+    snowBtn.MouseButton1Click:Connect(function() updateParticleButtons("Snow") end)
+    leavesBtn.MouseButton1Click:Connect(function() updateParticleButtons("Leaves") end)
+    sakuraBtn.MouseButton1Click:Connect(function() updateParticleButtons("Sakura") end)
+end)
+setScriptVisualsUIState = setScriptVisualsUIFunc
 
 -- МЕНЕДЖЕР КОНФИГОВ
 local configsFolder = "MoneyHubConfigs"
@@ -1134,15 +1116,13 @@ local function refreshConfigList()
                 AimSmoothness = aimSmoothness,
                 SpeedHack = speedHackEnabled,
                 WalkSpeed = walkSpeedValue,
-                JumpPowerEnabled = jumpPowerEnabled,
-                JumpPowerVal = jumpPowerValue,
                 FakeDashEnabled = fakeDashEnabled,
                 FakeDashKeyName = fakeDashKey.Name,
                 FakeDashMobile = fakeDashMobileBtnEnabled,
-                Snow = snowEnabled, 
-                Leaves = leavesEnabled,
                 Fullbright = fullbrightEnabled,
-                SakuraSky = sakuraSkyEnabled
+                Sky = skyEnabled,
+                ScriptVisuals = scriptVisualsEnabled,
+                ParticleType = currentParticleType
             }
             writefile(configsFolder .. "/" .. cfgName .. ".json", HttpService:JSONEncode(data))
             showNotification("Configs", "Сохранено: " .. cfgName)
@@ -1171,12 +1151,6 @@ local function refreshConfigList()
                 walkSpeedValue = data.WalkSpeed or 32
                 if setSpeedSliderValue then setSpeedSliderValue(walkSpeedValue) end
 
-                jumpPowerEnabled = data.JumpPowerEnabled or false
-                if setJumpPowerUIState then setJumpPowerUIState(jumpPowerEnabled, true) end
-
-                jumpPowerValue = data.JumpPowerVal or 50
-                if setJumpSliderValue then setJumpSliderValue(jumpPowerValue) end
-
                 fakeDashEnabled = data.FakeDashEnabled or false
                 if setFakeDashUIState then setFakeDashUIState(fakeDashEnabled, true) end
 
@@ -1186,18 +1160,17 @@ local function refreshConfigList()
                 if data.FakeDashKeyName and Enum.KeyCode[data.FakeDashKeyName] then
                     fakeDashKey = Enum.KeyCode[data.FakeDashKeyName]
                 end
-                
-                snowEnabled = data.Snow or false
-                if setSnowUIState then setSnowUIState(snowEnabled, true) end
-                
-                leavesEnabled = data.Leaves or false
-                if setLeavesUIState then setLeavesUIState(leavesEnabled, true) end
 
                 fullbrightEnabled = data.Fullbright or false
                 if setFullbrightUIState then setFullbrightUIState(fullbrightEnabled, true) end
 
-                sakuraSkyEnabled = data.SakuraSky or false
-                if setSakuraSkyUIState then setSakuraSkyUIState(sakuraSkyEnabled, true) end
+                skyEnabled = data.Sky or false
+                if setSkyUIState then setSkyUIState(skyEnabled, true) end
+
+                scriptVisualsEnabled = data.ScriptVisuals or false
+                if setScriptVisualsUIState then setScriptVisualsUIState(scriptVisualsEnabled, true) end
+
+                currentParticleType = data.ParticleType or "Snow"
                 
                 showNotification("Configs", "Загружено: " .. cfgName)
             end)
@@ -1220,7 +1193,7 @@ createCfgBtn.MouseButton1Click:Connect(function()
     local name = configNameBox.Text
     if name and name ~= "" then
         if not isfolder(configsFolder) then makefolder(configsFolder) end
-        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, JumpPowerEnabled = false, JumpPowerVal = 50, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Snow = false, Leaves = false, Fullbright = false, SakuraSky = false }))
+        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Fullbright = false, Sky = false, ScriptVisuals = false, ParticleType = "Snow" }))
         configNameBox.Text = ""
         refreshConfigList()
         showNotification("Configs", "Создан конфиг")
@@ -1229,27 +1202,27 @@ end)
 
 refreshConfigList()
 
--- ЭФФЕКТЫ СНЕГА И ЛИСТЬЕВ 🍁
+-- ЭФФЕКТЫ ЧАСТИЦ (Снег, Листья 🍁, Сакура 🌸)
 local particles = {}
-for i = 1, 26 do
-    local snow = Instance.new("Frame")
-    snow.Size = UDim2.new(0, math.random(3, 5), 0, math.random(3, 5))
-    snow.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    snow.BackgroundTransparency = 0.3
-    snow.Visible = false
-    snow.Parent = effectsContainer
-    local sC = Instance.new("UICorner") sC.CornerRadius = UDim.new(1, 0) sC.Parent = snow
+for i = 1, 28 do
+    local dot = Instance.new("Frame")
+    dot.Size = UDim2.new(0, 4, 0, 4)
+    dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    dot.BackgroundTransparency = 0.3
+    dot.Visible = false
+    dot.Parent = effectsContainer
+    local dC = Instance.new("UICorner") dC.CornerRadius = UDim.new(1, 0) dC.Parent = dot
 
-    local leaf = Instance.new("TextLabel")
-    leaf.Size = UDim2.new(0, 16, 0, 16)
-    leaf.BackgroundTransparency = 1
-    leaf.Font = Enum.Font.GothamBold
-    leaf.Text = "🍁"
-    leaf.TextSize = math.random(10, 15)
-    leaf.Visible = false
-    leaf.Parent = effectsContainer
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(0, 16, 0, 16)
+    lbl.BackgroundTransparency = 1
+    lbl.Font = Enum.Font.GothamBold
+    lbl.Text = "🍁"
+    lbl.TextSize = 13
+    lbl.Visible = false
+    lbl.Parent = effectsContainer
 
-    table.insert(particles, { snow = snow, leaf = leaf, x = math.random(), y = math.random(), speed = math.random(20, 50) / 100000, sway = math.random(1, 10) })
+    table.insert(particles, { dot = dot, lbl = lbl, x = math.random(), y = math.random(), speed = math.random(20, 50) / 100000, sway = math.random(1, 10) })
 end
 
 RunService.RenderStepped:Connect(function(dt)
@@ -1259,15 +1232,25 @@ RunService.RenderStepped:Connect(function(dt)
         p.y = p.y + (p.speed * scaledDt)
         if p.y > 1.05 then p.y = -0.05 p.x = math.random() end
         
-        p.snow.Visible = (snowEnabled and mainFrame.Visible)
-        if p.snow.Visible then p.snow.Position = UDim2.new(p.x, math.sin(tick() + p.sway) * 12, p.y, 0) end
+        local active = (scriptVisualsEnabled and mainFrame.Visible)
+        p.dot.Visible = active and (currentParticleType == "Snow")
+        p.lbl.Visible = active and (currentParticleType ~= "Snow")
 
-        p.leaf.Visible = (leavesEnabled and mainFrame.Visible)
-        if p.leaf.Visible then p.leaf.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 20, p.y, 0) end
+        if active then
+            if currentParticleType == "Snow" then
+                p.dot.Position = UDim2.new(p.x, math.sin(tick() + p.sway) * 12, p.y, 0)
+            elseif currentParticleType == "Leaves" then
+                p.lbl.Text = "🍁"
+                p.lbl.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 20, p.y, 0)
+            elseif currentParticleType == "Sakura" then
+                p.lbl.Text = "🌸"
+                p.lbl.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 20, p.y, 0)
+            end
+        end
     end
 end)
 
--- ИСПОЛНЕНИЕ ЛОГИКИ SPEEDHACK, JUMPPOWER, AIM И AUTOFARM
+-- ИСПОЛНЕНИЕ ЛОГИКИ SPEEDHACK, AIM И AUTOFARM
 local function getTouchButton(nameKeyword)
     for _, gui in ipairs(playerGui:GetChildren()) do
         if gui:IsA("ScreenGui") and gui.Name ~= "MoneyHubGui" then
@@ -1308,19 +1291,11 @@ RunService.RenderStepped:Connect(function()
     if not char then return end
     
     local humanoid = char:FindFirstChildOfClass("Humanoid")
-    local root = char:FindFirstChild("HumanoidRootPart")
-    
-    if humanoid then
-        if speedHackEnabled then
-            humanoid.WalkSpeed = walkSpeedValue
-        end
-        if jumpPowerEnabled then
-            humanoid.UseJumpPower = true
-            humanoid.JumpPower = jumpPowerValue
-            humanoid.JumpHeight = jumpPowerValue / 7
-        end
+    if humanoid and speedHackEnabled then
+        humanoid.WalkSpeed = walkSpeedValue
     end
 
+    local root = char:FindFirstChild("HumanoidRootPart")
     if not root then return end
 
     local target = getClosestPlayer()
