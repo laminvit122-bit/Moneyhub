@@ -15,20 +15,20 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local camera = Workspace.CurrentCamera
 
-local TEXTURE_ID = "rbxassetid://9343433823"
-local MODULES_ICON = "rbxassetid://82633060732202"
-local SETTINGS_ICON = "rbxassetid://138028255370142"
-local MAIN_ICON = "rbxassetid://14502433595"
-local VISUALS_ICON = "rbxassetid://11322089611"
-local CONFIGS_ICON = "rbxassetid://90837140373377"
-local GEAR_ICON = "rbxassetid://6953984741"
+local TEXTURE_ID = "rbxassetid://6031094678"
+local MODULES_ICON = "rbxassetid://6023426915"
+local SETTINGS_ICON = "rbxassetid://6031263189"
+local MAIN_ICON = "rbxassetid://6034287515"
+local VISUALS_ICON = "rbxassetid://6023426915"
+local CONFIGS_ICON = "rbxassetid://6031094678"
+local GEAR_ICON = "rbxassetid://6031263189"
 
-local SAVE_ICON = "rbxassetid://11768914234"
-local IMPORT_ICON = "rbxassetid://6953990743"
-local DELETE_ICON = "rbxassetid://11768918600"
+local SAVE_ICON = "rbxassetid://6023426915"
+local IMPORT_ICON = "rbxassetid://6034287515"
+local DELETE_ICON = "rbxassetid://6031094678"
 
 local SAFE_COORDS = Vector3.new(-200.7, 675.7, 357.3)
-local SKY_TEXTURE_ID = "rbxassetid://1276355366"
+local SKY_TEXTURE_ID = "rbxassetid://6023426915"
 
 if playerGui:FindFirstChild("MoneyHubGui") then
     playerGui.MoneyHubGui:Destroy()
@@ -421,7 +421,7 @@ local isDashing = false
 local fullbrightEnabled = false
 local skyEnabled = false
 local scriptVisualsEnabled = false
-local currentParticleType = "Snow" -- "Snow", "Leaves", "Sakura"
+local currentParticleType = "Sakura" -- "Sakura", "Heart", "Star"
 
 local originalAmbient = Lighting.Ambient
 local originalOutdoorAmbient = Lighting.OutdoorAmbient
@@ -913,8 +913,8 @@ _, setFullbrightUIState = createModuleCard(visualsPage, "Fullbright", "Макс�
     end
 end, false)
 
--- Функция Sky (Розовое небо и кастомная текстура)
-_, setSkyUIState = createModuleCard(visualsPage, "Sky", "Розовое небо с текстурой", function(state)
+-- Функция Sky (Розовое небо)
+_, setSkyUIState = createModuleCard(visualsPage, "Sky", "Розовое небо и кастомная атмосфера", function(state)
     skyEnabled = state
 
     local existingSky = Lighting:FindFirstChild("MoneyHubCustomSky")
@@ -941,73 +941,73 @@ _, setSkyUIState = createModuleCard(visualsPage, "Sky", "Розовое небо
     end
 end, false)
 
--- Функция Script Visuals (Падающие элементы: Снег, Листья 🍁, Сакура 🌸)
+-- Функция Script Visuals (Падающие стикеры/иконки: Сакура 🌸, Сердечки ❤️, Звездочки ⭐)
 local setScriptVisualsUIFunc
-_, setScriptVisualsUIFunc = createModuleCard(visualsPage, "Script Visuals", "Падающие элементы из неба", function(state)
+_, setScriptVisualsUIFunc = createModuleCard(visualsPage, "Script Visuals", "Падающие стикеры из неба", function(state)
     scriptVisualsEnabled = state
 end, true, function(panel)
     local lbl = Instance.new("TextLabel")
     lbl.Size = UDim2.new(1, 0, 0, 16)
     lbl.BackgroundTransparency = 1
     lbl.Font = Enum.Font.GothamBold
-    lbl.Text = "Выберите тип:"
+    lbl.Text = "Выберите стикер:"
     lbl.TextColor3 = Color3.fromRGB(250, 220, 170)
     lbl.TextSize = 11
     lbl.TextXAlignment = Enum.TextXAlignment.Left
     lbl.ZIndex = 11
     lbl.Parent = panel
 
-    local snowBtn = Instance.new("TextButton")
-    snowBtn.Size = UDim2.new(0, 56, 0, 24)
-    snowBtn.Position = UDim2.new(0, 0, 0, 22)
-    snowBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
-    snowBtn.Text = "Снег"
-    snowBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    snowBtn.TextSize = 10
-    snowBtn.Font = Enum.Font.GothamBold
-    snowBtn.ZIndex = 11
-    snowBtn.Parent = panel
-    local sbC = Instance.new("UICorner") sbC.CornerRadius = UDim.new(0, 6) sbC.Parent = snowBtn
-
-    local leavesBtn = Instance.new("TextButton")
-    leavesBtn.Size = UDim2.new(0, 56, 0, 24)
-    leavesBtn.Position = UDim2.new(0, 62, 0, 22)
-    leavesBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
-    leavesBtn.Text = "Листья 🍁"
-    leavesBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
-    leavesBtn.TextSize = 9
-    leavesBtn.Font = Enum.Font.GothamBold
-    leavesBtn.ZIndex = 11
-    leavesBtn.Parent = panel
-    local lbC = Instance.new("UICorner") lbC.CornerRadius = UDim.new(0, 6) lbC.Parent = leavesBtn
-
     local sakuraBtn = Instance.new("TextButton")
-    sakuraBtn.Size = UDim2.new(0, 58, 0, 24)
-    sakuraBtn.Position = UDim2.new(0, 124, 0, 22)
-    sakuraBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
+    sakuraBtn.Size = UDim2.new(0, 56, 0, 24)
+    sakuraBtn.Position = UDim2.new(0, 0, 0, 22)
+    sakuraBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
     sakuraBtn.Text = "Сакура 🌸"
-    sakuraBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+    sakuraBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     sakuraBtn.TextSize = 9
     sakuraBtn.Font = Enum.Font.GothamBold
     sakuraBtn.ZIndex = 11
     sakuraBtn.Parent = panel
-    local skC = Instance.new("UICorner") skC.CornerRadius = UDim.new(0, 6) skC.Parent = sakuraBtn
+    local sbC = Instance.new("UICorner") sbC.CornerRadius = UDim.new(0, 6) sbC.Parent = sakuraBtn
+
+    local heartBtn = Instance.new("TextButton")
+    heartBtn.Size = UDim2.new(0, 56, 0, 24)
+    heartBtn.Position = UDim2.new(0, 62, 0, 22)
+    heartBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
+    heartBtn.Text = "Сердце ❤️"
+    heartBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+    heartBtn.TextSize = 9
+    heartBtn.Font = Enum.Font.GothamBold
+    heartBtn.ZIndex = 11
+    heartBtn.Parent = panel
+    local lbC = Instance.new("UICorner") lbC.CornerRadius = UDim.new(0, 6) lbC.Parent = heartBtn
+
+    local starBtn = Instance.new("TextButton")
+    starBtn.Size = UDim2.new(0, 58, 0, 24)
+    starBtn.Position = UDim2.new(0, 124, 0, 22)
+    starBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
+    starBtn.Text = "Звезда ⭐"
+    starBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+    starBtn.TextSize = 9
+    starBtn.Font = Enum.Font.GothamBold
+    starBtn.ZIndex = 11
+    starBtn.Parent = panel
+    local skC = Instance.new("UICorner") skC.CornerRadius = UDim.new(0, 6) skC.Parent = starBtn
 
     local function updateParticleButtons(pType)
         currentParticleType = pType
-        snowBtn.BackgroundColor3 = (pType == "Snow") and Color3.fromRGB(255, 120, 0) or Color3.fromRGB(50, 28, 14)
-        snowBtn.TextColor3 = (pType == "Snow") and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 160, 120)
-
-        leavesBtn.BackgroundColor3 = (pType == "Leaves") and Color3.fromRGB(255, 120, 0) or Color3.fromRGB(50, 28, 14)
-        leavesBtn.TextColor3 = (pType == "Leaves") and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 160, 120)
-
         sakuraBtn.BackgroundColor3 = (pType == "Sakura") and Color3.fromRGB(255, 120, 0) or Color3.fromRGB(50, 28, 14)
         sakuraBtn.TextColor3 = (pType == "Sakura") and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 160, 120)
+
+        heartBtn.BackgroundColor3 = (pType == "Heart") and Color3.fromRGB(255, 120, 0) or Color3.fromRGB(50, 28, 14)
+        heartBtn.TextColor3 = (pType == "Heart") and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 160, 120)
+
+        starBtn.BackgroundColor3 = (pType == "Star") and Color3.fromRGB(255, 120, 0) or Color3.fromRGB(50, 28, 14)
+        starBtn.TextColor3 = (pType == "Star") and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 160, 120)
     end
 
-    snowBtn.MouseButton1Click:Connect(function() updateParticleButtons("Snow") end)
-    leavesBtn.MouseButton1Click:Connect(function() updateParticleButtons("Leaves") end)
     sakuraBtn.MouseButton1Click:Connect(function() updateParticleButtons("Sakura") end)
+    heartBtn.MouseButton1Click:Connect(function() updateParticleButtons("Heart") end)
+    starBtn.MouseButton1Click:Connect(function() updateParticleButtons("Star") end)
 end)
 setScriptVisualsUIState = setScriptVisualsUIFunc
 
@@ -1170,7 +1170,7 @@ local function refreshConfigList()
                 scriptVisualsEnabled = data.ScriptVisuals or false
                 if setScriptVisualsUIState then setScriptVisualsUIState(scriptVisualsEnabled, true) end
 
-                currentParticleType = data.ParticleType or "Snow"
+                currentParticleType = data.ParticleType or "Sakura"
                 
                 showNotification("Configs", "Загружено: " .. cfgName)
             end)
@@ -1193,7 +1193,7 @@ createCfgBtn.MouseButton1Click:Connect(function()
     local name = configNameBox.Text
     if name and name ~= "" then
         if not isfolder(configsFolder) then makefolder(configsFolder) end
-        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Fullbright = false, Sky = false, ScriptVisuals = false, ParticleType = "Snow" }))
+        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Fullbright = false, Sky = false, ScriptVisuals = false, ParticleType = "Sakura" }))
         configNameBox.Text = ""
         refreshConfigList()
         showNotification("Configs", "Создан конфиг")
@@ -1202,27 +1202,19 @@ end)
 
 refreshConfigList()
 
--- ЭФФЕКТЫ ЧАСТИЦ (Снег, Листья 🍁, Сакура 🌸)
+-- ЭФФЕКТЫ ЧАСТИЦ (Падающие стикеры: Сакура, Сердечки, Звездочки)
 local particles = {}
 for i = 1, 28 do
-    local dot = Instance.new("Frame")
-    dot.Size = UDim2.new(0, 4, 0, 4)
-    dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    dot.BackgroundTransparency = 0.3
-    dot.Visible = false
-    dot.Parent = effectsContainer
-    local dC = Instance.new("UICorner") dC.CornerRadius = UDim.new(1, 0) dC.Parent = dot
-
     local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(0, 16, 0, 16)
+    lbl.Size = UDim2.new(0, 18, 0, 18)
     lbl.BackgroundTransparency = 1
     lbl.Font = Enum.Font.GothamBold
-    lbl.Text = "🍁"
-    lbl.TextSize = 13
+    lbl.Text = "🌸"
+    lbl.TextSize = 14
     lbl.Visible = false
     lbl.Parent = effectsContainer
 
-    table.insert(particles, { dot = dot, lbl = lbl, x = math.random(), y = math.random(), speed = math.random(20, 50) / 100000, sway = math.random(1, 10) })
+    table.insert(particles, { lbl = lbl, x = math.random(), y = math.random(), speed = math.random(20, 50) / 100000, sway = math.random(1, 10) })
 end
 
 RunService.RenderStepped:Connect(function(dt)
@@ -1233,19 +1225,17 @@ RunService.RenderStepped:Connect(function(dt)
         if p.y > 1.05 then p.y = -0.05 p.x = math.random() end
         
         local active = (scriptVisualsEnabled and mainFrame.Visible)
-        p.dot.Visible = active and (currentParticleType == "Snow")
-        p.lbl.Visible = active and (currentParticleType ~= "Snow")
+        p.lbl.Visible = active
 
         if active then
-            if currentParticleType == "Snow" then
-                p.dot.Position = UDim2.new(p.x, math.sin(tick() + p.sway) * 12, p.y, 0)
-            elseif currentParticleType == "Leaves" then
-                p.lbl.Text = "🍁"
-                p.lbl.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 20, p.y, 0)
-            elseif currentParticleType == "Sakura" then
+            if currentParticleType == "Sakura" then
                 p.lbl.Text = "🌸"
-                p.lbl.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 20, p.y, 0)
+            elseif currentParticleType == "Heart" then
+                p.lbl.Text = "❤️"
+            elseif currentParticleType == "Star" then
+                p.lbl.Text = "⭐"
             end
+            p.lbl.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 20, p.y, 0)
         end
     end
 end)
