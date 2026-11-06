@@ -10,25 +10,26 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local HttpService = game:GetService("HttpService")
 local Lighting = game:GetService("Lighting")
+local CoreGui = game:GetService("CoreGui")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local camera = Workspace.CurrentCamera
 
-local TEXTURE_ID = "rbxassetid://6031094678"
-local MODULES_ICON = "rbxassetid://6023426915"
-local SETTINGS_ICON = "rbxassetid://6031263189"
-local MAIN_ICON = "rbxassetid://6034287515"
-local VISUALS_ICON = "rbxassetid://6023426915"
-local CONFIGS_ICON = "rbxassetid://6031094678"
-local GEAR_ICON = "rbxassetid://6031263189"
+local TEXTURE_ID = "rbxassetid://9343433823"
+local MODULES_ICON = "rbxassetid://82633060732202"
+local SETTINGS_ICON = "rbxassetid://138028255370142"
+local MAIN_ICON = "rbxassetid://14502433595"
+local VISUALS_ICON = "rbxassetid://11322089611"
+local CONFIGS_ICON = "rbxassetid://90837140373377"
+local GEAR_ICON = "rbxassetid://6953984741"
 
-local SAVE_ICON = "rbxassetid://6023426915"
-local IMPORT_ICON = "rbxassetid://6034287515"
-local DELETE_ICON = "rbxassetid://6031094678"
+local SAVE_ICON = "rbxassetid://11768914234"
+local IMPORT_ICON = "rbxassetid://6953990743"
+local DELETE_ICON = "rbxassetid://11768918600"
 
 local SAFE_COORDS = Vector3.new(-200.7, 675.7, 357.3)
-local SKY_TEXTURE_ID = "rbxassetid://6023426915"
+local SKY_TEXTURE_ID = "rbxassetid://1276355366"
 
 if playerGui:FindFirstChild("MoneyHubGui") then
     playerGui.MoneyHubGui:Destroy()
@@ -39,14 +40,17 @@ screenGui.Name = "MoneyHubGui"
 screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-if syn and syn.protect_gui then
-    syn.protect_gui(screenGui)
-    screenGui.Parent = CoreGui
-elseif gethui then
-    screenGui.Parent = gethui()
-else
-    screenGui.Parent = playerGui
-end
+pcall(function()
+    if syn and syn.protect_gui then
+        syn.protect_gui(screenGui)
+        screenGui.Parent = CoreGui
+    elseif gethui then
+        screenGui.Parent = gethui()
+    else
+        screenGui.Parent = playerGui
+    end
+end)
+if not screenGui.Parent then screenGui.Parent = playerGui end
 
 -- СИСТЕМА УВЕДОМЛЕНИЙ
 local notificationsContainer = Instance.new("Frame")
@@ -322,7 +326,7 @@ sectionTitle.TextXAlignment = Enum.TextXAlignment.Left
 sectionTitle.ZIndex = 2
 sectionTitle.Parent = contentContainer
 
--- Страница Main
+-- Страницы
 local mainPage = Instance.new("ScrollingFrame")
 mainPage.Name = "MainPage"
 mainPage.Size = UDim2.new(1, -190, 1, -90)
@@ -331,7 +335,6 @@ mainPage.BackgroundTransparency = 1
 mainPage.CanvasSize = UDim2.new(0, 0, 0, 0)
 mainPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
 mainPage.ScrollBarThickness = 4
-mainPage.ScrollBarImageColor3 = Color3.fromRGB(255, 120, 0)
 mainPage.Visible = true
 mainPage.ZIndex = 2
 mainPage.Parent = contentContainer
@@ -346,7 +349,6 @@ mainPadding.PaddingBottom = UDim.new(0, 30)
 mainPadding.PaddingRight = UDim.new(0, 5)
 mainPadding.Parent = mainPage
 
--- Страница Visuals
 local visualsPage = Instance.new("ScrollingFrame")
 visualsPage.Name = "VisualsPage"
 visualsPage.Size = UDim2.new(1, -190, 1, -90)
@@ -355,7 +357,6 @@ visualsPage.BackgroundTransparency = 1
 visualsPage.CanvasSize = UDim2.new(0, 0, 0, 0)
 visualsPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
 visualsPage.ScrollBarThickness = 4
-visualsPage.ScrollBarImageColor3 = Color3.fromRGB(255, 120, 0)
 visualsPage.Visible = false
 visualsPage.ZIndex = 2
 visualsPage.Parent = contentContainer
@@ -404,7 +405,7 @@ mainTabBtn.MouseButton1Click:Connect(function() switchTab("Main") end)
 visualsTabBtn.MouseButton1Click:Connect(function() switchTab("Visuals") end)
 configTabBtn.MouseButton1Click:Connect(function() switchTab("Configs") end)
 
--- Переменные функций
+-- Переменные
 local autoFarmEnabled = false
 local aimAssistEnabled = false
 local aimTargetPart = "Torso"
@@ -445,6 +446,7 @@ local function createModuleCard(parent, title, desc, callbackToggle, hasSettings
     cardOrderIndex = cardOrderIndex + 1
 
     local card = Instance.new("Frame")
+    card.Name = "ModuleCard"
     card.Size = UDim2.new(0, 215, 0, 70)
     card.BackgroundColor3 = Color3.fromRGB(58, 36, 20)
     card.BackgroundTransparency = 0.2
@@ -456,6 +458,7 @@ local function createModuleCard(parent, title, desc, callbackToggle, hasSettings
     local corner = Instance.new("UICorner") corner.CornerRadius = UDim.new(0, 10) corner.Parent = card
 
     local tLbl = Instance.new("TextLabel")
+    tLbl.Name = "TitleLabel"
     tLbl.Size = UDim2.new(0, 110, 0, 20)
     tLbl.Position = UDim2.new(0, 12, 0, 10)
     tLbl.BackgroundTransparency = 1
@@ -546,6 +549,22 @@ local function createModuleCard(parent, title, desc, callbackToggle, hasSettings
 
     return card, setVisualState
 end
+
+-- Поиск
+searchInput:GetPropertyChangedSignal("Text"):Connect(function()
+    local query = searchInput.Text:lower()
+    for _, page in ipairs({mainPage, visualsPage}) do
+        for _, card in ipairs(page:GetChildren()) do
+            if card:IsA("Frame") and card.Name == "ModuleCard" then
+                local titleLbl = card:FindFirstChild("TitleLabel")
+                if titleLbl then
+                    local match = titleLbl.Text:lower():find(query)
+                    card.Visible = (match ~= nil)
+                end
+            end
+        end
+    end
+end)
 
 -- 1. AutoFarm
 _, setAutoFarmUIState = createModuleCard(mainPage, "AutoFarm", "Рандомные удары и способности", function(state)
@@ -913,8 +932,8 @@ _, setFullbrightUIState = createModuleCard(visualsPage, "Fullbright", "Макс�
     end
 end, false)
 
--- Функция Sky (Розовое небо)
-_, setSkyUIState = createModuleCard(visualsPage, "Sky", "Розовое небо и кастомная атмосфера", function(state)
+-- Функция Sky (Розовое небо с текстурой)
+_, setSkyUIState = createModuleCard(visualsPage, "Sky", "Розовое небо с текстурой", function(state)
     skyEnabled = state
 
     local existingSky = Lighting:FindFirstChild("MoneyHubCustomSky")
@@ -941,7 +960,7 @@ _, setSkyUIState = createModuleCard(visualsPage, "Sky", "Розовое небо
     end
 end, false)
 
--- Функция Script Visuals (Падающие стикеры/иконки: Сакура 🌸, Сердечки ❤️, Звездочки ⭐)
+-- Функция Script Visuals (Падающие стикеры: Сакура, Сердечки, Звездочки)
 local setScriptVisualsUIFunc
 _, setScriptVisualsUIFunc = createModuleCard(visualsPage, "Script Visuals", "Падающие стикеры из неба", function(state)
     scriptVisualsEnabled = state
@@ -1202,19 +1221,18 @@ end)
 
 refreshConfigList()
 
--- ЭФФЕКТЫ ЧАСТИЦ (Падающие стикеры: Сакура, Сердечки, Звездочки)
+-- ЭФФЕКТЫ ЧАСТИЦ (Безопасные стикеры-плашки)
 local particles = {}
 for i = 1, 28 do
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(0, 18, 0, 18)
-    lbl.BackgroundTransparency = 1
-    lbl.Font = Enum.Font.GothamBold
-    lbl.Text = "🌸"
-    lbl.TextSize = 14
-    lbl.Visible = false
-    lbl.Parent = effectsContainer
+    local sticker = Instance.new("Frame")
+    sticker.Size = UDim2.new(0, 12, 0, 12)
+    sticker.BackgroundColor3 = Color3.fromRGB(255, 170, 210)
+    sticker.BackgroundTransparency = 0.2
+    sticker.Visible = false
+    sticker.Parent = effectsContainer
+    local sC = Instance.new("UICorner") sC.CornerRadius = UDim.new(1, 0) sC.Parent = sticker
 
-    table.insert(particles, { lbl = lbl, x = math.random(), y = math.random(), speed = math.random(20, 50) / 100000, sway = math.random(1, 10) })
+    table.insert(particles, { frame = sticker, x = math.random(), y = math.random(), speed = math.random(20, 50) / 100000, sway = math.random(1, 10) })
 end
 
 RunService.RenderStepped:Connect(function(dt)
@@ -1225,17 +1243,17 @@ RunService.RenderStepped:Connect(function(dt)
         if p.y > 1.05 then p.y = -0.05 p.x = math.random() end
         
         local active = (scriptVisualsEnabled and mainFrame.Visible)
-        p.lbl.Visible = active
+        p.frame.Visible = active
 
         if active then
             if currentParticleType == "Sakura" then
-                p.lbl.Text = "🌸"
+                p.frame.BackgroundColor3 = Color3.fromRGB(255, 170, 210) -- Розовый
             elseif currentParticleType == "Heart" then
-                p.lbl.Text = "❤️"
+                p.frame.BackgroundColor3 = Color3.fromRGB(255, 60, 90)   -- Красный
             elseif currentParticleType == "Star" then
-                p.lbl.Text = "⭐"
+                p.frame.BackgroundColor3 = Color3.fromRGB(255, 220, 50)  -- Желтый
             end
-            p.lbl.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 20, p.y, 0)
+            p.frame.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 20, p.y, 0)
         end
     end
 end)
