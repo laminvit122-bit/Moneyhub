@@ -11,7 +11,6 @@ local Workspace = game:GetService("Workspace")
 local HttpService = game:GetService("HttpService")
 local Lighting = game:GetService("Lighting")
 local CoreGui = game:GetService("CoreGui")
-local InsertService = game:GetService("InsertService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -426,7 +425,10 @@ local fullbrightEnabled = false
 local scriptVisualsEnabled = false
 local worldVisualsEnabled = false
 local cosmicAuraEnabled = false
+
 local currentParticleType = "🌸"
+local worldParticleType = "🌸"
+local worldSpeedMultiplier = 1.0
 
 local originalAmbient = Lighting.Ambient
 local originalOutdoorAmbient = Lighting.OutdoorAmbient
@@ -832,7 +834,7 @@ local function enableDragging(frame, handle)
     end)
 end
 
--- Плавающая мобильная кнопка Fake Dash (ПОДВИЖНАЯ, НЕ СКРЫВАЕТ СТАНДАРТНЫЕ КНОПКИ)
+-- Плавающая мобильная кнопка Fake Dash (ПОДВИЖНАЯ, НЕ СКРЫВАЕТ КНОПКИ УДАРОВ)
 local mobileDashBtn = Instance.new("Frame")
 mobileDashBtn.Name = "MobileDashBtn"
 mobileDashBtn.Size = UDim2.new(0, 60, 0, 60)
@@ -1004,72 +1006,18 @@ end, true, function(panel)
     lbl.Size = UDim2.new(1, 0, 0, 16)
     lbl.BackgroundTransparency = 1
     lbl.Font = Enum.Font.GothamBold
-    lbl.Text = "Выберите стиль:"
+    lbl.Text = "Выберите стиль меню:"
     lbl.TextColor3 = Color3.fromRGB(250, 220, 170)
     lbl.TextSize = 11
     lbl.TextXAlignment = Enum.TextXAlignment.Left
     lbl.ZIndex = 11
     lbl.Parent = panel
 
-    local btn1 = Instance.new("TextButton")
-    btn1.Size = UDim2.new(0, 32, 0, 24)
-    btn1.Position = UDim2.new(0, 0, 0, 22)
-    btn1.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
-    btn1.Text = "🌸"
-    btn1.TextColor3 = Color3.fromRGB(255, 255, 255)
-    btn1.TextSize = 12
-    btn1.Font = Enum.Font.GothamBold
-    btn1.ZIndex = 11
-    btn1.Parent = panel
-    local c1 = Instance.new("UICorner") c1.CornerRadius = UDim.new(0, 6) c1.Parent = btn1
-
-    local btn2 = Instance.new("TextButton")
-    btn2.Size = UDim2.new(0, 32, 0, 24)
-    btn2.Position = UDim2.new(0, 36, 0, 22)
-    btn2.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
-    btn2.Text = "❤️"
-    btn2.TextColor3 = Color3.fromRGB(200, 160, 120)
-    btn2.TextSize = 12
-    btn2.Font = Enum.Font.GothamBold
-    btn2.ZIndex = 11
-    btn2.Parent = panel
-    local c2 = Instance.new("UICorner") c2.CornerRadius = UDim.new(0, 6) c2.Parent = btn2
-
-    local btn3 = Instance.new("TextButton")
-    btn3.Size = UDim2.new(0, 32, 0, 24)
-    btn3.Position = UDim2.new(0, 72, 0, 22)
-    btn3.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
-    btn3.Text = "⭐"
-    btn3.TextColor3 = Color3.fromRGB(200, 160, 120)
-    btn3.TextSize = 12
-    btn3.Font = Enum.Font.GothamBold
-    btn3.ZIndex = 11
-    btn3.Parent = panel
-    local c3 = Instance.new("UICorner") c3.CornerRadius = UDim.new(0, 6) c3.Parent = btn3
-
-    local btn4 = Instance.new("TextButton")
-    btn4.Size = UDim2.new(0, 38, 0, 24)
-    btn4.Position = UDim2.new(0, 108, 0, 22)
-    btn4.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
-    btn4.Text = "🍃"
-    btn4.TextColor3 = Color3.fromRGB(200, 160, 120)
-    btn4.TextSize = 12
-    btn4.Font = Enum.Font.GothamBold
-    btn4.ZIndex = 11
-    btn4.Parent = panel
-    local c4 = Instance.new("UICorner") c4.CornerRadius = UDim.new(0, 6) c4.Parent = btn4
-
-    local btn5 = Instance.new("TextButton")
-    btn5.Size = UDim2.new(0, 38, 0, 24)
-    btn5.Position = UDim2.new(0, 150, 0, 22)
-    btn5.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
-    btn5.Text = "❄️"
-    btn5.TextColor3 = Color3.fromRGB(200, 160, 120)
-    btn5.TextSize = 12
-    btn5.Font = Enum.Font.GothamBold
-    btn5.ZIndex = 11
-    btn5.Parent = panel
-    local c5 = Instance.new("UICorner") c5.CornerRadius = UDim.new(0, 6) c5.Parent = btn5
+    local btn1 = Instance.new("TextButton") btn1.Size = UDim2.new(0, 32, 0, 24) btn1.Position = UDim2.new(0, 0, 0, 22) btn1.BackgroundColor3 = Color3.fromRGB(255, 120, 0) btn1.Text = "🌸" btn1.TextColor3 = Color3.fromRGB(255, 255, 255) btn1.TextSize = 12 btn1.Font = Enum.Font.GothamBold btn1.ZIndex = 11 btn1.Parent = panel local c1 = Instance.new("UICorner") c1.CornerRadius = UDim.new(0, 6) c1.Parent = btn1
+    local btn2 = Instance.new("TextButton") btn2.Size = UDim2.new(0, 32, 0, 24) btn2.Position = UDim2.new(0, 36, 0, 22) btn2.BackgroundColor3 = Color3.fromRGB(50, 28, 14) btn2.Text = "❤️" btn2.TextColor3 = Color3.fromRGB(200, 160, 120) btn2.TextSize = 12 btn2.Font = Enum.Font.GothamBold btn2.ZIndex = 11 btn2.Parent = panel local c2 = Instance.new("UICorner") c2.CornerRadius = UDim.new(0, 6) c2.Parent = btn2
+    local btn3 = Instance.new("TextButton") btn3.Size = UDim2.new(0, 32, 0, 24) btn3.Position = UDim2.new(0, 72, 0, 22) btn3.BackgroundColor3 = Color3.fromRGB(50, 28, 14) btn3.Text = "⭐" btn3.TextColor3 = Color3.fromRGB(200, 160, 120) btn3.TextSize = 12 btn3.Font = Enum.Font.GothamBold btn3.ZIndex = 11 btn3.Parent = panel local c3 = Instance.new("UICorner") c3.CornerRadius = UDim.new(0, 6) c3.Parent = btn3
+    local btn4 = Instance.new("TextButton") btn4.Size = UDim2.new(0, 38, 0, 24) btn4.Position = UDim2.new(0, 108, 0, 22) btn4.BackgroundColor3 = Color3.fromRGB(50, 28, 14) btn4.Text = "🍃" btn4.TextColor3 = Color3.fromRGB(200, 160, 120) btn4.TextSize = 12 btn4.Font = Enum.Font.GothamBold btn4.ZIndex = 11 btn4.Parent = panel local c4 = Instance.new("UICorner") c4.CornerRadius = UDim.new(0, 6) c4.Parent = btn4
+    local btn5 = Instance.new("TextButton") btn5.Size = UDim2.new(0, 38, 0, 24) btn5.Position = UDim2.new(0, 150, 0, 22) btn5.BackgroundColor3 = Color3.fromRGB(50, 28, 14) btn5.Text = "❄️" btn5.TextColor3 = Color3.fromRGB(200, 160, 120) btn5.TextSize = 12 btn5.Font = Enum.Font.GothamBold btn5.ZIndex = 11 btn5.Parent = panel local c5 = Instance.new("UICorner") c5.CornerRadius = UDim.new(0, 6) c5.Parent = btn5
 
     local function updateParticleButtons(pType)
         currentParticleType = pType
@@ -1089,66 +1037,175 @@ end, true, function(panel)
 end)
 setScriptVisualsUIState = setScriptVisualsUIFunc
 
--- 2. World Visual (Падают из реального неба по всей карте по ходу взгляда)
+-- 2. World Visual (С выбором стикеров и настройкой скорости падения)
 local setWorldVisualsUIFunc
 _, setWorldVisualsUIFunc = createModuleCard(visualsPage, "World Visual", "Стикеры/Листья/Снег падают из неба на карте", function(state)
     worldVisualsEnabled = state
-end, false)
+end, true, function(panel)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, 0, 0, 16)
+    lbl.BackgroundTransparency = 1
+    lbl.Font = Enum.Font.GothamBold
+    lbl.Text = "Выберите стиль мира:"
+    lbl.TextColor3 = Color3.fromRGB(250, 220, 170)
+    lbl.TextSize = 11
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.ZIndex = 11
+    lbl.Parent = panel
+
+    local wbtn1 = Instance.new("TextButton") wbtn1.Size = UDim2.new(0, 32, 0, 22) wbtn1.Position = UDim2.new(0, 0, 0, 20) wbtn1.BackgroundColor3 = Color3.fromRGB(255, 120, 0) wbtn1.Text = "🌸" wbtn1.TextColor3 = Color3.fromRGB(255, 255, 255) wbtn1.TextSize = 11 wbtn1.Font = Enum.Font.GothamBold wbtn1.ZIndex = 11 wbtn1.Parent = panel local wc1 = Instance.new("UICorner") wc1.CornerRadius = UDim.new(0, 6) wc1.Parent = wbtn1
+    local wbtn2 = Instance.new("TextButton") wbtn2.Size = UDim2.new(0, 32, 0, 22) wbtn2.Position = UDim2.new(0, 36, 0, 20) wbtn2.BackgroundColor3 = Color3.fromRGB(50, 28, 14) wbtn2.Text = "❤️" wbtn2.TextColor3 = Color3.fromRGB(200, 160, 120) wbtn2.TextSize = 11 wbtn2.Font = Enum.Font.GothamBold wbtn2.ZIndex = 11 wbtn2.Parent = panel local wc2 = Instance.new("UICorner") wc2.CornerRadius = UDim.new(0, 6) wc2.Parent = wbtn2
+    local wbtn3 = Instance.new("TextButton") wbtn3.Size = UDim2.new(0, 32, 0, 22) wbtn3.Position = UDim2.new(0, 72, 0, 20) wbtn3.BackgroundColor3 = Color3.fromRGB(50, 28, 14) wbtn3.Text = "⭐" wbtn3.TextColor3 = Color3.fromRGB(200, 160, 120) wbtn3.TextSize = 11 wbtn3.Font = Enum.Font.GothamBold wbtn3.ZIndex = 11 wbtn3.Parent = panel local wc3 = Instance.new("UICorner") wc3.CornerRadius = UDim.new(0, 6) wc3.Parent = wbtn3
+    local wbtn4 = Instance.new("TextButton") wbtn4.Size = UDim2.new(0, 38, 0, 22) wbtn4.Position = UDim2.new(0, 108, 0, 20) wbtn4.BackgroundColor3 = Color3.fromRGB(50, 28, 14) wbtn4.Text = "🍃" wbtn4.TextColor3 = Color3.fromRGB(200, 160, 120) wbtn4.TextSize = 11 wbtn4.Font = Enum.Font.GothamBold wbtn4.ZIndex = 11 wbtn4.Parent = panel local wc4 = Instance.new("UICorner") wc4.CornerRadius = UDim.new(0, 6) wc4.Parent = wbtn4
+    local wbtn5 = Instance.new("TextButton") wbtn5.Size = UDim2.new(0, 38, 0, 22) wbtn5.Position = UDim2.new(0, 150, 0, 20) wbtn5.BackgroundColor3 = Color3.fromRGB(50, 28, 14) wbtn5.Text = "❄️" wbtn5.TextColor3 = Color3.fromRGB(200, 160, 120) wbtn5.TextSize = 11 wbtn5.Font = Enum.Font.GothamBold wbtn5.ZIndex = 11 wbtn5.Parent = panel local wc5 = Instance.new("UICorner") wc5.CornerRadius = UDim.new(0, 6) wc5.Parent = wbtn5
+
+    local function updateWorldParticleButtons(pType)
+        worldParticleType = pType
+        local buttons = { {wbtn1, "🌸"}, {wbtn2, "❤️"}, {wbtn3, "⭐"}, {wbtn4, "🍃"}, {wbtn5, "❄️"} }
+        for _, pair in ipairs(buttons) do
+            local active = (pair[2] == pType)
+            pair[1].BackgroundColor3 = active and Color3.fromRGB(255, 120, 0) or Color3.fromRGB(50, 28, 14)
+            pair[1].TextColor3 = active and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 160, 120)
+        end
+    end
+
+    wbtn1.MouseButton1Click:Connect(function() updateWorldParticleButtons("🌸") end)
+    wbtn2.MouseButton1Click:Connect(function() updateWorldParticleButtons("❤️") end)
+    wbtn3.MouseButton1Click:Connect(function() updateWorldParticleButtons("⭐") end)
+    wbtn4.MouseButton1Click:Connect(function() updateWorldParticleButtons("🍃") end)
+    wbtn5.MouseButton1Click:Connect(function() updateWorldParticleButtons("❄️") end)
+
+    local speedLbl = Instance.new("TextLabel")
+    speedLbl.Size = UDim2.new(1, 0, 0, 16)
+    speedLbl.Position = UDim2.new(0, 0, 0, 48)
+    speedLbl.BackgroundTransparency = 1
+    speedLbl.Font = Enum.Font.GothamBold
+    speedLbl.Text = "Скорость падения:"
+    speedLbl.TextColor3 = Color3.fromRGB(250, 220, 170)
+    speedLbl.TextSize = 9
+    speedLbl.TextXAlignment = Enum.TextXAlignment.Left
+    speedLbl.ZIndex = 11
+    speedLbl.Parent = panel
+
+    local sliderBg = Instance.new("Frame")
+    sliderBg.Size = UDim2.new(0, 180, 0, 6)
+    sliderBg.Position = UDim2.new(0, 5, 0, 70)
+    sliderBg.BackgroundColor3 = Color3.fromRGB(40, 24, 15)
+    sliderBg.BorderSizePixel = 0
+    sliderBg.ZIndex = 11
+    sliderBg.Parent = panel
+    local sBgCorner = Instance.new("UICorner") sBgCorner.CornerRadius = UDim.new(1,0) sBgCorner.Parent = sliderBg
+
+    local sliderFill = Instance.new("Frame")
+    sliderFill.Size = UDim2.new(0.5, 0, 1, 0)
+    sliderFill.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
+    sliderFill.BorderSizePixel = 0
+    sliderFill.ZIndex = 12
+    sliderFill.Parent = sliderBg
+    local sFillCorner = Instance.new("UICorner") sFillCorner.CornerRadius = UDim.new(1,0) sFillCorner.Parent = sliderFill
+
+    local sliderBtn = Instance.new("TextButton")
+    sliderBtn.Size = UDim2.new(1, 20, 1, 20)
+    sliderBtn.Position = UDim2.new(0, -10, 0, -10)
+    sliderBtn.BackgroundTransparency = 1
+    sliderBtn.Text = ""
+    sliderBtn.ZIndex = 14
+    sliderBtn.Parent = sliderBg
+
+    local draggingWorldSpeed = false
+    local function updateWorldSpeedSlider(input)
+        local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
+        sliderFill.Size = UDim2.new(pos, 0, 1, 0)
+        worldSpeedMultiplier = 0.3 + (pos * 2.2) -- от 0.3 до 2.5
+    end
+
+    sliderBtn.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then draggingWorldSpeed = true end end)
+    UserInputService.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then draggingWorldSpeed = false end end)
+    UserInputService.InputChanged:Connect(function(input) if draggingWorldSpeed and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then updateWorldSpeedSlider(input) end end)
+end)
 setWorldVisualsUIState = setWorldVisualsUIFunc
 
--- 3. НОВАЯ ФУНКЦИЯ: COSMIC FEAR AURA (Космическая Аура 12315023384)
-local activeAuraInstance = nil
+-- 3. COSMIC FEAR AURA (Кастомная мощная визуальная аура на персонаже)
+local activeAuraEffectFolder = nil
+
+local function applyCosmicAura(char)
+    pcall(function()
+        local root = char:FindFirstChild("HumanoidRootPart")
+        if not root then return end
+        
+        if root:FindFirstChild("MoneyHubCosmicAura") then
+            root.MoneyHubCosmicAura:Destroy()
+        end
+
+        local auraFolder = Instance.new("Folder")
+        auraFolder.Name = "MoneyHubCosmicAura"
+        auraFolder.Parent = root
+
+        -- Эмиттер фиолетово-космического тумана
+        local p1 = Instance.new("ParticleEmitter")
+        p1.Name = "CosmicMist"
+        p1.Texture = "rbxassetid://1084955760" -- мягкое свечение
+        p1.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromRGB(130, 0, 255)), ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 180))})
+        p1.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 3), NumberSequenceKeypoint.new(1, 6)})
+        p1.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0.3), NumberSequenceKeypoint.new(0.5, 0.1), NumberSequenceKeypoint.new(1, 1)})
+        p1.Lifetime = NumberRange.new(1.0, 1.8)
+        p1.Rate = 25
+        p1.Speed = NumberRange.new(2, 5)
+        p1.SpreadAngle = Vector2.new(45, 45)
+        p1.Parent = auraFolder
+
+        -- Эмиттер искр / звезд
+        local p2 = Instance.new("ParticleEmitter")
+        p2.Name = "CosmicSparks"
+        p2.Texture = "rbxassetid://1084952670" -- звездочка/искра
+        p2.Color = ColorSequence.new(Color3.fromRGB(220, 150, 255))
+        p2.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 1.2), NumberSequenceKeypoint.new(1, 0.2)})
+        p2.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 1)})
+        p2.Lifetime = NumberRange.new(0.6, 1.2)
+        p2.Rate = 35
+        p2.Speed = NumberRange.new(5, 12)
+        p2.SpreadAngle = Vector2.new(180, 180)
+        p2.Parent = auraFolder
+
+        activeAuraEffectFolder = auraFolder
+    end)
+end
+
+local function removeCosmicAura()
+    pcall(function()
+        if activeAuraEffectFolder then
+            activeAuraEffectFolder:Destroy()
+            activeAuraEffectFolder = nil
+        end
+        local char = player.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then
+            local found = char.HumanoidRootPart:FindFirstChild("MoneyHubCosmicAura")
+            if found then found:Destroy() end
+        end
+    end)
+end
+
 local setAuraUIFunc
 _, setAuraUIFunc = createModuleCard(visualsPage, "Cosmic Aura", "Космическая аура вокруг персонажа", function(state)
     cosmicAuraEnabled = state
     if cosmicAuraEnabled then
-        task.spawn(function()
-            pcall(function()
-                if not activeAuraInstance then
-                    local model = InsertService:LoadAsset(12315023384)
-                    if model then
-                        activeAuraInstance = model:GetChildren()[1] or model
-                        activeAuraInstance.Name = "MoneyHubCosmicAura"
-                    end
-                end
-                local char = player.Character
-                if char and activeAuraInstance then
-                    local root = char:FindFirstChild("HumanoidRootPart")
-                    if root then
-                        local clone = activeAuraInstance:Clone()
-                        clone.Parent = root
-                    end
-                end
-            end)
-        end)
+        if player.Character then applyCosmicAura(player.Character) end
     else
-        pcall(function()
-            local char = player.Character
-            if char and char:FindFirstChild("HumanoidRootPart") then
-                local found = char.HumanoidRootPart:FindFirstChild("MoneyHubCosmicAura")
-                if found then found:Destroy() end
-            end
-        end)
+        removeCosmicAura()
     end
 end, false)
 setCosmicAuraUIState = setAuraUIFunc
 
 player.CharacterAdded:Connect(function(char)
-    if cosmicAuraEnabled and activeAuraInstance then
+    if cosmicAuraEnabled then
         task.delay(1, function()
-            pcall(function()
-                local root = char:FindFirstChild("HumanoidRootPart")
-                if root then
-                    local clone = activeAuraInstance:Clone()
-                    clone.Parent = root
-                end
-            end)
+            applyCosmicAura(char)
         end)
     end
 end)
 
 
--- КОНТЕЙНЕР ДЛЯ МИРОВЫХ ЧАСТИЦ (В Workspace)
+-- КОНТЕЙНЕР ДЛЯ МИРОВЫХ ЧАСТИЦ (Плавные и оптимизированные в Workspace)
 local worldParticlesFolder = Workspace:FindFirstChild("MoneyHubWorldParticles")
 if worldParticlesFolder then worldParticlesFolder:Destroy() end
 worldParticlesFolder = Instance.new("Folder")
@@ -1156,7 +1213,7 @@ worldParticlesFolder.Name = "MoneyHubWorldParticles"
 worldParticlesFolder.Parent = Workspace
 
 local worldParts = {}
-for i = 1, 35 do
+for i = 1, 45 do -- Увеличено количество для плавности
     local part = Instance.new("Part")
     part.Size = Vector3.new(1, 1, 1)
     part.Transparency = 1
@@ -1165,7 +1222,7 @@ for i = 1, 35 do
     part.CastShadow = false
 
     local bb = Instance.new("BillboardGui")
-    bb.Size = UDim2.new(0, 30, 0, 30)
+    bb.Size = UDim2.new(0, 32, 0, 32)
     bb.AlwaysOnTop = true
     bb.Parent = part
 
@@ -1178,7 +1235,7 @@ for i = 1, 35 do
     lbl.Parent = bb
 
     part.Parent = worldParticlesFolder
-    table.insert(worldParts, { part = part, lbl = lbl, offset = Vector3.new(math.random(-80, 80), math.random(80, 140), math.random(-80, 80)), speed = math.random(25, 55) })
+    table.insert(worldParts, { part = part, lbl = lbl, offset = Vector3.new(math.random(-90, 90), math.random(70, 150), math.random(-90, 90)), speed = math.random(18, 40) })
 end
 
 
@@ -1199,10 +1256,9 @@ end
 
 RunService.RenderStepped:Connect(function(dt)
     if not screenGui.Parent then return end
-    local scaledDt = dt * 60
-    
-    local targetText = currentParticleType
+    local scaledDt = dt * 65
 
+    -- 1. Меню
     for _, p in ipairs(scriptParticles) do
         p.y = p.y + (p.speed * scaledDt)
         if p.y > 1.05 then p.y = -0.05 p.x = math.random() end
@@ -1211,14 +1267,15 @@ RunService.RenderStepped:Connect(function(dt)
         p.lbl.Visible = active
 
         if active then
-            p.lbl.Text = targetText
+            p.lbl.Text = currentParticleType
             p.lbl.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 25, p.y, 0)
         end
     end
 
+    -- 2. Мир (World Visual)
     for _, wp in ipairs(worldParts) do
         if worldVisualsEnabled and camera then
-            wp.lbl.Text = targetText
+            wp.lbl.Text = worldParticleType
             
             local camPos = camera.CFrame.Position
             local camLook = camera.CFrame.LookVector
@@ -1231,11 +1288,12 @@ RunService.RenderStepped:Connect(function(dt)
                 wp.part.Transparency = 0
             end
             
-            wp.offset = wp.offset - Vector3.new(0, wp.speed * dt, 0)
+            -- Плавное падение с учётом выбранного ползунка скорости
+            wp.offset = wp.offset - Vector3.new(0, (wp.speed * worldSpeedMultiplier) * dt, 0)
             if wp.offset.Y < -10 then
                 local lookDir = camera.CFrame.LookVector * Vector3.new(1, 0, 1).Unit
-                local randomDist = math.random(10, 70)
-                wp.offset = Vector3.new(math.random(-70, 70), math.random(120, 160), math.random(-70, 70)) + (lookDir * randomDist)
+                local randomDist = math.random(15, 80)
+                wp.offset = Vector3.new(math.random(-80, 80), math.random(130, 180), math.random(-80, 80)) + (lookDir * randomDist)
             end
 
             wp.part.Position = camera.CFrame.Position + wp.offset
@@ -1319,46 +1377,17 @@ local function refreshConfigList()
         lbl.ZIndex = 4
         lbl.Parent = itemFrame
         
-        local saveBtn = Instance.new("ImageButton")
-        saveBtn.Size = UDim2.new(0, 24, 0, 24)
-        saveBtn.Position = UDim2.new(1, -100, 0, 6)
-        saveBtn.BackgroundTransparency = 1
-        saveBtn.Image = SAVE_ICON
-        saveBtn.ZIndex = 4
-        saveBtn.Parent = itemFrame
-        
-        local loadBtn = Instance.new("ImageButton")
-        loadBtn.Size = UDim2.new(0, 24, 0, 24)
-        loadBtn.Position = UDim2.new(1, -66, 0, 6)
-        loadBtn.BackgroundTransparency = 1
-        loadBtn.Image = IMPORT_ICON
-        loadBtn.ZIndex = 4
-        loadBtn.Parent = itemFrame
-        
-        local delBtn = Instance.new("ImageButton")
-        delBtn.Size = UDim2.new(0, 24, 0, 24)
-        delBtn.Position = UDim2.new(1, -32, 0, 6)
-        delBtn.BackgroundTransparency = 1
-        delBtn.Image = DELETE_ICON
-        delBtn.ZIndex = 4
-        delBtn.Parent = itemFrame
+        local saveBtn = Instance.new("ImageButton") saveBtn.Size = UDim2.new(0, 24, 0, 24) saveBtn.Position = UDim2.new(1, -100, 0, 6) saveBtn.BackgroundTransparency = 1 saveBtn.Image = SAVE_ICON saveBtn.ZIndex = 4 saveBtn.Parent = itemFrame
+        local loadBtn = Instance.new("ImageButton") loadBtn.Size = UDim2.new(0, 24, 0, 24) loadBtn.Position = UDim2.new(1, -66, 0, 6) loadBtn.BackgroundTransparency = 1 loadBtn.Image = IMPORT_ICON loadBtn.ZIndex = 4 loadBtn.Parent = itemFrame
+        local delBtn = Instance.new("ImageButton") delBtn.Size = UDim2.new(0, 24, 0, 24) delBtn.Position = UDim2.new(1, -32, 0, 6) delBtn.BackgroundTransparency = 1 delBtn.Image = DELETE_ICON delBtn.ZIndex = 4 delBtn.Parent = itemFrame
         
         saveBtn.MouseButton1Click:Connect(function()
             local data = { 
-                AutoFarm = autoFarmEnabled, 
-                AimAssist = aimAssistEnabled, 
-                AimTarget = aimTargetPart, 
-                AimSmoothness = aimSmoothness,
-                SpeedHack = speedHackEnabled,
-                WalkSpeed = walkSpeedValue,
-                FakeDashEnabled = fakeDashEnabled,
-                FakeDashKeyName = fakeDashKey.Name,
-                FakeDashMobile = fakeDashMobileBtnEnabled,
-                Fullbright = fullbrightEnabled,
-                ScriptVisuals = scriptVisualsEnabled,
-                WorldVisuals = worldVisualsEnabled,
-                CosmicAura = cosmicAuraEnabled,
-                ParticleType = currentParticleType
+                AutoFarm = autoFarmEnabled, AimAssist = aimAssistEnabled, AimTarget = aimTargetPart, AimSmoothness = aimSmoothness,
+                SpeedHack = speedHackEnabled, WalkSpeed = walkSpeedValue, FakeDashEnabled = fakeDashEnabled, FakeDashKeyName = fakeDashKey.Name,
+                FakeDashMobile = fakeDashMobileBtnEnabled, Fullbright = fullbrightEnabled, ScriptVisuals = scriptVisualsEnabled,
+                WorldVisuals = worldVisualsEnabled, CosmicAura = cosmicAuraEnabled, ParticleType = currentParticleType,
+                WorldParticleType = worldParticleType, WorldSpeed = worldSpeedMultiplier
             }
             writefile(configsFolder .. "/" .. cfgName .. ".json", HttpService:JSONEncode(data))
             showNotification("Configs", "Сохранено: " .. cfgName)
@@ -1369,47 +1398,22 @@ local function refreshConfigList()
                 local content = readfile(configsFolder .. "/" .. cfgName .. ".json")
                 local data = HttpService:JSONDecode(content)
                 
-                autoFarmEnabled = data.AutoFarm or false
-                if setAutoFarmUIState then setAutoFarmUIState(autoFarmEnabled, true) end
-                
-                aimAssistEnabled = data.AimAssist or false
-                if setAimAssistUIState then setAimAssistUIState(aimAssistEnabled, true) end
-                
-                aimTargetPart = data.AimTarget or "Torso"
-                if updateAimButtonsVisual then updateAimButtonsVisual(aimTargetPart) end
-
-                aimSmoothness = data.AimSmoothness or 0.2
-                if setAimSliderValue then setAimSliderValue(aimSmoothness) end
-
-                speedHackEnabled = data.SpeedHack or false
-                if setSpeedHackUIState then setSpeedHackUIState(speedHackEnabled, true) end
-
-                walkSpeedValue = data.WalkSpeed or 32
-                if setSpeedSliderValue then setSpeedSliderValue(walkSpeedValue) end
-
-                fakeDashEnabled = data.FakeDashEnabled or false
-                if setFakeDashUIState then setFakeDashUIState(fakeDashEnabled, true) end
-
-                fakeDashMobileBtnEnabled = data.FakeDashMobile or false
-                if fakeDashEnabled then mobileDashBtn.Visible = fakeDashMobileBtnEnabled end
-
-                if data.FakeDashKeyName and Enum.KeyCode[data.FakeDashKeyName] then
-                    fakeDashKey = Enum.KeyCode[data.FakeDashKeyName]
-                end
-
-                fullbrightEnabled = data.Fullbright or false
-                if setFullbrightUIState then setFullbrightUIState(fullbrightEnabled, true) end
-
-                scriptVisualsEnabled = data.ScriptVisuals or false
-                if setScriptVisualsUIState then setScriptVisualsUIState(scriptVisualsEnabled, true) end
-
-                worldVisualsEnabled = data.WorldVisuals or false
-                if setWorldVisualsUIState then setWorldVisualsUIState(worldVisualsEnabled, true) end
-
-                cosmicAuraEnabled = data.CosmicAura or false
-                if setCosmicAuraUIState then setCosmicAuraUIState(cosmicAuraEnabled, true) end
-
+                autoFarmEnabled = data.AutoFarm or false if setAutoFarmUIState then setAutoFarmUIState(autoFarmEnabled, true) end
+                aimAssistEnabled = data.AimAssist or false if setAimAssistUIState then setAimAssistUIState(aimAssistEnabled, true) end
+                aimTargetPart = data.AimTarget or "Torso" if updateAimButtonsVisual then updateAimButtonsVisual(aimTargetPart) end
+                aimSmoothness = data.AimSmoothness or 0.2 if setAimSliderValue then setAimSliderValue(aimSmoothness) end
+                speedHackEnabled = data.SpeedHack or false if setSpeedHackUIState then setSpeedHackUIState(speedHackEnabled, true) end
+                walkSpeedValue = data.WalkSpeed or 32 if setSpeedSliderValue then setSpeedSliderValue(walkSpeedValue) end
+                fakeDashEnabled = data.FakeDashEnabled or false if setFakeDashUIState then setFakeDashUIState(fakeDashEnabled, true) end
+                fakeDashMobileBtnEnabled = data.FakeDashMobile or false if fakeDashEnabled then mobileDashBtn.Visible = fakeDashMobileBtnEnabled end
+                if data.FakeDashKeyName and Enum.KeyCode[data.FakeDashKeyName] then fakeDashKey = Enum.KeyCode[data.FakeDashKeyName] end
+                fullbrightEnabled = data.Fullbright or false if setFullbrightUIState then setFullbrightUIState(fullbrightEnabled, true) end
+                scriptVisualsEnabled = data.ScriptVisuals or false if setScriptVisualsUIState then setScriptVisualsUIState(scriptVisualsEnabled, true) end
+                worldVisualsEnabled = data.WorldVisuals or false if setWorldVisualsUIState then setWorldVisualsUIState(worldVisualsEnabled, true) end
+                cosmicAuraEnabled = data.CosmicAura or false if setCosmicAuraUIState then setCosmicAuraUIState(cosmicAuraEnabled, true) end
                 currentParticleType = data.ParticleType or "🌸"
+                worldParticleType = data.WorldParticleType or "🌸"
+                worldSpeedMultiplier = data.WorldSpeed or 1.0
                 
                 showNotification("Configs", "Загружено: " .. cfgName)
             end)
@@ -1432,7 +1436,7 @@ createCfgBtn.MouseButton1Click:Connect(function()
     local name = configNameBox.Text
     if name and name ~= "" then
         if not isfolder(configsFolder) then makefolder(configsFolder) end
-        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Fullbright = false, ScriptVisuals = false, WorldVisuals = false, CosmicAura = false, ParticleType = "🌸" }))
+        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Fullbright = false, ScriptVisuals = false, WorldVisuals = false, CosmicAura = false, ParticleType = "🌸", WorldParticleType = "🌸", WorldSpeed = 1.0 }))
         configNameBox.Text = ""
         refreshConfigList()
         showNotification("Configs", "Создан конфиг")
@@ -1481,9 +1485,7 @@ local function selectAutoFarmTarget()
                 end
             end
         end
-        if lowestHpPlayer then
-            return lowestHpPlayer
-        end
+        if lowestHpPlayer then return lowestHpPlayer end
     end
 
     local nearest, minDist = nil, math.huge
