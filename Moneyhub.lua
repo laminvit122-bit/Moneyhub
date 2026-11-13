@@ -1116,7 +1116,7 @@ end, true, function(panel)
     local function updateWorldSpeedSlider(input)
         local pos = math.clamp((input.Position.X - sliderBg.AbsolutePosition.X) / sliderBg.AbsoluteSize.X, 0, 1)
         sliderFill.Size = UDim2.new(pos, 0, 1, 0)
-        worldSpeedMultiplier = 0.3 + (pos * 2.2) -- от 0.3 до 2.5
+        worldSpeedMultiplier = 0.3 + (pos * 2.2)
     end
 
     sliderBtn.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then draggingWorldSpeed = true end end)
@@ -1125,7 +1125,7 @@ end, true, function(panel)
 end)
 setWorldVisualsUIState = setWorldVisualsUIFunc
 
--- 3. COSMIC FEAR AURA (Кастомная мощная визуальная аура на персонаже)
+-- 3. COSMIC FEAR AURA (Исправленная работающая кастомная аура на персонаже)
 local activeAuraEffectFolder = nil
 
 local function applyCosmicAura(char)
@@ -1137,37 +1137,35 @@ local function applyCosmicAura(char)
             root.MoneyHubCosmicAura:Destroy()
         end
 
-        local auraFolder = Instance.new("Folder")
-        auraFolder.Name = "MoneyHubCosmicAura"
-        auraFolder.Parent = root
+        local att = Instance.new("Attachment")
+        att.Name = "MoneyHubCosmicAura"
+        att.Parent = root
 
-        -- Эмиттер фиолетово-космического тумана
         local p1 = Instance.new("ParticleEmitter")
         p1.Name = "CosmicMist"
-        p1.Texture = "rbxassetid://1084955760" -- мягкое свечение
+        p1.Texture = "rbxassetid://258129463"
         p1.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromRGB(130, 0, 255)), ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 180))})
         p1.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 3), NumberSequenceKeypoint.new(1, 6)})
-        p1.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0.3), NumberSequenceKeypoint.new(0.5, 0.1), NumberSequenceKeypoint.new(1, 1)})
+        p1.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(0.5, 0.1), NumberSequenceKeypoint.new(1, 1)})
         p1.Lifetime = NumberRange.new(1.0, 1.8)
-        p1.Rate = 25
+        p1.Rate = 35
         p1.Speed = NumberRange.new(2, 5)
         p1.SpreadAngle = Vector2.new(45, 45)
-        p1.Parent = auraFolder
+        p1.Parent = att
 
-        -- Эмиттер искр / звезд
         local p2 = Instance.new("ParticleEmitter")
         p2.Name = "CosmicSparks"
-        p2.Texture = "rbxassetid://1084952670" -- звездочка/искра
+        p2.Texture = "rbxassetid://1084952670"
         p2.Color = ColorSequence.new(Color3.fromRGB(220, 150, 255))
-        p2.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 1.2), NumberSequenceKeypoint.new(1, 0.2)})
+        p2.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 1.5), NumberSequenceKeypoint.new(1, 0.2)})
         p2.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 1)})
         p2.Lifetime = NumberRange.new(0.6, 1.2)
-        p2.Rate = 35
-        p2.Speed = NumberRange.new(5, 12)
+        p2.Rate = 45
+        p2.Speed = NumberRange.new(6, 14)
         p2.SpreadAngle = Vector2.new(180, 180)
-        p2.Parent = auraFolder
+        p2.Parent = att
 
-        activeAuraEffectFolder = auraFolder
+        activeAuraEffectFolder = att
     end)
 end
 
@@ -1205,7 +1203,7 @@ player.CharacterAdded:Connect(function(char)
 end)
 
 
--- КОНТЕЙНЕР ДЛЯ МИРОВЫХ ЧАСТИЦ (Плавные и оптимизированные в Workspace)
+-- КОНТЕЙНЕР ДЛЯ МИРОВЫХ ЧАСТИЦ (Блоки абсолютно прозрачные, видны только смайлики)
 local worldParticlesFolder = Workspace:FindFirstChild("MoneyHubWorldParticles")
 if worldParticlesFolder then worldParticlesFolder:Destroy() end
 worldParticlesFolder = Instance.new("Folder")
@@ -1213,10 +1211,10 @@ worldParticlesFolder.Name = "MoneyHubWorldParticles"
 worldParticlesFolder.Parent = Workspace
 
 local worldParts = {}
-for i = 1, 45 do -- Увеличено количество для плавности
+for i = 1, 45 do
     local part = Instance.new("Part")
     part.Size = Vector3.new(1, 1, 1)
-    part.Transparency = 1
+    part.Transparency = 1 -- Блоки полностью прозрачные!
     part.Anchored = true
     part.CanCollide = false
     part.CastShadow = false
@@ -1277,17 +1275,6 @@ RunService.RenderStepped:Connect(function(dt)
         if worldVisualsEnabled and camera then
             wp.lbl.Text = worldParticleType
             
-            local camPos = camera.CFrame.Position
-            local camLook = camera.CFrame.LookVector
-            local toPart = (wp.part.Position - camPos).Unit
-            local dot = camLook:Dot(toPart)
-
-            if dot < -0.3 then
-                wp.part.Transparency = 1
-            else
-                wp.part.Transparency = 0
-            end
-            
             -- Плавное падение с учётом выбранного ползунка скорости
             wp.offset = wp.offset - Vector3.new(0, (wp.speed * worldSpeedMultiplier) * dt, 0)
             if wp.offset.Y < -10 then
@@ -1297,8 +1284,6 @@ RunService.RenderStepped:Connect(function(dt)
             end
 
             wp.part.Position = camera.CFrame.Position + wp.offset
-        else
-            wp.part.Transparency = 1
         end
     end
 end)
