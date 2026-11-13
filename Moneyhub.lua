@@ -28,11 +28,6 @@ local SAVE_ICON = "rbxassetid://11768914234"
 local IMPORT_ICON = "rbxassetid://6953990743"
 local DELETE_ICON = "rbxassetid://11768918600"
 
--- Красивые рабочие ID стикеров (Сакура, Сердце, Звезда)
-local SAKURA_ASSET = "rbxassetid://6031094678"
-local HEART_ASSET = "rbxassetid://6023426915"
-local STAR_ASSET = "rbxassetid://6031263189"
-
 local SAFE_COORDS = Vector3.new(-200.7, 675.7, 357.3)
 
 if playerGui:FindFirstChild("MoneyHubGui") then
@@ -429,7 +424,7 @@ local isDashing = false
 local fullbrightEnabled = false
 local scriptVisualsEnabled = false
 local worldVisualsEnabled = false
-local currentParticleType = "Sakura" -- "Sakura", "Heart", "Star"
+local currentParticleType = "🌸" -- "🌸", "❤️", "⭐", "🍃 (Листья)", "❄️ (Снег)"
 
 local originalAmbient = Lighting.Ambient
 local originalOutdoorAmbient = Lighting.OutdoorAmbient
@@ -572,7 +567,7 @@ searchInput:GetPropertyChangedSignal("Text"):Connect(function()
     end
 end)
 
--- 1. AutoFarm (с настройками фиксации цели и добивания шотных)
+-- 1. AutoFarm
 local setAutoFarmUIFunc
 _, setAutoFarmUIFunc = createModuleCard(mainPage, "AutoFarm", "Рандомные удары и способности", function(state)
     autoFarmEnabled = state
@@ -588,7 +583,6 @@ end, true, function(panel)
     lbl.ZIndex = 11
     lbl.Parent = panel
 
-    -- Кнопка фиксации цели
     local lockBtn = Instance.new("TextButton")
     lockBtn.Size = UDim2.new(1, 0, 0, 26)
     lockBtn.Position = UDim2.new(0, 0, 0, 22)
@@ -612,7 +606,6 @@ end, true, function(panel)
         end
     end)
 
-    -- Кнопка добивания шотных (Low HP)
     local lowHpBtn = Instance.new("TextButton")
     lowHpBtn.Size = UDim2.new(1, 0, 0, 26)
     lowHpBtn.Position = UDim2.new(0, 0, 0, 54)
@@ -999,79 +992,103 @@ createModuleCard(visualsPage, "Fullbright", "Максимально светло
     end
 end, false)
 
--- 1. Script Visuals (Падающие реальные картинки-стикеры внутри меню с выбором 🌸, ❤️, ⭐)
+-- 1. Script Visuals (Падающие смайлики/стикеры в меню: 🌸, ❤️, ⭐, 🍃, ❄️)
 local setScriptVisualsUIFunc
-_, setScriptVisualsUIFunc = createModuleCard(visualsPage, "Script Visuals", "Падающие стикеры в меню", function(state)
+_, setScriptVisualsUIFunc = createModuleCard(visualsPage, "Script Visuals", "Падающие смайлики в меню", function(state)
     scriptVisualsEnabled = state
 end, true, function(panel)
     local lbl = Instance.new("TextLabel")
     lbl.Size = UDim2.new(1, 0, 0, 16)
     lbl.BackgroundTransparency = 1
     lbl.Font = Enum.Font.GothamBold
-    lbl.Text = "Выберите стикер:"
+    lbl.Text = "Выберите стиль:"
     lbl.TextColor3 = Color3.fromRGB(250, 220, 170)
     lbl.TextSize = 11
     lbl.TextXAlignment = Enum.TextXAlignment.Left
     lbl.ZIndex = 11
     lbl.Parent = panel
 
-    local sakuraBtn = Instance.new("TextButton")
-    sakuraBtn.Size = UDim2.new(0, 56, 0, 24)
-    sakuraBtn.Position = UDim2.new(0, 0, 0, 22)
-    sakuraBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
-    sakuraBtn.Text = "Сакура 🌸"
-    sakuraBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    sakuraBtn.TextSize = 9
-    sakuraBtn.Font = Enum.Font.GothamBold
-    sakuraBtn.ZIndex = 11
-    sakuraBtn.Parent = panel
-    local sbC = Instance.new("UICorner") sbC.CornerRadius = UDim.new(0, 6) sbC.Parent = sakuraBtn
+    local btn1 = Instance.new("TextButton")
+    btn1.Size = UDim2.new(0, 32, 0, 24)
+    btn1.Position = UDim2.new(0, 0, 0, 22)
+    btn1.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
+    btn1.Text = "🌸"
+    btn1.TextColor3 = Color3.fromRGB(255, 255, 255)
+    btn1.TextSize = 12
+    btn1.Font = Enum.Font.GothamBold
+    btn1.ZIndex = 11
+    btn1.Parent = panel
+    local c1 = Instance.new("UICorner") c1.CornerRadius = UDim.new(0, 6) c1.Parent = btn1
 
-    local heartBtn = Instance.new("TextButton")
-    heartBtn.Size = UDim2.new(0, 56, 0, 24)
-    heartBtn.Position = UDim2.new(0, 62, 0, 22)
-    heartBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
-    heartBtn.Text = "Сердце ❤️"
-    heartBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
-    heartBtn.TextSize = 9
-    heartBtn.Font = Enum.Font.GothamBold
-    heartBtn.ZIndex = 11
-    heartBtn.Parent = panel
-    local lbC = Instance.new("UICorner") lbC.CornerRadius = UDim.new(0, 6) lbC.Parent = heartBtn
+    local btn2 = Instance.new("TextButton")
+    btn2.Size = UDim2.new(0, 32, 0, 24)
+    btn2.Position = UDim2.new(0, 36, 0, 22)
+    btn2.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
+    btn2.Text = "❤️"
+    btn2.TextColor3 = Color3.fromRGB(200, 160, 120)
+    btn2.TextSize = 12
+    btn2.Font = Enum.Font.GothamBold
+    btn2.ZIndex = 11
+    btn2.Parent = panel
+    local c2 = Instance.new("UICorner") c2.CornerRadius = UDim.new(0, 6) c2.Parent = btn2
 
-    local starBtn = Instance.new("TextButton")
-    starBtn.Size = UDim2.new(0, 58, 0, 24)
-    starBtn.Position = UDim2.new(0, 124, 0, 22)
-    starBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
-    starBtn.Text = "Звезда ⭐"
-    starBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
-    starBtn.TextSize = 9
-    starBtn.Font = Enum.Font.GothamBold
-    starBtn.ZIndex = 11
-    starBtn.Parent = panel
-    local skC = Instance.new("UICorner") skC.CornerRadius = UDim.new(0, 6) skC.Parent = starBtn
+    local btn3 = Instance.new("TextButton")
+    btn3.Size = UDim2.new(0, 32, 0, 24)
+    btn3.Position = UDim2.new(0, 72, 0, 22)
+    btn3.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
+    btn3.Text = "⭐"
+    btn3.TextColor3 = Color3.fromRGB(200, 160, 120)
+    btn3.TextSize = 12
+    btn3.Font = Enum.Font.GothamBold
+    btn3.ZIndex = 11
+    btn3.Parent = panel
+    local c3 = Instance.new("UICorner") c3.CornerRadius = UDim.new(0, 6) c3.Parent = btn3
+
+    local btn4 = Instance.new("TextButton")
+    btn4.Size = UDim2.new(0, 38, 0, 24)
+    btn4.Position = UDim2.new(0, 108, 0, 22)
+    btn4.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
+    btn4.Text = "🍃"
+    btn4.TextColor3 = Color3.fromRGB(200, 160, 120)
+    btn4.TextSize = 12
+    btn4.Font = Enum.Font.GothamBold
+    btn4.ZIndex = 11
+    btn4.Parent = panel
+    local c4 = Instance.new("UICorner") c4.CornerRadius = UDim.new(0, 6) c4.Parent = btn4
+
+    local btn5 = Instance.new("TextButton")
+    btn5.Size = UDim2.new(0, 38, 0, 24)
+    btn5.Position = UDim2.new(0, 150, 0, 22)
+    btn5.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
+    btn5.Text = "❄️"
+    btn5.TextColor3 = Color3.fromRGB(200, 160, 120)
+    btn5.TextSize = 12
+    btn5.Font = Enum.Font.GothamBold
+    btn5.ZIndex = 11
+    btn5.Parent = panel
+    local c5 = Instance.new("UICorner") c5.CornerRadius = UDim.new(0, 6) c5.Parent = btn5
 
     local function updateParticleButtons(pType)
         currentParticleType = pType
-        sakuraBtn.BackgroundColor3 = (pType == "Sakura") and Color3.fromRGB(255, 120, 0) or Color3.fromRGB(50, 28, 14)
-        sakuraBtn.TextColor3 = (pType == "Sakura") and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 160, 120)
-
-        heartBtn.BackgroundColor3 = (pType == "Heart") and Color3.fromRGB(255, 120, 0) or Color3.fromRGB(50, 28, 14)
-        heartBtn.TextColor3 = (pType == "Heart") and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 160, 120)
-
-        starBtn.BackgroundColor3 = (pType == "Star") and Color3.fromRGB(255, 120, 0) or Color3.fromRGB(50, 28, 14)
-        starBtn.TextColor3 = (pType == "Star") and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 160, 120)
+        local buttons = { {btn1, "🌸"}, {btn2, "❤️"}, {btn3, "⭐"}, {btn4, "🍃"}, {btn5, "❄️"} }
+        for _, pair in ipairs(buttons) do
+            local active = (pair[2] == pType)
+            pair[1].BackgroundColor3 = active and Color3.fromRGB(255, 120, 0) or Color3.fromRGB(50, 28, 14)
+            pair[1].TextColor3 = active and Color3.fromRGB(255, 255, 255) or Color3.fromRGB(200, 160, 120)
+        end
     end
 
-    sakuraBtn.MouseButton1Click:Connect(function() updateParticleButtons("Sakura") end)
-    heartBtn.MouseButton1Click:Connect(function() updateParticleButtons("Heart") end)
-    starBtn.MouseButton1Click:Connect(function() updateParticleButtons("Star") end)
+    btn1.MouseButton1Click:Connect(function() updateParticleButtons("🌸") end)
+    btn2.MouseButton1Click:Connect(function() updateParticleButtons("❤️") end)
+    btn3.MouseButton1Click:Connect(function() updateParticleButtons("⭐") end)
+    btn4.MouseButton1Click:Connect(function() updateParticleButtons("🍃") end)
+    btn5.MouseButton1Click:Connect(function() updateParticleButtons("❄️") end)
 end)
 setScriptVisualsUIState = setScriptVisualsUIFunc
 
--- 2. НОВАЯ ФУНКЦИЯ World Visual (Падающие стикеры из реального неба по всей карте по ходу взгляда)
+-- 2. World Visual (Падают из реального неба по всей карте по ходу взгляда, сзади скрываются)
 local setWorldVisualsUIFunc
-_, setWorldVisualsUIFunc = createModuleCard(visualsPage, "World Visual", "Стикеры падают из неба по всей карте", function(state)
+_, setWorldVisualsUIFunc = createModuleCard(visualsPage, "World Visual", "Стикеры/Листья/Снег падают из неба на карте", function(state)
     worldVisualsEnabled = state
 end, false)
 setWorldVisualsUIState = setWorldVisualsUIFunc
@@ -1085,50 +1102,52 @@ worldParticlesFolder.Name = "MoneyHubWorldParticles"
 worldParticlesFolder.Parent = Workspace
 
 local worldParts = {}
-for i = 1, 30 do
+for i = 1, 35 do
     local part = Instance.new("Part")
-    part.Size = Vector3.new(3, 3, 3)
+    part.Size = Vector3.new(1, 1, 1)
     part.Transparency = 1
     part.Anchored = true
     part.CanCollide = false
     part.CastShadow = false
 
     local bb = Instance.new("BillboardGui")
-    bb.Size = UDim2.new(0, 32, 0, 32)
+    bb.Size = UDim2.new(0, 30, 0, 30)
     bb.AlwaysOnTop = true
     bb.Parent = part
 
-    local img = Instance.new("ImageLabel")
-    img.Size = UDim2.new(1, 0, 1, 0)
-    img.BackgroundTransparency = 1
-    img.Image = SAKURA_ASSET
-    img.Parent = bb
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, 0, 1, 0)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = "🌸"
+    lbl.TextSize = 22
+    lbl.Font = Enum.Font.GothamBold
+    lbl.Parent = bb
 
     part.Parent = worldParticlesFolder
-    table.insert(worldParts, { part = part, img = img, offset = Vector3.new(math.random(-80, 80), math.random(80, 140), math.random(-80, 80)), speed = math.random(25, 55) })
+    table.insert(worldParts, { part = part, lbl = lbl, offset = Vector3.new(math.random(-80, 80), math.random(80, 140), math.random(-80, 80)), speed = math.random(25, 55) })
 end
 
 
 -- ЭФФЕКТЫ ЧАСТИЦ ДЛЯ SCRIPT VISUALS (Внутри меню)
 local scriptParticles = {}
 for i = 1, 20 do
-    local img = Instance.new("ImageLabel")
-    img.Size = UDim2.new(0, 22, 0, 22)
-    img.BackgroundTransparency = 1
-    img.Image = SAKURA_ASSET
-    img.Visible = false
-    img.Parent = effectsContainer
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(0, 22, 0, 22)
+    lbl.BackgroundTransparency = 1
+    lbl.Text = "🌸"
+    lbl.TextSize = 16
+    lbl.Font = Enum.Font.GothamBold
+    lbl.Visible = false
+    lbl.Parent = effectsContainer
 
-    table.insert(scriptParticles, { img = img, x = math.random(), y = math.random(), speed = math.random(15, 40) / 100000, sway = math.random(1, 10) })
+    table.insert(scriptParticles, { lbl = lbl, x = math.random(), y = math.random(), speed = math.random(15, 40) / 100000, sway = math.random(1, 10) })
 end
 
 RunService.RenderStepped:Connect(function(dt)
     if not screenGui.Parent then return end
     local scaledDt = dt * 60
     
-    local targetAsset = SAKURA_ASSET
-    if currentParticleType == "Heart" then targetAsset = HEART_ASSET
-    elseif currentParticleType == "Star" then targetAsset = STAR_ASSET end
+    local targetText = currentParticleType
 
     -- 1. Обновление Script Visuals (внутри меню)
     for _, p in ipairs(scriptParticles) do
@@ -1136,25 +1155,34 @@ RunService.RenderStepped:Connect(function(dt)
         if p.y > 1.05 then p.y = -0.05 p.x = math.random() end
         
         local active = (scriptVisualsEnabled and mainFrame.Visible)
-        p.img.Visible = active
+        p.lbl.Visible = active
 
         if active then
-            p.img.Image = targetAsset
-            p.img.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 25, p.y, 0)
+            p.lbl.Text = targetText
+            p.lbl.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 25, p.y, 0)
         end
     end
 
-    -- 2. Обновление World Visual (реально из неба по всей карте перед камерой, без лагов)
+    -- 2. Обновление World Visual (реально из неба по всей карте перед камерой, оптимизировано по взгляду)
     for _, wp in ipairs(worldParts) do
         if worldVisualsEnabled and camera then
-            wp.img.Image = targetAsset
-            wp.part.Transparency = 0
+            wp.lbl.Text = targetText
+            
+            -- Проверка: если частица сзади камеры, скрываем ее для максимального FPS
+            local camPos = camera.CFrame.Position
+            local camLook = camera.CFrame.LookVector
+            local toPart = (wp.part.Position - camPos).Unit
+            local dot = camLook:Dot(toPart)
+
+            if dot < -0.3 then
+                wp.part.Transparency = 1 -- сзади — скрываем
+            else
+                wp.part.Transparency = 0 -- впереди — показываем
+            end
             
             -- Падение вниз
             wp.offset = wp.offset - Vector3.new(0, wp.speed * dt, 0)
             if wp.offset.Y < -10 then
-                -- Респавн наверху перед камерой по направлению взгляда
-                local camPos = camera.CFrame.Position
                 local lookDir = camera.CFrame.LookVector * Vector3.new(1, 0, 1).Unit
                 local randomDist = math.random(10, 70)
                 wp.offset = Vector3.new(math.random(-70, 70), math.random(120, 160), math.random(-70, 70)) + (lookDir * randomDist)
@@ -1327,7 +1355,7 @@ local function refreshConfigList()
                 worldVisualsEnabled = data.WorldVisuals or false
                 if setWorldVisualsUIState then setWorldVisualsUIState(worldVisualsEnabled, true) end
 
-                currentParticleType = data.ParticleType or "Sakura"
+                currentParticleType = data.ParticleType or "🌸"
                 
                 showNotification("Configs", "Загружено: " .. cfgName)
             end)
@@ -1350,7 +1378,7 @@ createCfgBtn.MouseButton1Click:Connect(function()
     local name = configNameBox.Text
     if name and name ~= "" then
         if not isfolder(configsFolder) then makefolder(configsFolder) end
-        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Fullbright = false, ScriptVisuals = false, WorldVisuals = false, ParticleType = "Sakura" }))
+        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Fullbright = false, ScriptVisuals = false, WorldVisuals = false, ParticleType = "🌸" }))
         configNameBox.Text = ""
         refreshConfigList()
         showNotification("Configs", "Создан конфиг")
@@ -1359,7 +1387,7 @@ end)
 
 refreshConfigList()
 
--- ИСПОЛНЕНИЕ ЛОГИКИ AUTOFARM, AIM, SPEEDHACK С УЧЕТОМ ФИКСАЦИИ ЦЕЛИ И ДОБИВАНИЯ ШОТНЫХ
+-- ИСПОЛНЕНИЕ ЛОГИКИ AUTOFARM, AIM, SPEEDHACK
 local function getTouchButton(nameKeyword)
     for _, gui in ipairs(playerGui:GetChildren()) do
         if gui:IsA("ScreenGui") and gui.Name ~= "MoneyHubGui" then
@@ -1383,15 +1411,13 @@ local function selectAutoFarmTarget()
     if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then return nil end
     local myPos = myChar.HumanoidRootPart.Position
 
-    -- 1. Проверяем фиксацию текущей цели (если включено и цель жива)
     if autoFarmLockTarget and currentTarget and currentTarget.Character and currentTarget.Character:FindFirstChild("Humanoid") and currentTarget.Character.Humanoid.Health > 0 then
         return currentTarget
     end
 
-    -- 2. Проверяем добивание шотных (< 35 HP), если включено
     if autoFarmLowHpFinisher then
         local lowestHpPlayer = nil
-        local lowestHpVal = 35 -- порог HP для шотных
+        local lowestHpVal = 35
         for _, p in ipairs(Players:GetPlayers()) do
             if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") and p.Character:FindFirstChild("Humanoid") then
                 local hum = p.Character.Humanoid
@@ -1406,7 +1432,6 @@ local function selectAutoFarmTarget()
         end
     end
 
-    -- 3. Иначе берем ближайшего игрока
     local nearest, minDist = nil, math.huge
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") and p.Character:FindFirstChild("Humanoid") then
