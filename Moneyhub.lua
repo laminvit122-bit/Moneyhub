@@ -834,7 +834,7 @@ local function enableDragging(frame, handle)
     end)
 end
 
--- Плавающая мобильная кнопка Fake Dash (ПОДВИЖНАЯ, НЕ СКРЫВАЕТ КНОПКИ УДАРОВ)
+-- Плавающая мобильная кнопка Fake Dash
 local mobileDashBtn = Instance.new("Frame")
 mobileDashBtn.Name = "MobileDashBtn"
 mobileDashBtn.Size = UDim2.new(0, 60, 0, 60)
@@ -997,7 +997,7 @@ createModuleCard(visualsPage, "Fullbright", "Максимально светло
     end
 end, false)
 
--- 1. Script Visuals (Падающие смайлики/стикеры в меню)
+-- 1. Script Visuals (Падающие стикеры в меню)
 local setScriptVisualsUIFunc
 _, setScriptVisualsUIFunc = createModuleCard(visualsPage, "Script Visuals", "Падающие стикеры в меню", function(state)
     scriptVisualsEnabled = state
@@ -1037,9 +1037,9 @@ end, true, function(panel)
 end)
 setScriptVisualsUIState = setScriptVisualsUIFunc
 
--- 2. World Visual (С выбором стикеров и настройкой скорости падения)
+-- 2. World Visual (Падают в пространстве вокруг игрока, их можно догнать и обогнать)
 local setWorldVisualsUIFunc
-_, setWorldVisualsUIFunc = createModuleCard(visualsPage, "World Visual", "Стикеры/Листья/Снег падают из неба на карте", function(state)
+_, setWorldVisualsUIFunc = createModuleCard(visualsPage, "World Visual", "Стикеры падают вокруг вас в мире", function(state)
     worldVisualsEnabled = state
 end, true, function(panel)
     local lbl = Instance.new("TextLabel")
@@ -1125,66 +1125,94 @@ end, true, function(panel)
 end)
 setWorldVisualsUIState = setWorldVisualsUIFunc
 
--- 3. COSMIC FEAR AURA (Исправленная работающая кастомная аура на персонаже)
-local activeAuraEffectFolder = nil
+-- 3. PSYCHO AURA (Интегрированная аура персонажа)
+local PsychoAuraConnection = nil
+local PsychoAuraFolder = nil
 
 local function applyCosmicAura(char)
     pcall(function()
-        local root = char:FindFirstChild("HumanoidRootPart")
+        if PsychoAuraConnection then PsychoAuraConnection:Disconnect() end
+        if PsychoAuraFolder then PsychoAuraFolder:Destroy() end
+
+        local root = char:WaitForChild("HumanoidRootPart", 2)
         if not root then return end
-        
-        if root:FindFirstChild("MoneyHubCosmicAura") then
-            root.MoneyHubCosmicAura:Destroy()
-        end
 
-        local att = Instance.new("Attachment")
-        att.Name = "MoneyHubCosmicAura"
-        att.Parent = root
+        local Folder = Instance.new("Folder")
+        Folder.Name = "PsychoAura"
+        Folder.Parent = Workspace
+        PsychoAuraFolder = Folder
 
-        local p1 = Instance.new("ParticleEmitter")
-        p1.Name = "CosmicMist"
-        p1.Texture = "rbxassetid://258129463"
-        p1.Color = ColorSequence.new({ColorSequenceKeypoint.new(0, Color3.fromRGB(130, 0, 255)), ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 180))})
-        p1.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 3), NumberSequenceKeypoint.new(1, 6)})
-        p1.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(0.5, 0.1), NumberSequenceKeypoint.new(1, 1)})
-        p1.Lifetime = NumberRange.new(1.0, 1.8)
-        p1.Rate = 35
-        p1.Speed = NumberRange.new(2, 5)
-        p1.SpreadAngle = Vector2.new(45, 45)
-        p1.Parent = att
+        local Colors = {
+            Color3.fromRGB(125, 50, 255),
+            Color3.fromRGB(65, 160, 255),
+            Color3.fromRGB(200, 100, 255)
+        }
 
-        local p2 = Instance.new("ParticleEmitter")
-        p2.Name = "CosmicSparks"
-        p2.Texture = "rbxassetid://1084952670"
-        p2.Color = ColorSequence.new(Color3.fromRGB(220, 150, 255))
-        p2.Size = NumberSequence.new({NumberSequenceKeypoint.new(0, 1.5), NumberSequenceKeypoint.new(1, 0.2)})
-        p2.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(1, 1)})
-        p2.Lifetime = NumberRange.new(0.6, 1.2)
-        p2.Rate = 45
-        p2.Speed = NumberRange.new(6, 14)
-        p2.SpreadAngle = Vector2.new(180, 180)
-        p2.Parent = att
+        local Attachment = Instance.new("Attachment")
+        Attachment.Name = "AuraAttachment"
+        Attachment.Parent = root
 
-        activeAuraEffectFolder = att
+        local Emitter = Instance.new("ParticleEmitter")
+        Emitter.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+        Emitter.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Colors[1]),
+            ColorSequenceKeypoint.new(0.5, Colors[2]),
+            ColorSequenceKeypoint.new(1, Colors[3])
+        })
+        Emitter.LightEmission = 1
+        Emitter.LightInfluence = 0
+        Emitter.Rate = 110
+        Emitter.Lifetime = NumberRange.new(0.5, 1.2)
+        Emitter.Speed = NumberRange.new(2, 5)
+        Emitter.SpreadAngle = Vector2.new(180, 180)
+        Emitter.RotSpeed = NumberRange.new(-180, 180)
+        Emitter.Size = NumberSequence.new({
+            NumberSequenceKeypoint.new(0, 0),
+            NumberSequenceKeypoint.new(0.5, 0.8),
+            NumberSequenceKeypoint.new(1, 0)
+        })
+        Emitter.Parent = Attachment
+
+        local Highlight = Instance.new("Highlight")
+        Highlight.Adornee = char
+        Highlight.FillColor = Colors[1]
+        Highlight.OutlineColor = Colors[2]
+        Highlight.FillTransparency = 0.75
+        Highlight.OutlineTransparency = 0.15
+        Highlight.Parent = Folder
+
+        local Time = 0
+        PsychoAuraConnection = RunService.RenderStepped:Connect(function(Delta)
+            if not char or not char.Parent or not root.Parent then return end
+            Time += Delta * 2
+            local Pulse = (math.sin(Time) + 1) / 2
+            Highlight.FillTransparency = 0.85 - Pulse * 0.15
+            Highlight.OutlineTransparency = 0.4 - Pulse * 0.25
+            Emitter.Rate = 80 + Pulse * 70
+        end)
     end)
 end
 
 local function removeCosmicAura()
     pcall(function()
-        if activeAuraEffectFolder then
-            activeAuraEffectFolder:Destroy()
-            activeAuraEffectFolder = nil
+        if PsychoAuraConnection then
+            PsychoAuraConnection:Disconnect()
+            PsychoAuraConnection = nil
+        end
+        if PsychoAuraFolder then
+            PsychoAuraFolder:Destroy()
+            PsychoAuraFolder = nil
         end
         local char = player.Character
         if char and char:FindFirstChild("HumanoidRootPart") then
-            local found = char.HumanoidRootPart:FindFirstChild("MoneyHubCosmicAura")
-            if found then found:Destroy() end
+            local att = char.HumanoidRootPart:FindFirstChild("AuraAttachment")
+            if att then att:Destroy() end
         end
     end)
 end
 
 local setAuraUIFunc
-_, setAuraUIFunc = createModuleCard(visualsPage, "Cosmic Aura", "Космическая аура вокруг персонажа", function(state)
+_, setAuraUIFunc = createModuleCard(visualsPage, "Cosmic Aura", "Психо-аура вокруг персонажа", function(state)
     cosmicAuraEnabled = state
     if cosmicAuraEnabled then
         if player.Character then applyCosmicAura(player.Character) end
@@ -1203,7 +1231,7 @@ player.CharacterAdded:Connect(function(char)
 end)
 
 
--- КОНТЕЙНЕР ДЛЯ МИРОВЫХ ЧАСТИЦ (Блоки абсолютно прозрачные, видны только смайлики)
+-- КОНТЕЙНЕР ДЛЯ МИРОВЫХ ЧАСТИЦ (Абсолютно прозрачные блоки, частицы падают вокруг игрока)
 local worldParticlesFolder = Workspace:FindFirstChild("MoneyHubWorldParticles")
 if worldParticlesFolder then worldParticlesFolder:Destroy() end
 worldParticlesFolder = Instance.new("Folder")
@@ -1211,10 +1239,10 @@ worldParticlesFolder.Name = "MoneyHubWorldParticles"
 worldParticlesFolder.Parent = Workspace
 
 local worldParts = {}
-for i = 1, 45 do
+for i = 1, 50 do
     local part = Instance.new("Part")
     part.Size = Vector3.new(1, 1, 1)
-    part.Transparency = 1 -- Блоки полностью прозрачные!
+    part.Transparency = 1 -- Полностью прозрачные блоки
     part.Anchored = true
     part.CanCollide = false
     part.CastShadow = false
@@ -1233,7 +1261,10 @@ for i = 1, 45 do
     lbl.Parent = bb
 
     part.Parent = worldParticlesFolder
-    table.insert(worldParts, { part = part, lbl = lbl, offset = Vector3.new(math.random(-90, 90), math.random(70, 150), math.random(-90, 90)), speed = math.random(18, 40) })
+    
+    -- Спавним в области вокруг игрока
+    local initPos = Vector3.new(math.random(-60, 60), math.random(0, 45), math.random(-60, 60))
+    table.insert(worldParts, { part = part, lbl = lbl, pos = initPos, speed = math.random(15, 35) })
 end
 
 
@@ -1270,20 +1301,40 @@ RunService.RenderStepped:Connect(function(dt)
         end
     end
 
-    -- 2. Мир (World Visual)
+    -- 2. Мир (World Visual - падают вокруг игрока, можно догонять и пробегать сквозь них)
     for _, wp in ipairs(worldParts) do
-        if worldVisualsEnabled and camera then
+        if worldVisualsEnabled then
             wp.lbl.Text = worldParticleType
             
-            -- Плавное падение с учётом выбранного ползунка скорости
-            wp.offset = wp.offset - Vector3.new(0, (wp.speed * worldSpeedMultiplier) * dt, 0)
-            if wp.offset.Y < -10 then
-                local lookDir = camera.CFrame.LookVector * Vector3.new(1, 0, 1).Unit
-                local randomDist = math.random(15, 80)
-                wp.offset = Vector3.new(math.random(-80, 80), math.random(130, 180), math.random(-80, 80)) + (lookDir * randomDist)
+            -- Движение вниз
+            wp.pos = wp.pos - Vector3.new(0, (wp.speed * worldSpeedMultiplier) * dt, 0)
+
+            -- Если стикер упал ниже земли, возвращаем его наверх
+            if wp.pos.Y < -10 then
+                wp.pos = Vector3.new(math.random(-60, 60), math.random(35, 60), math.random(-60, 60))
             end
 
-            wp.part.Position = camera.CFrame.Position + wp.offset
+            local char = player.Character
+            local root = char and char:FindFirstChild("HumanoidRootPart")
+            if root then
+                -- Удерживаем стикеры вокруг позиции игрока, чтобы они никуда не улетали
+                local targetWorldPos = root.Position + wp.pos
+                local relX = targetWorldPos.X - root.Position.X
+                local relZ = targetWorldPos.Z - root.Position.Z
+                
+                if relX > 70 then wp.pos = wp.pos - Vector3.new(140, 0, 0)
+                elseif relX < -70 then wp.pos = wp.pos + Vector3.new(140, 0, 0) end
+                
+                if relZ > 70 then wp.pos = wp.pos - Vector3.new(0, 0, 140)
+                elseif relZ < -70 then wp.pos = wp.pos + Vector3.new(0, 0, 140) end
+
+                wp.part.Position = root.Position + wp.pos
+                wp.part.Transparency = 1
+            else
+                wp.part.Transparency = 1
+            end
+        else
+            wp.part.Transparency = 1
         end
     end
 end)
