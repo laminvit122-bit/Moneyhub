@@ -11,6 +11,7 @@ local Workspace = game:GetService("Workspace")
 local HttpService = game:GetService("HttpService")
 local Lighting = game:GetService("Lighting")
 local CoreGui = game:GetService("CoreGui")
+local InsertService = game:GetService("InsertService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -424,7 +425,8 @@ local isDashing = false
 local fullbrightEnabled = false
 local scriptVisualsEnabled = false
 local worldVisualsEnabled = false
-local currentParticleType = "🌸" -- "🌸", "❤️", "⭐", "🍃 (Листья)", "❄️ (Снег)"
+local cosmicAuraEnabled = false
+local currentParticleType = "🌸"
 
 local originalAmbient = Lighting.Ambient
 local originalOutdoorAmbient = Lighting.OutdoorAmbient
@@ -436,6 +438,7 @@ local setFakeDashUIState = nil
 local setFullbrightUIState = nil
 local setScriptVisualsUIState = nil
 local setWorldVisualsUIState = nil
+local setCosmicAuraUIState = nil
 
 local updateAimButtonsVisual = nil
 local setAimSliderValue = nil
@@ -829,7 +832,7 @@ local function enableDragging(frame, handle)
     end)
 end
 
--- Плавающая мобильная кнопка Fake Dash
+-- Плавающая мобильная кнопка Fake Dash (ПОДВИЖНАЯ, НЕ СКРЫВАЕТ СТАНДАРТНЫЕ КНОПКИ)
 local mobileDashBtn = Instance.new("Frame")
 mobileDashBtn.Name = "MobileDashBtn"
 mobileDashBtn.Size = UDim2.new(0, 60, 0, 60)
@@ -992,9 +995,9 @@ createModuleCard(visualsPage, "Fullbright", "Максимально светло
     end
 end, false)
 
--- 1. Script Visuals (Падающие смайлики/стикеры в меню: 🌸, ❤️, ⭐, 🍃, ❄️)
+-- 1. Script Visuals (Падающие смайлики/стикеры в меню)
 local setScriptVisualsUIFunc
-_, setScriptVisualsUIFunc = createModuleCard(visualsPage, "Script Visuals", "Падающие смайлики в меню", function(state)
+_, setScriptVisualsUIFunc = createModuleCard(visualsPage, "Script Visuals", "Падающие стикеры в меню", function(state)
     scriptVisualsEnabled = state
 end, true, function(panel)
     local lbl = Instance.new("TextLabel")
@@ -1086,15 +1089,66 @@ end, true, function(panel)
 end)
 setScriptVisualsUIState = setScriptVisualsUIFunc
 
--- 2. World Visual (Падают из реального неба по всей карте по ходу взгляда, сзади скрываются)
+-- 2. World Visual (Падают из реального неба по всей карте по ходу взгляда)
 local setWorldVisualsUIFunc
 _, setWorldVisualsUIFunc = createModuleCard(visualsPage, "World Visual", "Стикеры/Листья/Снег падают из неба на карте", function(state)
     worldVisualsEnabled = state
 end, false)
 setWorldVisualsUIState = setWorldVisualsUIFunc
 
+-- 3. НОВАЯ ФУНКЦИЯ: COSMIC FEAR AURA (Космическая Аура 12315023384)
+local activeAuraInstance = nil
+local setAuraUIFunc
+_, setAuraUIFunc = createModuleCard(visualsPage, "Cosmic Aura", "Космическая аура вокруг персонажа", function(state)
+    cosmicAuraEnabled = state
+    if cosmicAuraEnabled then
+        task.spawn(function()
+            pcall(function()
+                if not activeAuraInstance then
+                    local model = InsertService:LoadAsset(12315023384)
+                    if model then
+                        activeAuraInstance = model:GetChildren()[1] or model
+                        activeAuraInstance.Name = "MoneyHubCosmicAura"
+                    end
+                end
+                local char = player.Character
+                if char and activeAuraInstance then
+                    local root = char:FindFirstChild("HumanoidRootPart")
+                    if root then
+                        local clone = activeAuraInstance:Clone()
+                        clone.Parent = root
+                    end
+                end
+            end)
+        end)
+    else
+        pcall(function()
+            local char = player.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                local found = char.HumanoidRootPart:FindFirstChild("MoneyHubCosmicAura")
+                if found then found:Destroy() end
+            end
+        end)
+    end
+end, false)
+setCosmicAuraUIState = setAuraUIFunc
 
--- КОНТЕЙНЕР ДЛЯ МИРОВЫХ 3D ЧАСТИЦ (В Workspace)
+player.CharacterAdded:Connect(function(char)
+    if cosmicAuraEnabled and activeAuraInstance then
+        task.delay(1, function()
+            pcall(function()
+                local root = char:FindFirstChild("HumanoidRootPart")
+                if root then
+                    local clone = activeAuraInstance:Clone()
+                    clone.Parent = root
+                end
+            end)
+        end)
+    end
+end)
+
+
+-- КОНТЕЙНЕР ДЛЯ МИРОВЫХ ЧАСТИЦ (В Workspace)
 local worldParticlesFolder = Workspace:FindFirstChild("MoneyHubWorldParticles")
 if worldParticlesFolder then worldParticlesFolder:Destroy() end
 worldParticlesFolder = Instance.new("Folder")
@@ -1128,7 +1182,7 @@ for i = 1, 35 do
 end
 
 
--- ЭФФЕКТЫ ЧАСТИЦ ДЛЯ SCRIPT VISUALS (Внутри меню)
+-- ЭФФЕКТЫ ЧАСТИЦ (Внутри меню)
 local scriptParticles = {}
 for i = 1, 20 do
     local lbl = Instance.new("TextLabel")
@@ -1149,7 +1203,6 @@ RunService.RenderStepped:Connect(function(dt)
     
     local targetText = currentParticleType
 
-    -- 1. Обновление Script Visuals (внутри меню)
     for _, p in ipairs(scriptParticles) do
         p.y = p.y + (p.speed * scaledDt)
         if p.y > 1.05 then p.y = -0.05 p.x = math.random() end
@@ -1163,24 +1216,21 @@ RunService.RenderStepped:Connect(function(dt)
         end
     end
 
-    -- 2. Обновление World Visual (реально из неба по всей карте перед камерой, оптимизировано по взгляду)
     for _, wp in ipairs(worldParts) do
         if worldVisualsEnabled and camera then
             wp.lbl.Text = targetText
             
-            -- Проверка: если частица сзади камеры, скрываем ее для максимального FPS
             local camPos = camera.CFrame.Position
             local camLook = camera.CFrame.LookVector
             local toPart = (wp.part.Position - camPos).Unit
             local dot = camLook:Dot(toPart)
 
             if dot < -0.3 then
-                wp.part.Transparency = 1 -- сзади — скрываем
+                wp.part.Transparency = 1
             else
-                wp.part.Transparency = 0 -- впереди — показываем
+                wp.part.Transparency = 0
             end
             
-            -- Падение вниз
             wp.offset = wp.offset - Vector3.new(0, wp.speed * dt, 0)
             if wp.offset.Y < -10 then
                 local lookDir = camera.CFrame.LookVector * Vector3.new(1, 0, 1).Unit
@@ -1307,6 +1357,7 @@ local function refreshConfigList()
                 Fullbright = fullbrightEnabled,
                 ScriptVisuals = scriptVisualsEnabled,
                 WorldVisuals = worldVisualsEnabled,
+                CosmicAura = cosmicAuraEnabled,
                 ParticleType = currentParticleType
             }
             writefile(configsFolder .. "/" .. cfgName .. ".json", HttpService:JSONEncode(data))
@@ -1355,6 +1406,9 @@ local function refreshConfigList()
                 worldVisualsEnabled = data.WorldVisuals or false
                 if setWorldVisualsUIState then setWorldVisualsUIState(worldVisualsEnabled, true) end
 
+                cosmicAuraEnabled = data.CosmicAura or false
+                if setCosmicAuraUIState then setCosmicAuraUIState(cosmicAuraEnabled, true) end
+
                 currentParticleType = data.ParticleType or "🌸"
                 
                 showNotification("Configs", "Загружено: " .. cfgName)
@@ -1378,7 +1432,7 @@ createCfgBtn.MouseButton1Click:Connect(function()
     local name = configNameBox.Text
     if name and name ~= "" then
         if not isfolder(configsFolder) then makefolder(configsFolder) end
-        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Fullbright = false, ScriptVisuals = false, WorldVisuals = false, ParticleType = "🌸" }))
+        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Fullbright = false, ScriptVisuals = false, WorldVisuals = false, CosmicAura = false, ParticleType = "🌸" }))
         configNameBox.Text = ""
         refreshConfigList()
         showNotification("Configs", "Создан конфиг")
@@ -1387,7 +1441,7 @@ end)
 
 refreshConfigList()
 
--- ИСПОЛНЕНИЕ ЛОГИКИ AUTOFARM, AIM, SPEEDHACK
+-- ЛОГИКА AUTOFARM, AIM, SPEEDHACK
 local function getTouchButton(nameKeyword)
     for _, gui in ipairs(playerGui:GetChildren()) do
         if gui:IsA("ScreenGui") and gui.Name ~= "MoneyHubGui" then
