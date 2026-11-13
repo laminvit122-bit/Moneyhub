@@ -28,8 +28,12 @@ local SAVE_ICON = "rbxassetid://11768914234"
 local IMPORT_ICON = "rbxassetid://6953990743"
 local DELETE_ICON = "rbxassetid://11768918600"
 
+-- Картинки стикеров для падающих эффектов
+local SAKURA_ASSET = "rbxassetid://6031094678"
+local HEART_ASSET = "rbxassetid://6023426915"
+local STAR_ASSET = "rbxassetid://6031263189"
+
 local SAFE_COORDS = Vector3.new(-200.7, 675.7, 357.3)
-local SKY_TEXTURE_ID = "rbxassetid://1276355366"
 
 if playerGui:FindFirstChild("MoneyHubGui") then
     playerGui.MoneyHubGui:Destroy()
@@ -51,6 +55,14 @@ pcall(function()
     end
 end)
 if not screenGui.Parent then screenGui.Parent = playerGui end
+
+-- КОНТЕЙНЕР ДЛЯ МИРОВЫХ ЭФФЕКТОВ (World Visual - на весь экран)
+local worldEffectsContainer = Instance.new("Frame")
+worldEffectsContainer.Name = "WorldEffectsContainer"
+worldEffectsContainer.Size = UDim2.new(1, 0, 1, 0)
+worldEffectsContainer.BackgroundTransparency = 1
+worldEffectsContainer.ZIndex = 0
+worldEffectsContainer.Parent = screenGui
 
 -- СИСТЕМА УВЕДОМЛЕНИЙ
 local notificationsContainer = Instance.new("Frame")
@@ -420,21 +432,20 @@ local fakeDashMobileBtnEnabled = false
 local isDashing = false
 
 local fullbrightEnabled = false
-local skyEnabled = false
 local scriptVisualsEnabled = false
+local worldVisualsEnabled = false
 local currentParticleType = "Sakura" -- "Sakura", "Heart", "Star"
 
 local originalAmbient = Lighting.Ambient
 local originalOutdoorAmbient = Lighting.OutdoorAmbient
-local originalColorShift = Lighting.ColorShift_Top
 
 local setAutoFarmUIState = nil
 local setAimAssistUIState = nil
 local setSpeedHackUIState = nil
 local setFakeDashUIState = nil
 local setFullbrightUIState = nil
-local setSkyUIState = nil
 local setScriptVisualsUIState = nil
+local setWorldVisualsUIState = nil
 
 local updateAimButtonsVisual = nil
 local setAimSliderValue = nil
@@ -916,7 +927,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 end)
 
 -- Visuals
-_, setFullbrightUIState = createModuleCard(visualsPage, "Fullbright", "Максимально светлое освещение карты", function(state)
+createModuleCard(visualsPage, "Fullbright", "Максимально светлое освещение карты", function(state)
     fullbrightEnabled = state
     if fullbrightEnabled then
         Lighting.Brightness = 2
@@ -932,37 +943,9 @@ _, setFullbrightUIState = createModuleCard(visualsPage, "Fullbright", "Макс�
     end
 end, false)
 
--- Функция Sky (Розовое небо с текстурой)
-_, setSkyUIState = createModuleCard(visualsPage, "Sky", "Розовое небо с текстурой", function(state)
-    skyEnabled = state
-
-    local existingSky = Lighting:FindFirstChild("MoneyHubCustomSky")
-    if skyEnabled then
-        if not existingSky then
-            local newSky = Instance.new("Sky")
-            newSky.Name = "MoneyHubCustomSky"
-            newSky.SkyboxBk = SKY_TEXTURE_ID
-            newSky.SkyboxDn = SKY_TEXTURE_ID
-            newSky.SkyboxFt = SKY_TEXTURE_ID
-            newSky.SkyboxLf = SKY_TEXTURE_ID
-            newSky.SkyboxRt = SKY_TEXTURE_ID
-            newSky.SkyboxUp = SKY_TEXTURE_ID
-            newSky.Parent = Lighting
-        end
-        Lighting.OutdoorAmbient = Color3.fromRGB(255, 180, 220)
-        Lighting.Ambient = Color3.fromRGB(220, 140, 180)
-        Lighting.ColorShift_Top = Color3.fromRGB(255, 170, 200)
-    else
-        if existingSky then existingSky:Destroy() end
-        Lighting.OutdoorAmbient = originalOutdoorAmbient
-        Lighting.Ambient = originalAmbient
-        Lighting.ColorShift_Top = originalColorShift
-    end
-end, false)
-
--- Функция Script Visuals (Падающие стикеры: Сакура, Сердечки, Звездочки)
+-- 1. Script Visuals (Падающие РЕАЛЬНЫЕ КАРТИНКИ-СТИКЕРЫ внутри меню)
 local setScriptVisualsUIFunc
-_, setScriptVisualsUIFunc = createModuleCard(visualsPage, "Script Visuals", "Падающие стикеры из неба", function(state)
+_, setScriptVisualsUIFunc = createModuleCard(visualsPage, "Script Visuals", "Падающие картинки-стикеры в меню", function(state)
     scriptVisualsEnabled = state
 end, true, function(panel)
     local lbl = Instance.new("TextLabel")
@@ -1029,6 +1012,91 @@ end, true, function(panel)
     starBtn.MouseButton1Click:Connect(function() updateParticleButtons("Star") end)
 end)
 setScriptVisualsUIState = setScriptVisualsUIFunc
+
+-- 2. НОВАЯ ФУНКЦИЯ World Visual (Падающие стикеры с обычного неба на весь экран)
+local setWorldVisualsUIFunc
+_, setWorldVisualsUIFunc = createModuleCard(visualsPage, "World Visual", "Падающие стикеры с неба на весь экран", function(state)
+    worldVisualsEnabled = state
+end, false)
+setWorldVisualsUIState = setWorldVisualsUIFunc
+
+
+-- ЭФФЕКТЫ ЧАСТИЦ ДЛЯ SCRIPT VISUALS (Внутри меню, реальные картинки)
+local scriptParticles = {}
+for i = 1, 20 do
+    local img = Instance.new("ImageLabel")
+    img.Size = UDim2.new(0, 22, 0, 22)
+    img.BackgroundTransparency = 1
+    img.Image = SAKURA_ASSET
+    img.Visible = false
+    img.Parent = effectsContainer
+
+    table.insert(scriptParticles, { img = img, x = math.random(), y = math.random(), speed = math.random(15, 40) / 100000, sway = math.random(1, 10) })
+end
+
+RunService.RenderStepped:Connect(function(dt)
+    if not screenGui.Parent then return end
+    local scaledDt = dt * 60
+    
+    -- Обновление Script Visuals (внутри меню)
+    for _, p in ipairs(scriptParticles) do
+        p.y = p.y + (p.speed * scaledDt)
+        if p.y > 1.05 then p.y = -0.05 p.x = math.random() end
+        
+        local active = (scriptVisualsEnabled and mainFrame.Visible)
+        p.img.Visible = active
+
+        if active then
+            if currentParticleType == "Sakura" then
+                p.img.Image = SAKURA_ASSET
+            elseif currentParticleType == "Heart" then
+                p.img.Image = HEART_ASSET
+            elseif currentParticleType == "Star" then
+                p.img.Image = STAR_ASSET
+            end
+            p.img.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 25, p.y, 0)
+        end
+    end
+end)
+
+
+-- ЭФФЕКТЫ ЧАСТИЦ ДЛЯ WORLD VISUAL (На весь экран с неба)
+local worldParticles = {}
+for i = 1, 35 do
+    local img = Instance.new("ImageLabel")
+    img.Size = UDim2.new(0, 28, 0, 28)
+    img.BackgroundTransparency = 1
+    img.Image = SAKURA_ASSET
+    img.Visible = false
+    img.Parent = worldEffectsContainer
+
+    table.insert(worldParticles, { img = img, x = math.random(), y = math.random(), speed = math.random(15, 45) / 100000, sway = math.random(1, 15) })
+end
+
+RunService.RenderStepped:Connect(function(dt)
+    if not screenGui.Parent then return end
+    local scaledDt = dt * 60
+
+    -- Обновление World Visual (на весь экран)
+    for _, p in ipairs(worldParticles) do
+        p.y = p.y + (p.speed * scaledDt)
+        if p.y > 1.05 then p.y = -0.05 p.x = math.random() end
+        
+        p.img.Visible = worldVisualsEnabled
+
+        if worldVisualsEnabled then
+            if currentParticleType == "Sakura" then
+                p.img.Image = SAKURA_ASSET
+            elseif currentParticleType == "Heart" then
+                p.img.Image = HEART_ASSET
+            elseif currentParticleType == "Star" then
+                p.img.Image = STAR_ASSET
+            end
+            p.img.Position = UDim2.new(p.x, math.cos(tick() * 2 + p.sway) * 35, p.y, 0)
+        end
+    end
+end)
+
 
 -- МЕНЕДЖЕР КОНФИГОВ
 local configsFolder = "MoneyHubConfigs"
@@ -1139,8 +1207,8 @@ local function refreshConfigList()
                 FakeDashKeyName = fakeDashKey.Name,
                 FakeDashMobile = fakeDashMobileBtnEnabled,
                 Fullbright = fullbrightEnabled,
-                Sky = skyEnabled,
                 ScriptVisuals = scriptVisualsEnabled,
+                WorldVisuals = worldVisualsEnabled,
                 ParticleType = currentParticleType
             }
             writefile(configsFolder .. "/" .. cfgName .. ".json", HttpService:JSONEncode(data))
@@ -1183,11 +1251,11 @@ local function refreshConfigList()
                 fullbrightEnabled = data.Fullbright or false
                 if setFullbrightUIState then setFullbrightUIState(fullbrightEnabled, true) end
 
-                skyEnabled = data.Sky or false
-                if setSkyUIState then setSkyUIState(skyEnabled, true) end
-
                 scriptVisualsEnabled = data.ScriptVisuals or false
                 if setScriptVisualsUIState then setScriptVisualsUIState(scriptVisualsEnabled, true) end
+
+                worldVisualsEnabled = data.WorldVisuals or false
+                if setWorldVisualsUIState then setWorldVisualsUIState(worldVisualsEnabled, true) end
 
                 currentParticleType = data.ParticleType or "Sakura"
                 
@@ -1212,7 +1280,7 @@ createCfgBtn.MouseButton1Click:Connect(function()
     local name = configNameBox.Text
     if name and name ~= "" then
         if not isfolder(configsFolder) then makefolder(configsFolder) end
-        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Fullbright = false, Sky = false, ScriptVisuals = false, ParticleType = "Sakura" }))
+        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Fullbright = false, ScriptVisuals = false, WorldVisuals = false, ParticleType = "Sakura" }))
         configNameBox.Text = ""
         refreshConfigList()
         showNotification("Configs", "Создан конфиг")
@@ -1220,43 +1288,6 @@ createCfgBtn.MouseButton1Click:Connect(function()
 end)
 
 refreshConfigList()
-
--- ЭФФЕКТЫ ЧАСТИЦ (Безопасные стикеры-плашки)
-local particles = {}
-for i = 1, 28 do
-    local sticker = Instance.new("Frame")
-    sticker.Size = UDim2.new(0, 12, 0, 12)
-    sticker.BackgroundColor3 = Color3.fromRGB(255, 170, 210)
-    sticker.BackgroundTransparency = 0.2
-    sticker.Visible = false
-    sticker.Parent = effectsContainer
-    local sC = Instance.new("UICorner") sC.CornerRadius = UDim.new(1, 0) sC.Parent = sticker
-
-    table.insert(particles, { frame = sticker, x = math.random(), y = math.random(), speed = math.random(20, 50) / 100000, sway = math.random(1, 10) })
-end
-
-RunService.RenderStepped:Connect(function(dt)
-    if not screenGui.Parent then return end
-    local scaledDt = dt * 60
-    for _, p in ipairs(particles) do
-        p.y = p.y + (p.speed * scaledDt)
-        if p.y > 1.05 then p.y = -0.05 p.x = math.random() end
-        
-        local active = (scriptVisualsEnabled and mainFrame.Visible)
-        p.frame.Visible = active
-
-        if active then
-            if currentParticleType == "Sakura" then
-                p.frame.BackgroundColor3 = Color3.fromRGB(255, 170, 210) -- Розовый
-            elseif currentParticleType == "Heart" then
-                p.frame.BackgroundColor3 = Color3.fromRGB(255, 60, 90)   -- Красный
-            elseif currentParticleType == "Star" then
-                p.frame.BackgroundColor3 = Color3.fromRGB(255, 220, 50)  -- Желтый
-            end
-            p.frame.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 20, p.y, 0)
-        end
-    end
-end)
 
 -- ИСПОЛНЕНИЕ ЛОГИКИ SPEEDHACK, AIM И AUTOFARM
 local function getTouchButton(nameKeyword)
