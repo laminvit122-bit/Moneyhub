@@ -28,7 +28,7 @@ local SAVE_ICON = "rbxassetid://11768914234"
 local IMPORT_ICON = "rbxassetid://6953990743"
 local DELETE_ICON = "rbxassetid://11768918600"
 
--- Картинки стикеров для падающих эффектов
+-- Красивые рабочие ID стикеров (Сакура, Сердце, Звезда)
 local SAKURA_ASSET = "rbxassetid://6031094678"
 local HEART_ASSET = "rbxassetid://6023426915"
 local STAR_ASSET = "rbxassetid://6031263189"
@@ -55,14 +55,6 @@ pcall(function()
     end
 end)
 if not screenGui.Parent then screenGui.Parent = playerGui end
-
--- КОНТЕЙНЕР ДЛЯ МИРОВЫХ ЭФФЕКТОВ (World Visual - на весь экран)
-local worldEffectsContainer = Instance.new("Frame")
-worldEffectsContainer.Name = "WorldEffectsContainer"
-worldEffectsContainer.Size = UDim2.new(1, 0, 1, 0)
-worldEffectsContainer.BackgroundTransparency = 1
-worldEffectsContainer.ZIndex = 0
-worldEffectsContainer.Parent = screenGui
 
 -- СИСТЕМА УВЕДОМЛЕНИЙ
 local notificationsContainer = Instance.new("Frame")
@@ -417,8 +409,11 @@ mainTabBtn.MouseButton1Click:Connect(function() switchTab("Main") end)
 visualsTabBtn.MouseButton1Click:Connect(function() switchTab("Visuals") end)
 configTabBtn.MouseButton1Click:Connect(function() switchTab("Configs") end)
 
--- Переменные
+-- Переменные логики
 local autoFarmEnabled = false
+local autoFarmLockTarget = true
+local autoFarmLowHpFinisher = true
+
 local aimAssistEnabled = false
 local aimTargetPart = "Torso"
 local aimSmoothness = 0.2
@@ -539,7 +534,7 @@ local function createModuleCard(parent, title, desc, callbackToggle, hasSettings
         settingsBtn.Parent = card
 
         local settingsPanel = Instance.new("Frame")
-        settingsPanel.Size = UDim2.new(1, -20, 0, 80)
+        settingsPanel.Size = UDim2.new(1, -20, 0, 100)
         settingsPanel.Position = UDim2.new(0, 10, 0, 68)
         settingsPanel.BackgroundTransparency = 1
         settingsPanel.Visible = false
@@ -553,7 +548,7 @@ local function createModuleCard(parent, title, desc, callbackToggle, hasSettings
         settingsBtn.MouseButton1Click:Connect(function()
             local isOpen = not settingsPanel.Visible
             settingsPanel.Visible = isOpen
-            local targetH = isOpen and 150 or 70
+            local targetH = isOpen and 170 or 70
             TweenService:Create(card, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 215, 0, targetH)}):Play()
         end)
     end
@@ -577,10 +572,71 @@ searchInput:GetPropertyChangedSignal("Text"):Connect(function()
     end
 end)
 
--- 1. AutoFarm
-_, setAutoFarmUIState = createModuleCard(mainPage, "AutoFarm", "Рандомные удары и способности", function(state)
+-- 1. AutoFarm (с настройками фиксации цели и добивания шотных)
+local setAutoFarmUIFunc
+_, setAutoFarmUIFunc = createModuleCard(mainPage, "AutoFarm", "Рандомные удары и способности", function(state)
     autoFarmEnabled = state
-end, false)
+end, true, function(panel)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, 0, 0, 16)
+    lbl.BackgroundTransparency = 1
+    lbl.Font = Enum.Font.GothamBold
+    lbl.Text = "Настройки AutoFarm:"
+    lbl.TextColor3 = Color3.fromRGB(250, 220, 170)
+    lbl.TextSize = 11
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.ZIndex = 11
+    lbl.Parent = panel
+
+    -- Кнопка фиксации цели
+    local lockBtn = Instance.new("TextButton")
+    lockBtn.Size = UDim2.new(1, 0, 0, 26)
+    lockBtn.Position = UDim2.new(0, 0, 0, 22)
+    lockBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
+    lockBtn.Text = "Фиксация цели: ON"
+    lockBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    lockBtn.TextSize = 10
+    lockBtn.Font = Enum.Font.GothamBold
+    lockBtn.ZIndex = 11
+    lockBtn.Parent = panel
+    local lbC = Instance.new("UICorner") lbC.CornerRadius = UDim.new(0, 6) lbC.Parent = lockBtn
+
+    lockBtn.MouseButton1Click:Connect(function()
+        autoFarmLockTarget = not autoFarmLockTarget
+        if autoFarmLockTarget then
+            lockBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
+            lockBtn.Text = "Фиксация цели: ON"
+        else
+            lockBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
+            lockBtn.Text = "Фиксация цели: OFF"
+        end
+    end)
+
+    -- Кнопка добивания шотных (Low HP)
+    local lowHpBtn = Instance.new("TextButton")
+    lowHpBtn.Size = UDim2.new(1, 0, 0, 26)
+    lowHpBtn.Position = UDim2.new(0, 0, 0, 54)
+    lowHpBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
+    lowHpBtn.Text = "Добивать шотных (<35 HP): ON"
+    lowHpBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    lowHpBtn.TextSize = 10
+    lowHpBtn.Font = Enum.Font.GothamBold
+    lowHpBtn.ZIndex = 11
+    lowHpBtn.Parent = panel
+    local lhpC = Instance.new("UICorner") lhpC.CornerRadius = UDim.new(0, 6) lhpC.Parent = lowHpBtn
+
+    lowHpBtn.MouseButton1Click:Connect(function()
+        autoFarmLowHpFinisher = not autoFarmLowHpFinisher
+        if autoFarmLowHpFinisher then
+            lowHpBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
+            lowHpBtn.Text = "Добивать шотных (<35 HP): ON"
+        else
+            lowHpBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
+            lowHpBtn.Text = "Добивать шотных (<35 HP): OFF"
+        end
+    end)
+end)
+setAutoFarmUIState = setAutoFarmUIFunc
 
 -- 2. Aim Assist
 local setAimUIFunc
@@ -644,7 +700,7 @@ end, true, function(panel)
     sliderLbl.Position = UDim2.new(0, 0, 0, 48)
     sliderLbl.BackgroundTransparency = 1
     sliderLbl.Font = Enum.Font.GothamBold
-    sliderLbl.Text = "Плавность: Влево (Плавнее) - Вправо (Резче)"
+    sliderLbl.Text = "Плавность:"
     sliderLbl.TextColor3 = Color3.fromRGB(250, 220, 170)
     sliderLbl.TextSize = 9
     sliderLbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -859,7 +915,7 @@ end, true, function(panel)
     mobBtnToggle.Size = UDim2.new(0, 180, 0, 24)
     mobBtnToggle.Position = UDim2.new(0, 0, 0, 48)
     mobBtnToggle.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
-    mobBtnToggle.Text = "Кнопка (для тех кто на телефоне): OFF"
+    mobBtnToggle.Text = "Кнопка (телефон): OFF"
     mobBtnToggle.TextColor3 = Color3.fromRGB(200, 160, 120)
     mobBtnToggle.TextSize = 8
     mobBtnToggle.Font = Enum.Font.GothamBold
@@ -870,12 +926,12 @@ end, true, function(panel)
     mobBtnToggle.MouseButton1Click:Connect(function()
         fakeDashMobileBtnEnabled = not fakeDashMobileBtnEnabled
         if fakeDashMobileBtnEnabled then
-            mobBtnToggle.Text = "Кнопка (для тех кто на телефоне): ON"
+            mobBtnToggle.Text = "Кнопка (телефон): ON"
             mobBtnToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
             mobBtnToggle.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
             if fakeDashEnabled then mobileDashBtn.Visible = true end
         else
-            mobBtnToggle.Text = "Кнопка (для тех кто на телефоне): OFF"
+            mobBtnToggle.Text = "Кнопка (телефон): OFF"
             mobBtnToggle.TextColor3 = Color3.fromRGB(200, 160, 120)
             mobBtnToggle.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
             mobileDashBtn.Visible = false
@@ -943,9 +999,9 @@ createModuleCard(visualsPage, "Fullbright", "Максимально светло
     end
 end, false)
 
--- 1. Script Visuals (Падающие РЕАЛЬНЫЕ КАРТИНКИ-СТИКЕРЫ внутри меню)
+-- 1. Script Visuals (Падающие реальные картинки-стикеры внутри меню с выбором 🌸, ❤️, ⭐)
 local setScriptVisualsUIFunc
-_, setScriptVisualsUIFunc = createModuleCard(visualsPage, "Script Visuals", "Падающие картинки-стикеры в меню", function(state)
+_, setScriptVisualsUIFunc = createModuleCard(visualsPage, "Script Visuals", "Падающие стикеры в меню", function(state)
     scriptVisualsEnabled = state
 end, true, function(panel)
     local lbl = Instance.new("TextLabel")
@@ -1013,15 +1069,47 @@ end, true, function(panel)
 end)
 setScriptVisualsUIState = setScriptVisualsUIFunc
 
--- 2. НОВАЯ ФУНКЦИЯ World Visual (Падающие стикеры с обычного неба на весь экран)
+-- 2. НОВАЯ ФУНКЦИЯ World Visual (Падающие стикеры из реального неба по всей карте по ходу взгляда)
 local setWorldVisualsUIFunc
-_, setWorldVisualsUIFunc = createModuleCard(visualsPage, "World Visual", "Падающие стикеры с неба на весь экран", function(state)
+_, setWorldVisualsUIFunc = createModuleCard(visualsPage, "World Visual", "Стикеры падают из неба по всей карте", function(state)
     worldVisualsEnabled = state
 end, false)
 setWorldVisualsUIState = setWorldVisualsUIFunc
 
 
--- ЭФФЕКТЫ ЧАСТИЦ ДЛЯ SCRIPT VISUALS (Внутри меню, реальные картинки)
+-- КОНТЕЙНЕР ДЛЯ МИРОВЫХ 3D ЧАСТИЦ (В Workspace)
+local worldParticlesFolder = Workspace:FindFirstChild("MoneyHubWorldParticles")
+if worldParticlesFolder then worldParticlesFolder:Destroy() end
+worldParticlesFolder = Instance.new("Folder")
+worldParticlesFolder.Name = "MoneyHubWorldParticles"
+worldParticlesFolder.Parent = Workspace
+
+local worldParts = {}
+for i = 1, 30 do
+    local part = Instance.new("Part")
+    part.Size = Vector3.new(3, 3, 3)
+    part.Transparency = 1
+    part.Anchored = true
+    part.CanCollide = false
+    part.CastShadow = false
+
+    local bb = Instance.new("BillboardGui")
+    bb.Size = UDim2.new(0, 32, 0, 32)
+    bb.AlwaysOnTop = true
+    bb.Parent = part
+
+    local img = Instance.new("ImageLabel")
+    img.Size = UDim2.new(1, 0, 1, 0)
+    img.BackgroundTransparency = 1
+    img.Image = SAKURA_ASSET
+    img.Parent = bb
+
+    part.Parent = worldParticlesFolder
+    table.insert(worldParts, { part = part, img = img, offset = Vector3.new(math.random(-80, 80), math.random(80, 140), math.random(-80, 80)), speed = math.random(25, 55) })
+end
+
+
+-- ЭФФЕКТЫ ЧАСТИЦ ДЛЯ SCRIPT VISUALS (Внутри меню)
 local scriptParticles = {}
 for i = 1, 20 do
     local img = Instance.new("ImageLabel")
@@ -1038,7 +1126,11 @@ RunService.RenderStepped:Connect(function(dt)
     if not screenGui.Parent then return end
     local scaledDt = dt * 60
     
-    -- Обновление Script Visuals (внутри меню)
+    local targetAsset = SAKURA_ASSET
+    if currentParticleType == "Heart" then targetAsset = HEART_ASSET
+    elseif currentParticleType == "Star" then targetAsset = STAR_ASSET end
+
+    -- 1. Обновление Script Visuals (внутри меню)
     for _, p in ipairs(scriptParticles) do
         p.y = p.y + (p.speed * scaledDt)
         if p.y > 1.05 then p.y = -0.05 p.x = math.random() end
@@ -1047,52 +1139,30 @@ RunService.RenderStepped:Connect(function(dt)
         p.img.Visible = active
 
         if active then
-            if currentParticleType == "Sakura" then
-                p.img.Image = SAKURA_ASSET
-            elseif currentParticleType == "Heart" then
-                p.img.Image = HEART_ASSET
-            elseif currentParticleType == "Star" then
-                p.img.Image = STAR_ASSET
-            end
+            p.img.Image = targetAsset
             p.img.Position = UDim2.new(p.x, math.cos(tick() * 1.5 + p.sway) * 25, p.y, 0)
         end
     end
-end)
 
-
--- ЭФФЕКТЫ ЧАСТИЦ ДЛЯ WORLD VISUAL (На весь экран с неба)
-local worldParticles = {}
-for i = 1, 35 do
-    local img = Instance.new("ImageLabel")
-    img.Size = UDim2.new(0, 28, 0, 28)
-    img.BackgroundTransparency = 1
-    img.Image = SAKURA_ASSET
-    img.Visible = false
-    img.Parent = worldEffectsContainer
-
-    table.insert(worldParticles, { img = img, x = math.random(), y = math.random(), speed = math.random(15, 45) / 100000, sway = math.random(1, 15) })
-end
-
-RunService.RenderStepped:Connect(function(dt)
-    if not screenGui.Parent then return end
-    local scaledDt = dt * 60
-
-    -- Обновление World Visual (на весь экран)
-    for _, p in ipairs(worldParticles) do
-        p.y = p.y + (p.speed * scaledDt)
-        if p.y > 1.05 then p.y = -0.05 p.x = math.random() end
-        
-        p.img.Visible = worldVisualsEnabled
-
-        if worldVisualsEnabled then
-            if currentParticleType == "Sakura" then
-                p.img.Image = SAKURA_ASSET
-            elseif currentParticleType == "Heart" then
-                p.img.Image = HEART_ASSET
-            elseif currentParticleType == "Star" then
-                p.img.Image = STAR_ASSET
+    -- 2. Обновление World Visual (реально из неба по всей карте перед камерой, без лагов)
+    for _, wp in ipairs(worldParts) do
+        if worldVisualsEnabled and camera then
+            wp.img.Image = targetAsset
+            wp.part.Transparency = 0
+            
+            -- Падение вниз
+            wp.offset = wp.offset - Vector3.new(0, wp.speed * dt, 0)
+            if wp.offset.Y < -10 then
+                -- Респавн наверху перед камерой по направлению взгляда
+                local camPos = camera.CFrame.Position
+                local lookDir = camera.CFrame.LookVector * Vector3.new(1, 0, 1).Unit
+                local randomDist = math.random(10, 70)
+                wp.offset = Vector3.new(math.random(-70, 70), math.random(120, 160), math.random(-70, 70)) + (lookDir * randomDist)
             end
-            p.img.Position = UDim2.new(p.x, math.cos(tick() * 2 + p.sway) * 35, p.y, 0)
+
+            wp.part.Position = camera.CFrame.Position + wp.offset
+        else
+            wp.part.Transparency = 1
         end
     end
 end)
@@ -1289,7 +1359,7 @@ end)
 
 refreshConfigList()
 
--- ИСПОЛНЕНИЕ ЛОГИКИ SPEEDHACK, AIM И AUTOFARM
+-- ИСПОЛНЕНИЕ ЛОГИКИ AUTOFARM, AIM, SPEEDHACK С УЧЕТОМ ФИКСАЦИИ ЦЕЛИ И ДОБИВАНИЯ ШОТНЫХ
 local function getTouchButton(nameKeyword)
     for _, gui in ipairs(playerGui:GetChildren()) do
         if gui:IsA("ScreenGui") and gui.Name ~= "MoneyHubGui" then
@@ -1308,12 +1378,36 @@ end
 local currentTarget = nil
 local isEvadingDamage = false
 
-local function getClosestPlayer()
-    local nearest, minDist = nil, math.huge
+local function selectAutoFarmTarget()
     local myChar = player.Character
     if not myChar or not myChar:FindFirstChild("HumanoidRootPart") then return nil end
     local myPos = myChar.HumanoidRootPart.Position
 
+    -- 1. Проверяем фиксацию текущей цели (если включено и цель жива)
+    if autoFarmLockTarget and currentTarget and currentTarget.Character and currentTarget.Character:FindFirstChild("Humanoid") and currentTarget.Character.Humanoid.Health > 0 then
+        return currentTarget
+    end
+
+    -- 2. Проверяем добивание шотных (< 35 HP), если включено
+    if autoFarmLowHpFinisher then
+        local lowestHpPlayer = nil
+        local lowestHpVal = 35 -- порог HP для шотных
+        for _, p in ipairs(Players:GetPlayers()) do
+            if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") and p.Character:FindFirstChild("Humanoid") then
+                local hum = p.Character.Humanoid
+                if hum.Health > 0 and hum.Health <= lowestHpVal then
+                    lowestHpVal = hum.Health
+                    lowestHpPlayer = p
+                end
+            end
+        end
+        if lowestHpPlayer then
+            return lowestHpPlayer
+        end
+    end
+
+    -- 3. Иначе берем ближайшего игрока
+    local nearest, minDist = nil, math.huge
     for _, p in ipairs(Players:GetPlayers()) do
         if p ~= player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") and p.Character:FindFirstChild("Humanoid") then
             if p.Character.Humanoid.Health > 0 then
@@ -1337,7 +1431,7 @@ RunService.RenderStepped:Connect(function()
     local root = char:FindFirstChild("HumanoidRootPart")
     if not root then return end
 
-    local target = getClosestPlayer()
+    local target = selectAutoFarmTarget()
     currentTarget = target
 
     if aimAssistEnabled and target and target.Character then
