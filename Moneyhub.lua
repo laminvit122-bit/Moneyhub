@@ -298,7 +298,7 @@ searchInput.Font = Enum.Font.Gotham
 searchInput.ZIndex = 3
 searchInput.Parent = searchBar
 
--- ИДЕАЛЬНО СДВИНУТЫЙ ПРОФИЛЬ (НЕ НАЕЗЖАЕТ НА КНОПКИ КРЕСТИКА И МИНУСА)
+-- ПРОФИЛЬ (НЕ НАЕЗЖАЕТ НА КНОПКИ)
 local profileFrame = Instance.new("Frame")
 profileFrame.Size = UDim2.new(0, 140, 0, 30)
 profileFrame.Position = UDim2.new(1, -210, 0, 5)
@@ -926,7 +926,7 @@ mdClick.MouseButton1Click:Connect(function()
     end
 end)
 
--- 4. Fake Dash (без настройки передвижения кнопки)
+-- 4. Fake Dash
 local setDashUIFunc
 _, setDashUIFunc = createModuleCard(mainPage, "Fake Dash", "Анимация и перемещение рывка без урона", "Dash animation and movement without damage", function(state)
     fakeDashEnabled = state
@@ -1737,7 +1737,7 @@ end)
 
 refreshConfigList()
 
--- ЛОГИКА AUTOFARM, AIM, SPEEDHACK (Без скрытия кнопок игры)
+-- ЛОГИКА AUTOFARM, AIM, SPEEDHACK И БЕЗОПАСНОЙ ЗОНЫ
 local currentTarget = nil
 local isEvadingDamage = false
 
@@ -1807,8 +1807,9 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
+-- ОТСЛЕЖИВАНИЕ УРОНА И ТЕЛЕПОРТАЦИЯ НА БЕЗОПАСНУЮ ЗОНУ
 local lastHealth = 100
-player.CharacterAdded:Connect(function(char)
+local function setupHealthListener(char)
     local humanoid = char:WaitForChild("Humanoid", 5)
     if humanoid then
         lastHealth = humanoid.Health
@@ -1831,7 +1832,10 @@ player.CharacterAdded:Connect(function(char)
             lastHealth = newHealth
         end)
     end
-end)
+end
+
+if player.Character then setupHealthListener(player.Character) end
+player.CharacterAdded:Connect(setupHealthListener)
 
 local function executeActionKey(keyCode)
     pcall(function()
@@ -1852,7 +1856,6 @@ task.spawn(function()
                 if not myRoot or not enemyRoot then return end
                 
                 if (myRoot.Position - enemyRoot.Position).Magnitude <= 10 then
-                    -- Автоматический удар или способность (1-4) + Ульта на G
                     local actionRand = math.random(1, 8)
                     if actionRand <= 3 then
                         executeActionKey(Enum.KeyCode.One)
@@ -1863,7 +1866,7 @@ task.spawn(function()
                     elseif actionRand == 6 then
                         executeActionKey(Enum.KeyCode.Four)
                     elseif actionRand >= 7 then
-                        -- Авто-ульта на букву G
+                        -- Ульта на G
                         executeActionKey(Enum.KeyCode.G)
                     end
                 end
