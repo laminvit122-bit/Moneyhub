@@ -11,6 +11,7 @@ local Workspace = game:GetService("Workspace")
 local HttpService = game:GetService("HttpService")
 local Lighting = game:GetService("Lighting")
 local CoreGui = game:GetService("CoreGui")
+local SoundService = game:GetService("SoundService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -21,6 +22,7 @@ local MODULES_ICON = "rbxassetid://82633060732202"
 local SETTINGS_ICON = "rbxassetid://138028255370142"
 local MAIN_ICON = "rbxassetid://14502433595"
 local VISUALS_ICON = "rbxassetid://11322089611"
+local LANGUAGE_ICON = "rbxassetid://84460102482950"
 local CONFIGS_ICON = "rbxassetid://90837140373377"
 local GEAR_ICON = "rbxassetid://6953984741"
 
@@ -50,6 +52,20 @@ pcall(function()
     end
 end)
 if not screenGui.Parent then screenGui.Parent = playerGui end
+
+-- ЗВУК ВКЛЮЧЕНИЯ ФУНКЦИИ
+local function playEnableSound()
+    pcall(function()
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://139421450430380"
+        sound.Volume = 1
+        sound.Parent = SoundService
+        sound:Play()
+        task.delay(2, function()
+            sound:Destroy()
+        end)
+    end)
+end
 
 -- СИСТЕМА УВЕДОМЛЕНИЙ
 local notificationsContainer = Instance.new("Frame")
@@ -185,12 +201,12 @@ local mainTabCorner = Instance.new("UICorner") mainTabCorner.CornerRadius = UDim
 local mainIconImg = Instance.new("ImageLabel") mainIconImg.Size = UDim2.new(0, 14, 0, 14) mainIconImg.Position = UDim2.new(0, 12, 0, 8) mainIconImg.BackgroundTransparency = 1 mainIconImg.Image = MAIN_ICON mainIconImg.ZIndex = 4 mainIconImg.Parent = mainTabBtn
 
 -- Секция Settings
-local settingsIconImg = Instance.new("ImageLabel") settingsIconImg.Size = UDim2.new(0, 14, 0, 14) settingsIconImg.Position = UDim2.new(0, 12, 0, 115) settingsIconImg.BackgroundTransparency = 1 settingsIconImg.Image = SETTINGS_ICON settingsIconImg.ZIndex = 3 settingsIconImg.Parent = sidebar
-local settingsHeader = Instance.new("TextLabel") settingsHeader.Size = UDim2.new(1, -32, 0, 20) settingsHeader.Position = UDim2.new(0, 34, 0, 112) settingsHeader.BackgroundTransparency = 1 settingsHeader.Font = Enum.Font.GothamBold settingsHeader.Text = "Settings" settingsHeader.TextColor3 = Color3.fromRGB(210, 150, 90) settingsHeader.TextSize = 11 settingsHeader.TextXAlignment = Enum.TextXAlignment.Left settingsHeader.ZIndex = 3 settingsHeader.Parent = sidebar
+local settingsIconImg = Instance.new("ImageLabel") settingsIconImg.Size = UDim2.new(0, 14, 0, 14) settingsIconImg.Position = UDim2.new(0, 12, 0, 110) settingsIconImg.BackgroundTransparency = 1 settingsIconImg.Image = SETTINGS_ICON settingsIconImg.ZIndex = 3 settingsIconImg.Parent = sidebar
+local settingsHeader = Instance.new("TextLabel") settingsHeader.Size = UDim2.new(1, -32, 0, 20) settingsHeader.Position = UDim2.new(0, 34, 0, 107) settingsHeader.BackgroundTransparency = 1 settingsHeader.Font = Enum.Font.GothamBold settingsHeader.Text = "Settings" settingsHeader.TextColor3 = Color3.fromRGB(210, 150, 90) settingsHeader.TextSize = 11 settingsHeader.TextXAlignment = Enum.TextXAlignment.Left settingsHeader.ZIndex = 3 settingsHeader.Parent = sidebar
 
 local visualsTabBtn = Instance.new("TextButton")
-visualsTabBtn.Size = UDim2.new(1, -20, 0, 28)
-visualsTabBtn.Position = UDim2.new(0, 10, 0, 136)
+visualsTabBtn.Size = UDim2.new(1, -20, 0, 26)
+visualsTabBtn.Position = UDim2.new(0, 10, 0, 131)
 visualsTabBtn.BackgroundColor3 = Color3.fromRGB(54, 34, 18)
 visualsTabBtn.BackgroundTransparency = 0.5
 visualsTabBtn.Text = "             Visuals"
@@ -202,11 +218,28 @@ visualsTabBtn.ZIndex = 3
 visualsTabBtn.Parent = sidebar
 
 local visualsTabCorner = Instance.new("UICorner") visualsTabCorner.CornerRadius = UDim.new(0, 6) visualsTabCorner.Parent = visualsTabBtn
-local visualsIconImg = Instance.new("ImageLabel") visualsIconImg.Size = UDim2.new(0, 14, 0, 14) visualsIconImg.Position = UDim2.new(0, 12, 0, 7) visualsIconImg.BackgroundTransparency = 1 visualsIconImg.Image = VISUALS_ICON visualsIconImg.ZIndex = 4 visualsIconImg.Parent = visualsTabBtn
+local visualsIconImg = Instance.new("ImageLabel") visualsIconImg.Size = UDim2.new(0, 14, 0, 14) visualsIconImg.Position = UDim2.new(0, 12, 0, 6) visualsIconImg.BackgroundTransparency = 1 visualsIconImg.Image = VISUALS_ICON visualsIconImg.ZIndex = 4 visualsIconImg.Parent = visualsTabBtn
+
+-- Новая вкладка Language
+local languageTabBtn = Instance.new("TextButton")
+languageTabBtn.Size = UDim2.new(1, -20, 0, 26)
+languageTabBtn.Position = UDim2.new(0, 10, 0, 161)
+languageTabBtn.BackgroundColor3 = Color3.fromRGB(54, 34, 18)
+languageTabBtn.BackgroundTransparency = 0.5
+languageTabBtn.Text = "             Language"
+languageTabBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+languageTabBtn.TextSize = 11
+languageTabBtn.Font = Enum.Font.GothamMedium
+languageTabBtn.TextXAlignment = Enum.TextXAlignment.Left
+languageTabBtn.ZIndex = 3
+languageTabBtn.Parent = sidebar
+
+local languageTabCorner = Instance.new("UICorner") languageTabCorner.CornerRadius = UDim.new(0, 6) languageTabCorner.Parent = languageTabBtn
+local languageIconImg = Instance.new("ImageLabel") languageIconImg.Size = UDim2.new(0, 14, 0, 14) languageIconImg.Position = UDim2.new(0, 12, 0, 6) languageIconImg.BackgroundTransparency = 1 languageIconImg.Image = LANGUAGE_ICON languageIconImg.ZIndex = 4 languageIconImg.Parent = languageTabBtn
 
 local configTabBtn = Instance.new("TextButton")
-configTabBtn.Size = UDim2.new(1, -20, 0, 28)
-configTabBtn.Position = UDim2.new(0, 10, 0, 170)
+configTabBtn.Size = UDim2.new(1, -20, 0, 26)
+configTabBtn.Position = UDim2.new(0, 10, 0, 191)
 configTabBtn.BackgroundColor3 = Color3.fromRGB(54, 34, 18)
 configTabBtn.BackgroundTransparency = 0.5
 configTabBtn.Text = "             Configs"
@@ -218,9 +251,9 @@ configTabBtn.ZIndex = 3
 configTabBtn.Parent = sidebar
 
 local configTabCorner = Instance.new("UICorner") configTabCorner.CornerRadius = UDim.new(0, 6) configTabCorner.Parent = configTabBtn
-local configIconImg = Instance.new("ImageLabel") configIconImg.Size = UDim2.new(0, 14, 0, 14) configIconImg.Position = UDim2.new(0, 12, 0, 7) configIconImg.BackgroundTransparency = 1 configIconImg.Image = CONFIGS_ICON configIconImg.ZIndex = 4 configIconImg.Parent = configTabBtn
+local configIconImg = Instance.new("ImageLabel") configIconImg.Size = UDim2.new(0, 14, 0, 14) configIconImg.Position = UDim2.new(0, 12, 0, 6) configIconImg.BackgroundTransparency = 1 configIconImg.Image = CONFIGS_ICON configIconImg.ZIndex = 4 configIconImg.Parent = configTabBtn
 
--- Верхняя панель
+-- Верхняя панель (с версией v0.1 -×)
 local topBarArea = Instance.new("Frame")
 topBarArea.Name = "TopBarArea"
 topBarArea.Size = UDim2.new(1, -190, 0, 45)
@@ -282,6 +315,20 @@ profileAvatar.ZIndex = 3
 profileAvatar.Parent = profileFrame
 
 local avatarCorner = Instance.new("UICorner") avatarCorner.CornerRadius = UDim.new(1, 0) avatarCorner.Parent = profileAvatar
+
+-- Надпись версии v0.1 перед дефисом (-)
+local versionLabel = Instance.new("TextLabel")
+versionLabel.Name = "VersionLabel"
+versionLabel.Size = UDim2.new(0, 35, 0, 24)
+versionLabel.Position = UDim2.new(1, -110, 0, 8)
+versionLabel.BackgroundTransparency = 1
+versionLabel.Font = Enum.Font.GothamBold
+versionLabel.Text = "v0.1"
+versionLabel.TextColor3 = Color3.fromRGB(190, 140, 90)
+versionLabel.TextSize = 11
+versionLabel.TextXAlignment = Enum.TextXAlignment.Right
+versionLabel.ZIndex = 4
+versionLabel.Parent = topBarArea
 
 local minBtn = Instance.new("TextButton")
 minBtn.Name = "MinimizeButton"
@@ -370,6 +417,18 @@ visualsPadding.PaddingBottom = UDim.new(0, 30)
 visualsPadding.PaddingRight = UDim.new(0, 5)
 visualsPadding.Parent = visualsPage
 
+-- Страница Language
+local languagePage = Instance.new("ScrollingFrame")
+languagePage.Name = "LanguagePage"
+languagePage.Size = UDim2.new(1, -190, 1, -90)
+languagePage.Position = UDim2.new(0, 175, 0, 78)
+languagePage.BackgroundTransparency = 1
+languagePage.CanvasSize = UDim2.new(0, 0, 0, 300)
+languagePage.ScrollBarThickness = 3
+languagePage.Visible = false
+languagePage.ZIndex = 2
+languagePage.Parent = contentContainer
+
 local configPage = Instance.new("ScrollingFrame")
 configPage.Name = "ConfigPage"
 configPage.Size = UDim2.new(1, -190, 1, -90)
@@ -384,10 +443,12 @@ configPage.Parent = contentContainer
 local function switchTab(tabName)
     mainPage.Visible = (tabName == "Main")
     visualsPage.Visible = (tabName == "Visuals")
+    languagePage.Visible = (tabName == "Language")
     configPage.Visible = (tabName == "Configs")
 
     sectionTitle.Text = "Modules / " .. tabName
     if tabName == "Visuals" then sectionTitle.Text = "Settings / Visuals" end
+    if tabName == "Language" then sectionTitle.Text = "Settings / Language" end
     if tabName == "Configs" then sectionTitle.Text = "Settings / Configs" end
 
     mainTabBtn.BackgroundColor3 = (tabName == "Main") and Color3.fromRGB(85, 50, 22) or Color3.fromRGB(54, 34, 18)
@@ -396,12 +457,16 @@ local function switchTab(tabName)
     visualsTabBtn.BackgroundColor3 = (tabName == "Visuals") and Color3.fromRGB(85, 50, 22) or Color3.fromRGB(54, 34, 18)
     visualsTabBtn.TextColor3 = (tabName == "Visuals") and Color3.fromRGB(255, 225, 180) or Color3.fromRGB(200, 160, 120)
 
+    languageTabBtn.BackgroundColor3 = (tabName == "Language") and Color3.fromRGB(85, 50, 22) or Color3.fromRGB(54, 34, 18)
+    languageTabBtn.TextColor3 = (tabName == "Language") and Color3.fromRGB(255, 225, 180) or Color3.fromRGB(200, 160, 120)
+
     configTabBtn.BackgroundColor3 = (tabName == "Configs") and Color3.fromRGB(85, 50, 22) or Color3.fromRGB(54, 34, 18)
     configTabBtn.TextColor3 = (tabName == "Configs") and Color3.fromRGB(255, 225, 180) or Color3.fromRGB(200, 160, 120)
 end
 
 mainTabBtn.MouseButton1Click:Connect(function() switchTab("Main") end)
 visualsTabBtn.MouseButton1Click:Connect(function() switchTab("Visuals") end)
+languageTabBtn.MouseButton1Click:Connect(function() switchTab("Language") end)
 configTabBtn.MouseButton1Click:Connect(function() switchTab("Configs") end)
 
 -- Переменные логики
@@ -419,6 +484,7 @@ local walkSpeedValue = 32
 local fakeDashEnabled = false
 local fakeDashKey = Enum.KeyCode.Q
 local fakeDashMobileBtnEnabled = false
+local fakeDashMovable = false
 local isDashing = false
 
 local fullbrightEnabled = false
@@ -429,6 +495,7 @@ local cosmicAuraEnabled = false
 local currentParticleType = "🌸"
 local worldParticleType = "🌸"
 local worldSpeedMultiplier = 1.0
+local currentLanguage = "RU"
 
 local originalAmbient = Lighting.Ambient
 local originalOutdoorAmbient = Lighting.OutdoorAmbient
@@ -509,6 +576,7 @@ local function createModuleCard(parent, title, desc, callbackToggle, hasSettings
         if isEnabled then
             TweenService:Create(toggleFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 120, 0)}):Play()
             TweenService:Create(toggleDot, TweenInfo.new(0.2), {Position = UDim2.new(1, -16, 0, 2), BackgroundColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+            playEnableSound()
         else
             TweenService:Create(toggleFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 24, 15)}):Play()
             TweenService:Create(toggleDot, TweenInfo.new(0.2), {Position = UDim2.new(0, 2, 0, 2), BackgroundColor3 = Color3.fromRGB(150, 115, 80)}):Play()
@@ -548,7 +616,7 @@ local function createModuleCard(parent, title, desc, callbackToggle, hasSettings
         settingsBtn.MouseButton1Click:Connect(function()
             local isOpen = not settingsPanel.Visible
             settingsPanel.Visible = isOpen
-            local targetH = isOpen and 170 or 70
+            local targetH = isOpen and 200 or 70
             TweenService:Create(card, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 215, 0, targetH)}):Play()
         end)
     end
@@ -834,7 +902,7 @@ local function enableDragging(frame, handle)
     end)
 end
 
--- Плавающая мобильная кнопка Fake Dash
+-- Плавающая мобильная кнопка Fake Dash с поддержкой переключения перемещения
 local mobileDashBtn = Instance.new("Frame")
 mobileDashBtn.Name = "MobileDashBtn"
 mobileDashBtn.Size = UDim2.new(0, 60, 0, 60)
@@ -849,7 +917,28 @@ local mdCorner = Instance.new("UICorner") mdCorner.CornerRadius = UDim.new(1, 0)
 local mdLbl = Instance.new("TextLabel") mdLbl.Size = UDim2.new(1, 0, 1, 0) mdLbl.BackgroundTransparency = 1 mdLbl.Font = Enum.Font.GothamBold mdLbl.Text = "DASH" mdLbl.TextColor3 = Color3.fromRGB(255, 255, 255) mdLbl.TextSize = 13 mdLbl.ZIndex = 201 mdLbl.Parent = mobileDashBtn
 local mdClick = Instance.new("TextButton") mdClick.Size = UDim2.new(1, 0, 1, 0) mdClick.BackgroundTransparency = 1 mdClick.Text = "" mdClick.ZIndex = 202 mdClick.Parent = mobileDashBtn
 
-enableDragging(mobileDashBtn, mobileDashBtn)
+-- Функция перетаскивания мобильной кнопки рывка (включается через настройки)
+local dashDragging = false
+local dashDragInput, dashDragStart, dashStartPos
+mobileDashBtn.InputBegan:Connect(function(input)
+    if fakeDashMovable and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+        dashDragging = true 
+        dashDragStart = input.Position 
+        dashStartPos = mobileDashBtn.Position
+        input.Changed:Connect(function() 
+            if input.UserInputState == Enum.UserInputState.End then dashDragging = false end 
+        end)
+    end
+end)
+mobileDashBtn.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dashDragInput = input end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if input == dashDragInput and dashDragging and fakeDashMovable then
+        local delta = input.Position - dashDragStart
+        mobileDashBtn.Position = UDim2.new(dashStartPos.X.Scale, dashStartPos.X.Offset + delta.X, dashStartPos.Y.Scale, dashStartPos.Y.Offset + delta.Y)
+    end
+end)
 
 local performFakeDash
 
@@ -933,6 +1022,31 @@ end, true, function(panel)
             mobBtnToggle.TextColor3 = Color3.fromRGB(200, 160, 120)
             mobBtnToggle.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
             mobileDashBtn.Visible = false
+        end
+    end)
+
+    local moveBtnToggle = Instance.new("TextButton")
+    moveBtnToggle.Size = UDim2.new(0, 180, 0, 24)
+    moveBtnToggle.Position = UDim2.new(0, 0, 0, 76)
+    moveBtnToggle.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
+    moveBtnToggle.Text = "Перемещение кнопки: OFF"
+    moveBtnToggle.TextColor3 = Color3.fromRGB(200, 160, 120)
+    moveBtnToggle.TextSize = 8
+    moveBtnToggle.Font = Enum.Font.GothamBold
+    moveBtnToggle.ZIndex = 11
+    moveBtnToggle.Parent = panel
+    local mvtC = Instance.new("UICorner") mvtC.CornerRadius = UDim.new(0, 6) mvtC.Parent = moveBtnToggle
+
+    moveBtnToggle.MouseButton1Click:Connect(function()
+        fakeDashMovable = not fakeDashMovable
+        if fakeDashMovable then
+            moveBtnToggle.Text = "Перемещение кнопки: ON"
+            moveBtnToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+            moveBtnToggle.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
+        else
+            moveBtnToggle.Text = "Перемещение кнопки: OFF"
+            moveBtnToggle.TextColor3 = Color3.fromRGB(200, 160, 120)
+            moveBtnToggle.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
         end
     end)
 end)
@@ -1037,7 +1151,7 @@ end, true, function(panel)
 end)
 setScriptVisualsUIState = setScriptVisualsUIFunc
 
--- 2. World Visual (Падают в пространстве вокруг игрока, их можно догнать и обогнать)
+-- 2. World Visual (Падают вокруг игрока, можно догонять и обгонять)
 local setWorldVisualsUIFunc
 _, setWorldVisualsUIFunc = createModuleCard(visualsPage, "World Visual", "Стикеры падают вокруг вас в мире", function(state)
     worldVisualsEnabled = state
@@ -1125,7 +1239,7 @@ end, true, function(panel)
 end)
 setWorldVisualsUIState = setWorldVisualsUIFunc
 
--- 3. PSYCHO AURA (Интегрированная аура персонажа)
+-- 3. PSYCHO AURA
 local PsychoAuraConnection = nil
 local PsychoAuraFolder = nil
 
@@ -1231,7 +1345,7 @@ player.CharacterAdded:Connect(function(char)
 end)
 
 
--- КОНТЕЙНЕР ДЛЯ МИРОВЫХ ЧАСТИЦ (Абсолютно прозрачные блоки, частицы падают вокруг игрока)
+-- КОНТЕЙНЕР ДЛЯ МИРОВЫХ ЧАСТИЦ (Абсолютно прозрачные блоки)
 local worldParticlesFolder = Workspace:FindFirstChild("MoneyHubWorldParticles")
 if worldParticlesFolder then worldParticlesFolder:Destroy() end
 worldParticlesFolder = Instance.new("Folder")
@@ -1242,7 +1356,7 @@ local worldParts = {}
 for i = 1, 50 do
     local part = Instance.new("Part")
     part.Size = Vector3.new(1, 1, 1)
-    part.Transparency = 1 -- Полностью прозрачные блоки
+    part.Transparency = 1
     part.Anchored = true
     part.CanCollide = false
     part.CastShadow = false
@@ -1262,7 +1376,6 @@ for i = 1, 50 do
 
     part.Parent = worldParticlesFolder
     
-    -- Спавним в области вокруг игрока
     local initPos = Vector3.new(math.random(-60, 60), math.random(0, 45), math.random(-60, 60))
     table.insert(worldParts, { part = part, lbl = lbl, pos = initPos, speed = math.random(15, 35) })
 end
@@ -1287,7 +1400,6 @@ RunService.RenderStepped:Connect(function(dt)
     if not screenGui.Parent then return end
     local scaledDt = dt * 65
 
-    -- 1. Меню
     for _, p in ipairs(scriptParticles) do
         p.y = p.y + (p.speed * scaledDt)
         if p.y > 1.05 then p.y = -0.05 p.x = math.random() end
@@ -1301,15 +1413,12 @@ RunService.RenderStepped:Connect(function(dt)
         end
     end
 
-    -- 2. Мир (World Visual - падают вокруг игрока, можно догонять и пробегать сквозь них)
     for _, wp in ipairs(worldParts) do
         if worldVisualsEnabled then
             wp.lbl.Text = worldParticleType
             
-            -- Движение вниз
             wp.pos = wp.pos - Vector3.new(0, (wp.speed * worldSpeedMultiplier) * dt, 0)
 
-            -- Если стикер упал ниже земли, возвращаем его наверх
             if wp.pos.Y < -10 then
                 wp.pos = Vector3.new(math.random(-60, 60), math.random(35, 60), math.random(-60, 60))
             end
@@ -1317,7 +1426,6 @@ RunService.RenderStepped:Connect(function(dt)
             local char = player.Character
             local root = char and char:FindFirstChild("HumanoidRootPart")
             if root then
-                -- Удерживаем стикеры вокруг позиции игрока, чтобы они никуда не улетали
                 local targetWorldPos = root.Position + wp.pos
                 local relX = targetWorldPos.X - root.Position.X
                 local relZ = targetWorldPos.Z - root.Position.Z
@@ -1337,6 +1445,58 @@ RunService.RenderStepped:Connect(function(dt)
             wp.part.Transparency = 1
         end
     end
+end)
+
+
+-- НАСТРОЙКА ВКЛАДКИ LANGUAGE
+local langLbl = Instance.new("TextLabel")
+langLbl.Size = UDim2.new(1, 0, 0, 24)
+langLbl.Position = UDim2.new(0, 0, 0, 10)
+langLbl.BackgroundTransparency = 1
+langLbl.Font = Enum.Font.GothamBold
+langLbl.Text = "Выберите язык / Select Language:"
+langLbl.TextColor3 = Color3.fromRGB(250, 220, 170)
+langLbl.TextSize = 12
+langLbl.TextXAlignment = Enum.TextXAlignment.Left
+langLbl.ZIndex = 3
+langLbl.Parent = languagePage
+
+local ruBtn = Instance.new("TextButton")
+ruBtn.Size = UDim2.new(0, 110, 0, 32)
+ruBtn.Position = UDim2.new(0, 0, 0, 42)
+ruBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
+ruBtn.Text = "🇷🇺 Русский"
+ruBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+ruBtn.TextSize = 11
+ruBtn.Font = Enum.Font.GothamBold
+ruBtn.ZIndex = 3
+ruBtn.Parent = languagePage
+local rbC = Instance.new("UICorner") rbC.CornerRadius = UDim.new(0, 6) rbC.Parent = ruBtn
+
+local enBtn = Instance.new("TextButton")
+enBtn.Size = UDim2.new(0, 110, 0, 32)
+enBtn.Position = UDim2.new(0, 120, 0, 42)
+enBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
+enBtn.Text = "🇬🇧 English"
+enBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+enBtn.TextSize = 11
+enBtn.Font = Enum.Font.GothamBold
+enBtn.ZIndex = 3
+enBtn.Parent = languagePage
+local ebC = Instance.new("UICorner") ebC.CornerRadius = UDim.new(0, 6) ebC.Parent = enBtn
+
+ruBtn.MouseButton1Click:Connect(function()
+    currentLanguage = "RU"
+    ruBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0) ruBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    enBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14) enBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+    showNotification("Language", "Установлен русский язык")
+end)
+
+enBtn.MouseButton1Click:Connect(function()
+    currentLanguage = "EN"
+    enBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0) enBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    ruBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14) ruBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+    showNotification("Language", "English language selected")
 end)
 
 
@@ -1423,7 +1583,7 @@ local function refreshConfigList()
                 SpeedHack = speedHackEnabled, WalkSpeed = walkSpeedValue, FakeDashEnabled = fakeDashEnabled, FakeDashKeyName = fakeDashKey.Name,
                 FakeDashMobile = fakeDashMobileBtnEnabled, Fullbright = fullbrightEnabled, ScriptVisuals = scriptVisualsEnabled,
                 WorldVisuals = worldVisualsEnabled, CosmicAura = cosmicAuraEnabled, ParticleType = currentParticleType,
-                WorldParticleType = worldParticleType, WorldSpeed = worldSpeedMultiplier
+                WorldParticleType = worldParticleType, WorldSpeed = worldSpeedMultiplier, Language = currentLanguage
             }
             writefile(configsFolder .. "/" .. cfgName .. ".json", HttpService:JSONEncode(data))
             showNotification("Configs", "Сохранено: " .. cfgName)
@@ -1450,6 +1610,7 @@ local function refreshConfigList()
                 currentParticleType = data.ParticleType or "🌸"
                 worldParticleType = data.WorldParticleType or "🌸"
                 worldSpeedMultiplier = data.WorldSpeed or 1.0
+                currentLanguage = data.Language or "RU"
                 
                 showNotification("Configs", "Загружено: " .. cfgName)
             end)
@@ -1472,7 +1633,7 @@ createCfgBtn.MouseButton1Click:Connect(function()
     local name = configNameBox.Text
     if name and name ~= "" then
         if not isfolder(configsFolder) then makefolder(configsFolder) end
-        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Fullbright = false, ScriptVisuals = false, WorldVisuals = false, CosmicAura = false, ParticleType = "🌸", WorldParticleType = "🌸", WorldSpeed = 1.0 }))
+        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Fullbright = false, ScriptVisuals = false, WorldVisuals = false, CosmicAura = false, ParticleType = "🌸", WorldParticleType = "🌸", WorldSpeed = 1.0, Language = "RU" }))
         configNameBox.Text = ""
         refreshConfigList()
         showNotification("Configs", "Создан конфиг")
