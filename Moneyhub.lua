@@ -53,7 +53,6 @@ pcall(function()
 end)
 if not screenGui.Parent then screenGui.Parent = playerGui end
 
--- ЗВУК ВКЛЮЧЕНИЯ ФУНКЦИИ
 local function playEnableSound()
     pcall(function()
         local sound = Instance.new("Sound")
@@ -67,7 +66,7 @@ local function playEnableSound()
     end)
 end
 
--- СИСТЕМА УВЕДОМЛЕНИЙ
+-- УВЕДОМЛЕНИЯ
 local notificationsContainer = Instance.new("Frame")
 notificationsContainer.Name = "NotificationsContainer"
 notificationsContainer.Size = UDim2.new(0, 240, 1, 0)
@@ -193,33 +192,29 @@ versionLabel.TextXAlignment = Enum.TextXAlignment.Left
 versionLabel.ZIndex = 3
 versionLabel.Parent = sidebar
 
--- Вкладка Main
+-- СЕКЦИЯ MODULES (Main + Visuals)
 local modulesIconImg = Instance.new("ImageLabel") modulesIconImg.Size = UDim2.new(0, 14, 0, 14) modulesIconImg.Position = UDim2.new(0, 12, 0, 55) modulesIconImg.BackgroundTransparency = 1 modulesIconImg.Image = MODULES_ICON modulesIconImg.ZIndex = 3 modulesIconImg.Parent = sidebar
 local modulesHeader = Instance.new("TextLabel") modulesHeader.Size = UDim2.new(1, -32, 0, 20) modulesHeader.Position = UDim2.new(0, 34, 0, 52) modulesHeader.BackgroundTransparency = 1 modulesHeader.Font = Enum.Font.GothamBold modulesHeader.Text = "Modules" modulesHeader.TextColor3 = Color3.fromRGB(210, 150, 90) modulesHeader.TextSize = 11 modulesHeader.TextXAlignment = Enum.TextXAlignment.Left modulesHeader.ZIndex = 3 modulesHeader.Parent = sidebar
 
 local mainTabBtn = Instance.new("TextButton")
-mainTabBtn.Size = UDim2.new(1, -20, 0, 30)
-mainTabBtn.Position = UDim2.new(0, 10, 0, 76)
+mainTabBtn.Size = UDim2.new(1, -20, 0, 26)
+mainTabBtn.Position = UDim2.new(0, 10, 0, 75)
 mainTabBtn.BackgroundColor3 = Color3.fromRGB(85, 50, 22)
 mainTabBtn.BackgroundTransparency = 0.2
-mainTabBtn.Text = "          Main"
+mainTabBtn.Text = "             Main"
 mainTabBtn.TextColor3 = Color3.fromRGB(255, 225, 180)
-mainTabBtn.TextSize = 12
+mainTabBtn.TextSize = 11
 mainTabBtn.Font = Enum.Font.GothamMedium
 mainTabBtn.TextXAlignment = Enum.TextXAlignment.Left
 mainTabBtn.ZIndex = 3
 mainTabBtn.Parent = sidebar
 
 local mainTabCorner = Instance.new("UICorner") mainTabCorner.CornerRadius = UDim.new(0, 6) mainTabCorner.Parent = mainTabBtn
-local mainIconImg = Instance.new("ImageLabel") mainIconImg.Size = UDim2.new(0, 14, 0, 14) mainIconImg.Position = UDim2.new(0, 12, 0, 8) mainIconImg.BackgroundTransparency = 1 mainIconImg.Image = MAIN_ICON mainIconImg.ZIndex = 4 mainIconImg.Parent = mainTabBtn
-
--- Секция Settings
-local settingsIconImg = Instance.new("ImageLabel") settingsIconImg.Size = UDim2.new(0, 14, 0, 14) settingsIconImg.Position = UDim2.new(0, 12, 0, 114) settingsIconImg.BackgroundTransparency = 1 settingsIconImg.Image = SETTINGS_ICON settingsIconImg.ZIndex = 3 settingsIconImg.Parent = sidebar
-local settingsHeader = Instance.new("TextLabel") settingsHeader.Size = UDim2.new(1, -32, 0, 20) settingsHeader.Position = UDim2.new(0, 34, 0, 111) settingsHeader.BackgroundTransparency = 1 settingsHeader.Font = Enum.Font.GothamBold settingsHeader.Text = "Settings" settingsHeader.TextColor3 = Color3.fromRGB(210, 150, 90) settingsHeader.TextSize = 11 settingsHeader.TextXAlignment = Enum.TextXAlignment.Left settingsHeader.ZIndex = 3 settingsHeader.Parent = sidebar
+local mainIconImg = Instance.new("ImageLabel") mainIconImg.Size = UDim2.new(0, 14, 0, 14) mainIconImg.Position = UDim2.new(0, 12, 0, 6) mainIconImg.BackgroundTransparency = 1 mainIconImg.Image = MAIN_ICON mainIconImg.ZIndex = 4 mainIconImg.Parent = mainTabBtn
 
 local visualsTabBtn = Instance.new("TextButton")
 visualsTabBtn.Size = UDim2.new(1, -20, 0, 26)
-visualsTabBtn.Position = UDim2.new(0, 10, 0, 135)
+visualsTabBtn.Position = UDim2.new(0, 10, 0, 105)
 visualsTabBtn.BackgroundColor3 = Color3.fromRGB(54, 34, 18)
 visualsTabBtn.BackgroundTransparency = 0.5
 visualsTabBtn.Text = "             Visuals"
@@ -232,6 +227,10 @@ visualsTabBtn.Parent = sidebar
 
 local visualsTabCorner = Instance.new("UICorner") visualsTabCorner.CornerRadius = UDim.new(0, 6) visualsTabCorner.Parent = visualsTabBtn
 local visualsIconImg = Instance.new("ImageLabel") visualsIconImg.Size = UDim2.new(0, 14, 0, 14) visualsIconImg.Position = UDim2.new(0, 12, 0, 6) visualsIconImg.BackgroundTransparency = 1 visualsIconImg.Image = VISUALS_ICON visualsIconImg.ZIndex = 4 visualsIconImg.Parent = visualsTabBtn
+
+-- СЕКЦИЯ SETTINGS (Language + Configs)
+local settingsIconImg = Instance.new("ImageLabel") settingsIconImg.Size = UDim2.new(0, 14, 0, 14) settingsIconImg.Position = UDim2.new(0, 12, 0, 144) settingsIconImg.BackgroundTransparency = 1 settingsIconImg.Image = SETTINGS_ICON settingsIconImg.ZIndex = 3 settingsIconImg.Parent = sidebar
+local settingsHeader = Instance.new("TextLabel") settingsHeader.Size = UDim2.new(1, -32, 0, 20) settingsHeader.Position = UDim2.new(0, 34, 0, 141) settingsHeader.BackgroundTransparency = 1 settingsHeader.Font = Enum.Font.GothamBold settingsHeader.Text = "Settings" settingsHeader.TextColor3 = Color3.fromRGB(210, 150, 90) settingsHeader.TextSize = 11 settingsHeader.TextXAlignment = Enum.TextXAlignment.Left settingsHeader.ZIndex = 3 settingsHeader.Parent = sidebar
 
 local languageTabBtn = Instance.new("TextButton")
 languageTabBtn.Size = UDim2.new(1, -20, 0, 26)
@@ -298,7 +297,6 @@ searchInput.Font = Enum.Font.Gotham
 searchInput.ZIndex = 3
 searchInput.Parent = searchBar
 
--- ПРОФИЛЬ (НЕ НАЕЗЖАЕТ НА КНОПКИ)
 local profileFrame = Instance.new("Frame")
 profileFrame.Size = UDim2.new(0, 140, 0, 30)
 profileFrame.Position = UDim2.new(1, -210, 0, 5)
@@ -444,10 +442,15 @@ local function switchTab(tabName)
     languagePage.Visible = (tabName == "Language")
     configPage.Visible = (tabName == "Configs")
 
-    sectionTitle.Text = "Modules / " .. tabName
-    if tabName == "Visuals" then sectionTitle.Text = "Settings / Visuals" end
-    if tabName == "Language" then sectionTitle.Text = "Settings / Language" end
-    if tabName == "Configs" then sectionTitle.Text = "Settings / Configs" end
+    if tabName == "Main" then
+        sectionTitle.Text = "Modules / Main"
+    elseif tabName == "Visuals" then
+        sectionTitle.Text = "Modules / Visuals"
+    elseif tabName == "Language" then
+        sectionTitle.Text = "Settings / Language"
+    elseif tabName == "Configs" then
+        sectionTitle.Text = "Settings / Configs"
+    end
 
     mainTabBtn.BackgroundColor3 = (tabName == "Main") and Color3.fromRGB(85, 50, 22) or Color3.fromRGB(54, 34, 18)
     mainTabBtn.TextColor3 = (tabName == "Main") and Color3.fromRGB(255, 225, 180) or Color3.fromRGB(200, 160, 120)
@@ -644,9 +647,9 @@ searchInput:GetPropertyChangedSignal("Text"):Connect(function()
     end
 end)
 
--- 1. AutoFarm
+-- 1. AutoFarm (Modules / Main)
 local setAutoFarmUIFunc
-_, setAutoFarmUIFunc = createModuleCard(mainPage, "AutoFarm", "Рандомные удары и способности", "Random attacks and abilities", function(state)
+_, setAutoFarmUIFunc = createModuleCard(mainPage, "AutoFarm", "Обычные удары, способности и ульта", "Normal attacks, skills and ultimate", function(state)
     autoFarmEnabled = state
 end, true, function(panel)
     local lbl = Instance.new("TextLabel")
@@ -1046,7 +1049,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 end)
 
--- Visuals
+-- Visuals (Вкладка Modules / Visuals)
 createModuleCard(visualsPage, "Fullbright", "Максимально светлое освещение карты", "Maximum bright map lighting", function(state)
     fullbrightEnabled = state
     if fullbrightEnabled then
@@ -1063,7 +1066,6 @@ createModuleCard(visualsPage, "Fullbright", "Максимально светло
     end
 end, false)
 
--- 1. Script Visuals
 local setScriptVisualsUIFunc
 _, setScriptVisualsUIFunc = createModuleCard(visualsPage, "Script Visuals", "Падающие стикеры в меню", "Falling stickers in menu", function(state)
     scriptVisualsEnabled = state
@@ -1103,7 +1105,6 @@ end, true, function(panel)
 end)
 setScriptVisualsUIState = setScriptVisualsUIFunc
 
--- 2. World Visual
 local setWorldVisualsUIFunc
 _, setWorldVisualsUIFunc = createModuleCard(visualsPage, "World Visual", "Стикеры падают вокруг вас в мире", "Stickers fall around you in the world", function(state)
     worldVisualsEnabled = state
@@ -1191,7 +1192,7 @@ end, true, function(panel)
 end)
 setWorldVisualsUIState = setWorldVisualsUIFunc
 
--- 3. Cosmic Aura с ПРЕВЬЮ
+-- Cosmic Aura с превью
 local PsychoAuraConnection = nil
 local PsychoAuraFolder = nil
 
@@ -1807,7 +1808,7 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- ОТСЛЕЖИВАНИЕ УРОНА И ТЕЛЕПОРТАЦИЯ НА БЕЗОПАСНУЮ ЗОНУ
+-- ТЕЛЕПОРТАЦИЯ НА БЕЗОПАСНУЮ ЗОНУ ПРИ УРОНЕ
 local lastHealth = 100
 local function setupHealthListener(char)
     local humanoid = char:WaitForChild("Humanoid", 5)
@@ -1845,6 +1846,22 @@ local function executeActionKey(keyCode)
     end)
 end
 
+local function performNormalAttack()
+    pcall(function()
+        local char = player.Character
+        if char then
+            local tool = char:FindFirstChildOfClass("Tool")
+            if tool then
+                tool:Activate()
+            end
+        end
+        local vim = game:GetService("VirtualInputManager")
+        vim:SendMouseButtonEvent(0, 0, 0, true, game, 0)
+        task.wait(0.03)
+        vim:SendMouseButtonEvent(0, 0, 0, false, game, 0)
+    end)
+end
+
 task.spawn(function()
     while true do
         task.wait(0.1)
@@ -1856,17 +1873,18 @@ task.spawn(function()
                 if not myRoot or not enemyRoot then return end
                 
                 if (myRoot.Position - enemyRoot.Position).Magnitude <= 10 then
-                    local actionRand = math.random(1, 8)
-                    if actionRand <= 3 then
-                        executeActionKey(Enum.KeyCode.One)
-                    elseif actionRand == 4 then
-                        executeActionKey(Enum.KeyCode.Two)
+                    local actionRand = math.random(1, 10)
+                    if actionRand <= 4 then
+                        performNormalAttack()
                     elseif actionRand == 5 then
-                        executeActionKey(Enum.KeyCode.Three)
+                        executeActionKey(Enum.KeyCode.One)
                     elseif actionRand == 6 then
+                        executeActionKey(Enum.KeyCode.Two)
+                    elseif actionRand == 7 then
+                        executeActionKey(Enum.KeyCode.Three)
+                    elseif actionRand == 8 then
                         executeActionKey(Enum.KeyCode.Four)
-                    elseif actionRand >= 7 then
-                        -- Ульта на G
+                    elseif actionRand >= 9 then
                         executeActionKey(Enum.KeyCode.G)
                     end
                 end
