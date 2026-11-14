@@ -647,7 +647,7 @@ searchInput:GetPropertyChangedSignal("Text"):Connect(function()
     end
 end)
 
--- 1. AutoFarm (Modules / Main)
+-- 1. AutoFarm (Классический AutoFarm с телепортацией на безопасную зону при уроне и атакой)
 local setAutoFarmUIFunc
 _, setAutoFarmUIFunc = createModuleCard(mainPage, "AutoFarm", "Обычные удары, способности и ульта", "Normal attacks, skills and ultimate", function(state)
     autoFarmEnabled = state
@@ -1192,7 +1192,7 @@ end, true, function(panel)
 end)
 setWorldVisualsUIState = setWorldVisualsUIFunc
 
--- Cosmic Aura с превью
+-- Cosmic Aura
 local PsychoAuraConnection = nil
 local PsychoAuraFolder = nil
 
@@ -1476,7 +1476,7 @@ for i = 1, 50 do
     table.insert(worldParts, { part = part, lbl = lbl, pos = initPos, speed = math.random(15, 35) })
 end
 
--- ЭФФЕКТЫ ЧАСТИЦ
+-- ЭФФЕКТЫ ЧАСТИЦ МЕНЮ
 local scriptParticles = {}
 for i = 1, 20 do
     local lbl = Instance.new("TextLabel")
@@ -1738,7 +1738,7 @@ end)
 
 refreshConfigList()
 
--- ЛОГИКА AUTOFARM, AIM, SPEEDHACK И БЕЗОПАСНОЙ ЗОНЫ
+-- КЛАССИЧЕСКАЯ ЛОГИКА AUTOFARM, AIM, SPEEDHACK И БЕЗОПАСНОЙ ЗОНЫ
 local currentTarget = nil
 local isEvadingDamage = false
 
