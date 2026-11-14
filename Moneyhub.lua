@@ -180,7 +180,6 @@ local sidebarCorner = Instance.new("UICorner") sidebarCorner.CornerRadius = UDim
 local logoTexture = Instance.new("ImageLabel") logoTexture.Size = UDim2.new(0, 20, 0, 20) logoTexture.Position = UDim2.new(0, 10, 0, 17) logoTexture.BackgroundTransparency = 1 logoTexture.Image = TEXTURE_ID logoTexture.ZIndex = 3 logoTexture.Parent = sidebar
 local logoLabel = Instance.new("TextLabel") logoLabel.Size = UDim2.new(1, -38, 0, 20) logoLabel.Position = UDim2.new(0, 34, 0, 10) logoLabel.BackgroundTransparency = 1 logoLabel.Font = Enum.Font.GothamBold logoLabel.Text = "MONEYHUB" logoLabel.TextColor3 = Color3.fromRGB(255, 195, 80) logoLabel.TextSize = 14 logoLabel.TextXAlignment = Enum.TextXAlignment.Left logoLabel.ZIndex = 3 logoLabel.Parent = sidebar
 
--- Безопасное размещение версии v0.1 в боковой панели под логотипом
 local versionLabel = Instance.new("TextLabel")
 versionLabel.Name = "VersionLabel"
 versionLabel.Size = UDim2.new(1, -38, 0, 16)
@@ -416,7 +415,6 @@ visualsPadding.PaddingBottom = UDim.new(0, 30)
 visualsPadding.PaddingRight = UDim.new(0, 5)
 visualsPadding.Parent = visualsPage
 
--- Страница Language
 local languagePage = Instance.new("ScrollingFrame")
 languagePage.Name = "LanguagePage"
 languagePage.Size = UDim2.new(1, -190, 1, -90)
@@ -468,7 +466,6 @@ visualsTabBtn.MouseButton1Click:Connect(function() switchTab("Visuals") end)
 languageTabBtn.MouseButton1Click:Connect(function() switchTab("Language") end)
 configTabBtn.MouseButton1Click:Connect(function() switchTab("Configs") end)
 
--- Переменные логики
 local autoFarmEnabled = false
 local autoFarmLockTarget = true
 local autoFarmLowHpFinisher = true
@@ -618,13 +615,14 @@ local function createModuleCard(parent, title, descRu, descEn, callbackToggle, h
         settingsPanel.Parent = card
 
         if customSettingsBuilder then
-            customSettingsBuilder(settingsPanel)
+            customSettingsBuilder(settingsPanel, card)
         end
 
         settingsBtn.MouseButton1Click:Connect(function()
             local isOpen = not settingsPanel.Visible
             settingsPanel.Visible = isOpen
-            local targetH = isOpen and 200 or 70
+            -- Увеличиваем высоту карточки если открыто превью
+            local targetH = isOpen and (settingsPanel:FindFirstChild("PreviewContainer") and 240 or 200) or 70
             TweenService:Create(card, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 215, 0, targetH)}):Play()
         end)
     end
@@ -890,7 +888,6 @@ end, true, function(panel)
 end)
 setSpeedHackUIState = setSpeedUIFunc
 
--- Функция перетаскивания объектов
 local function enableDragging(frame, handle)
     local dragging, dragInput, dragStart, startPos
     handle.InputBegan:Connect(function(input)
@@ -910,7 +907,6 @@ local function enableDragging(frame, handle)
     end)
 end
 
--- Плавающая мобильная кнопка Fake Dash
 local mobileDashBtn = Instance.new("Frame")
 mobileDashBtn.Name = "MobileDashBtn"
 mobileDashBtn.Size = UDim2.new(0, 60, 0, 60)
@@ -948,7 +944,6 @@ UserInputService.InputChanged:Connect(function(input)
 end)
 
 local performFakeDash
-
 mdClick.MouseButton1Click:Connect(function()
     if fakeDashEnabled and performFakeDash then
         performFakeDash()
@@ -1245,7 +1240,7 @@ end, true, function(panel)
 end)
 setWorldVisualsUIState = setWorldVisualsUIFunc
 
--- 3. Cosmic Aura
+-- 3. Cosmic Aura с ПРЕВЬЮ (Предпросмотр)
 local PsychoAuraConnection = nil
 local PsychoAuraFolder = nil
 
@@ -1339,7 +1334,146 @@ _, setAuraUIFunc = createModuleCard(visualsPage, "Cosmic Aura", "Психо-ау
     else
         removeCosmicAura()
     end
-end, false)
+end, true, function(panel, card)
+    panel.Size = UDim2.new(1, -20, 0, 170)
+
+    local previewContainer = Instance.new("Frame")
+    previewContainer.Name = "PreviewContainer"
+    previewContainer.Size = UDim2.new(0, 195, 0, 125)
+    previewContainer.Position = UDim2.new(0, 0, 0, 5)
+    previewContainer.BackgroundColor3 = Color3.fromRGB(30, 16, 8)
+    previewContainer.BackgroundTransparency = 0.2
+    previewContainer.BorderSizePixel = 0
+    previewContainer.ZIndex = 11
+    previewContainer.Parent = panel
+
+    local pcCorner = Instance.new("UICorner") pcCorner.CornerRadius = UDim.new(0, 8) pcCorner.Parent = previewContainer
+
+    local prevTitle = Instance.new("TextLabel")
+    prevTitle.Size = UDim2.new(1, -10, 0, 18)
+    prevTitle.Position = UDim2.new(0, 6, 0, 4)
+    prevTitle.BackgroundTransparency = 1
+    prevTitle.Font = Enum.Font.GothamBold
+    prevTitle.Text = (currentLanguage == "RU") and "Предпросмотр" or "Preview"
+    prevTitle.TextColor3 = Color3.fromRGB(250, 220, 170)
+    prevTitle.TextSize = 11
+    prevTitle.TextXAlignment = Enum.TextXAlignment.Left
+    prevTitle.ZIndex = 12
+    prevTitle.Parent = previewContainer
+
+    -- Динамический перевод заголовка превью при смене языка
+    table.insert(translatableCards, {lbl = prevTitle, ru = "Предпросмотр", en = "Preview"})
+
+    local viewport = Instance.new("ViewportFrame")
+    viewport.Size = UDim2.new(1, -12, 1, -40)
+    viewport.Position = UDim2.new(0, 6, 0, 22)
+    viewport.BackgroundTransparency = 1
+    viewport.ZIndex = 12
+    viewport.Parent = previewContainer
+
+    local vpCam = Instance.new("Camera")
+    viewport.CurrentCamera = vpCam
+    vpCam.Parent = viewport
+
+    local previewCharModel = nil
+    pcall(function()
+        if player.Character then
+            player.Character.Archivable = true
+            previewCharModel = player.Character:Clone()
+            for _, c in ipairs(previewCharModel:GetChildren()) do
+                if c:IsA("Script") or c:IsA("LocalScript") or c:IsA("ModuleScript") then
+                    c:Destroy()
+                end
+            end
+            previewCharModel.Parent = viewport
+
+            local root = previewCharModel:FindFirstChild("HumanoidRootPart") or previewCharModel:FindFirstChild("Torso")
+            if root then
+                vpCam.CFrame = CFrame.new(root.Position + Vector3.new(0, 1.5, 3.5), root.Position + Vector3.new(0, 0.5, 0))
+                
+                -- Добавляем тестовую ауру в превью
+                local Folder = Instance.new("Folder")
+                Folder.Parent = previewCharModel
+                
+                local att = Instance.new("Attachment")
+                att.Parent = root
+
+                local Emitter = Instance.new("ParticleEmitter")
+                Emitter.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+                Emitter.Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(125, 50, 255)),
+                    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(65, 160, 255)),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 100, 255))
+                })
+                Emitter.LightEmission = 1
+                Emitter.Rate = 50
+                Emitter.Lifetime = NumberRange.new(0.5, 1)
+                Emitter.Speed = NumberRange.new(2, 4)
+                Emitter.Parent = att
+
+                local Highlight = Instance.new("Highlight")
+                Highlight.Adornee = previewCharModel
+                Highlight.FillColor = Color3.fromRGB(125, 50, 255)
+                Highlight.OutlineColor = Color3.fromRGB(65, 160, 255)
+                Highlight.FillTransparency = 0.75
+                Highlight.Parent = Folder
+            end
+        end
+    end)
+
+    -- Вращение модельки в превью мышкой/пальцем (как на скрине)
+    local draggingModel = false
+    local lastMousePos = Vector2.new()
+    local modelRot = 0
+
+    local rotButton = Instance.new("TextButton")
+    rotButton.Size = UDim2.new(1, 0, 1, 0)
+    rotButton.BackgroundTransparency = 1
+    rotButton.Text = ""
+    rotButton.ZIndex = 15
+    rotButton.Parent = viewport
+
+    rotButton.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingModel = true
+            lastMousePos = input.Position
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingModel = false
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if draggingModel and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - lastMousePos
+            lastMousePos = input.Position
+            modelRot = modelRot + (delta.X * 0.01)
+            if previewCharModel then
+                local root = previewCharModel:FindFirstChild("HumanoidRootPart") or previewCharModel:FindFirstChild("Torso")
+                if root then
+                    previewCharModel:SetPrimaryPartCFrame(CFrame.new(root.Position) * CFrame.Angles(0, modelRot, 0))
+                end
+            end
+        end
+    end)
+
+    local hintLbl = Instance.new("TextLabel")
+    hintLbl.Size = UDim2.new(1, -10, 0, 16)
+    hintLbl.Position = UDim2.new(0, 6, 1, -18)
+    hintLbl.BackgroundTransparency = 1
+    hintLbl.Font = Enum.Font.Gotham
+    hintLbl.Text = (currentLanguage == "RU") and "Тащите мышью, чтобы повернуть" or "Drag with mouse to rotate"
+    hintLbl.TextColor3 = Color3.fromRGB(160, 120, 80)
+    hintLbl.TextSize = 8
+    hintLbl.TextXAlignment = Enum.TextXAlignment.Center
+    hintLbl.ZIndex = 12
+    hintLbl.Parent = previewContainer
+
+    table.insert(translatableCards, {lbl = hintLbl, ru = "Тащите мышью, чтобы повернуть", en = "Drag with mouse to rotate"})
+end)
 setCosmicAuraUIState = setAuraUIFunc
 
 player.CharacterAdded:Connect(function(char)
@@ -1803,7 +1937,6 @@ end)
 
 enableDragging(mainFrame, topBarArea)
 
--- Кнопка сворачивания
 local floatBtn = Instance.new("Frame")
 floatBtn.Size = UDim2.new(0, 36, 0, 36)
 floatBtn.Position = UDim2.new(0.5, -18, 0, -50)
