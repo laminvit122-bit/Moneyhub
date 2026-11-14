@@ -298,12 +298,12 @@ searchInput.Font = Enum.Font.Gotham
 searchInput.ZIndex = 3
 searchInput.Parent = searchBar
 
--- ИСПРАВЛЕННЫЙ БЛОК ПРОФИЛЯ (сдвинут левее от кнопок закрытия, чтобы не наезжать на ник)
+-- ИДЕАЛЬНО СДВИНУТЫЙ ПРОФИЛЬ (НЕ НАЕЗЖАЕТ НА КНОПКИ КРЕСТИКА И МИНУСА)
 local profileFrame = Instance.new("Frame")
-profileFrame.Size = UDim2.new(0, 150, 0, 30)
-profileFrame.Position = UDim2.new(1, -185, 0, 5)
+profileFrame.Size = UDim2.new(0, 140, 0, 30)
+profileFrame.Position = UDim2.new(1, -210, 0, 5)
 profileFrame.BackgroundTransparency = 1
-profileFrame.ZIndex = 2
+profileFrame.ZIndex = 5
 profileFrame.Parent = topBarArea
 
 local profileName = Instance.new("TextLabel")
@@ -313,18 +313,18 @@ profileName.BackgroundTransparency = 1
 profileName.Font = Enum.Font.GothamBold
 profileName.Text = player.DisplayName
 profileName.TextColor3 = Color3.fromRGB(250, 220, 170)
-profileName.TextSize = 12
+profileName.TextSize = 11
 profileName.TextXAlignment = Enum.TextXAlignment.Right
-profileName.ZIndex = 3
+profileName.ZIndex = 6
 profileName.Parent = profileFrame
 
 local profileAvatar = Instance.new("ImageLabel")
-profileAvatar.Size = UDim2.new(0, 26, 0, 26)
-profileAvatar.Position = UDim2.new(1, -28, 0, 2)
+profileAvatar.Size = UDim2.new(0, 24, 0, 24)
+profileAvatar.Position = UDim2.new(1, -26, 0, 3)
 profileAvatar.BackgroundColor3 = Color3.fromRGB(60, 35, 18)
 profileAvatar.BorderSizePixel = 0
 profileAvatar.Image = "rbxthumb://type=AvatarHeadShot&id=" .. player.UserId .. "&w=150&h=150"
-profileAvatar.ZIndex = 3
+profileAvatar.ZIndex = 6
 profileAvatar.Parent = profileFrame
 
 local avatarCorner = Instance.new("UICorner") avatarCorner.CornerRadius = UDim.new(1, 0) avatarCorner.Parent = profileAvatar
@@ -332,14 +332,14 @@ local avatarCorner = Instance.new("UICorner") avatarCorner.CornerRadius = UDim.n
 local minBtn = Instance.new("TextButton")
 minBtn.Name = "MinimizeButton"
 minBtn.Size = UDim2.new(0, 24, 0, 24)
-minBtn.Position = UDim2.new(1, -70, 0, 8)
+minBtn.Position = UDim2.new(1, -65, 0, 8)
 minBtn.BackgroundColor3 = Color3.fromRGB(65, 38, 20)
 minBtn.BackgroundTransparency = 0.3
 minBtn.Text = "−"
 minBtn.TextColor3 = Color3.fromRGB(230, 190, 140)
 minBtn.TextSize = 14
 minBtn.Font = Enum.Font.GothamBold
-minBtn.ZIndex = 4
+minBtn.ZIndex = 10
 minBtn.Parent = topBarArea
 
 local minCorner = Instance.new("UICorner") minCorner.CornerRadius = UDim.new(0, 6) minCorner.Parent = minBtn
@@ -347,14 +347,14 @@ local minCorner = Instance.new("UICorner") minCorner.CornerRadius = UDim.new(0, 
 local closeBtn = Instance.new("TextButton")
 closeBtn.Name = "CloseButton"
 closeBtn.Size = UDim2.new(0, 24, 0, 24)
-closeBtn.Position = UDim2.new(1, -40, 0, 8)
+closeBtn.Position = UDim2.new(1, -35, 0, 8)
 closeBtn.BackgroundColor3 = Color3.fromRGB(85, 35, 20)
 closeBtn.BackgroundTransparency = 0.3
 closeBtn.Text = "×"
 closeBtn.TextColor3 = Color3.fromRGB(255, 150, 120)
 closeBtn.TextSize = 16
 closeBtn.Font = Enum.Font.GothamBold
-closeBtn.ZIndex = 4
+closeBtn.ZIndex = 10
 closeBtn.Parent = topBarArea
 
 local closeCorner = Instance.new("UICorner") closeCorner.CornerRadius = UDim.new(0, 6) closeCorner.Parent = closeBtn
@@ -481,7 +481,6 @@ local walkSpeedValue = 32
 local fakeDashEnabled = false
 local fakeDashKey = Enum.KeyCode.Q
 local fakeDashMobileBtnEnabled = false
-local fakeDashMovable = false
 local isDashing = false
 
 local fullbrightEnabled = false
@@ -920,28 +919,6 @@ local mdCorner = Instance.new("UICorner") mdCorner.CornerRadius = UDim.new(1, 0)
 local mdLbl = Instance.new("TextLabel") mdLbl.Size = UDim2.new(1, 0, 1, 0) mdLbl.BackgroundTransparency = 1 mdLbl.Font = Enum.Font.GothamBold mdLbl.Text = "DASH" mdLbl.TextColor3 = Color3.fromRGB(255, 255, 255) mdLbl.TextSize = 13 mdLbl.ZIndex = 201 mdLbl.Parent = mobileDashBtn
 local mdClick = Instance.new("TextButton") mdClick.Size = UDim2.new(1, 0, 1, 0) mdClick.BackgroundTransparency = 1 mdClick.Text = "" mdClick.ZIndex = 202 mdClick.Parent = mobileDashBtn
 
-local dashDragging = false
-local dashDragInput, dashDragStart, dashStartPos
-mobileDashBtn.InputBegan:Connect(function(input)
-    if fakeDashMovable and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-        dashDragging = true 
-        dashDragStart = input.Position 
-        dashStartPos = mobileDashBtn.Position
-        input.Changed:Connect(function() 
-            if input.UserInputState == Enum.UserInputState.End then dashDragging = false end 
-        end)
-    end
-end)
-mobileDashBtn.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then dashDragInput = input end
-end)
-UserInputService.InputChanged:Connect(function(input)
-    if input == dashDragInput and dashDragging and fakeDashMovable then
-        local delta = input.Position - dashDragStart
-        mobileDashBtn.Position = UDim2.new(dashStartPos.X.Scale, dashStartPos.X.Offset + delta.X, dashStartPos.Y.Scale, dashStartPos.Y.Offset + delta.Y)
-    end
-end)
-
 local performFakeDash
 mdClick.MouseButton1Click:Connect(function()
     if fakeDashEnabled and performFakeDash then
@@ -949,7 +926,7 @@ mdClick.MouseButton1Click:Connect(function()
     end
 end)
 
--- 4. Fake Dash
+-- 4. Fake Dash (без настройки передвижения кнопки)
 local setDashUIFunc
 _, setDashUIFunc = createModuleCard(mainPage, "Fake Dash", "Анимация и перемещение рывка без урона", "Dash animation and movement without damage", function(state)
     fakeDashEnabled = state
@@ -1000,12 +977,12 @@ end, true, function(panel)
     end)
 
     local mobBtnToggle = Instance.new("TextButton")
-    mobBtnToggle.Size = UDim2.new(0, 180, 0, 24)
+    mobBtnToggle.Size = UDim2.new(0, 180, 0, 26)
     mobBtnToggle.Position = UDim2.new(0, 0, 0, 48)
     mobBtnToggle.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
     mobBtnToggle.Text = "Кнопка (телефон): OFF"
     mobBtnToggle.TextColor3 = Color3.fromRGB(200, 160, 120)
-    mobBtnToggle.TextSize = 8
+    mobBtnToggle.TextSize = 9
     mobBtnToggle.Font = Enum.Font.GothamBold
     mobBtnToggle.ZIndex = 11
     mobBtnToggle.Parent = panel
@@ -1023,31 +1000,6 @@ end, true, function(panel)
             mobBtnToggle.TextColor3 = Color3.fromRGB(200, 160, 120)
             mobBtnToggle.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
             mobileDashBtn.Visible = false
-        end
-    end)
-
-    local moveBtnToggle = Instance.new("TextButton")
-    moveBtnToggle.Size = UDim2.new(0, 180, 0, 24)
-    moveBtnToggle.Position = UDim2.new(0, 0, 0, 76)
-    moveBtnToggle.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
-    moveBtnToggle.Text = "Перемещение кнопки: OFF"
-    moveBtnToggle.TextColor3 = Color3.fromRGB(200, 160, 120)
-    moveBtnToggle.TextSize = 8
-    moveBtnToggle.Font = Enum.Font.GothamBold
-    moveBtnToggle.ZIndex = 11
-    moveBtnToggle.Parent = panel
-    local mvtC = Instance.new("UICorner") mvtC.CornerRadius = UDim.new(0, 6) mvtC.Parent = moveBtnToggle
-
-    moveBtnToggle.MouseButton1Click:Connect(function()
-        fakeDashMovable = not fakeDashMovable
-        if fakeDashMovable then
-            moveBtnToggle.Text = "Перемещение кнопки: ON"
-            moveBtnToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
-            moveBtnToggle.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
-        else
-            moveBtnToggle.Text = "Перемещение кнопки: OFF"
-            moveBtnToggle.TextColor3 = Color3.fromRGB(200, 160, 120)
-            moveBtnToggle.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
         end
     end)
 end)
@@ -1239,7 +1191,7 @@ end, true, function(panel)
 end)
 setWorldVisualsUIState = setWorldVisualsUIFunc
 
--- 3. Cosmic Aura с исправленным ПРЕВЬЮ
+-- 3. Cosmic Aura с ПРЕВЬЮ
 local PsychoAuraConnection = nil
 local PsychoAuraFolder = nil
 
@@ -1389,13 +1341,11 @@ end, true, function(panel, card)
             if root then
                 vpCam.CFrame = CFrame.new(root.Position + Vector3.new(0, 1.5, 3.8), root.Position + Vector3.new(0, 0.5, 0))
                 
-                -- Подсветка для ViewportFrame чтобы персонаж и аура были видны
                 local vpLight = Instance.new("PointLight")
                 vpLight.Brightness = 3
                 vpLight.Range = 15
                 vpLight.Parent = root
 
-                -- Ауры и партиклы внутри превью
                 local Folder = Instance.new("Folder")
                 Folder.Parent = previewCharModel
                 
@@ -1787,22 +1737,7 @@ end)
 
 refreshConfigList()
 
--- ЛОГИКА AUTOFARM, AIM, SPEEDHACK
-local function getTouchButton(nameKeyword)
-    for _, gui in ipairs(playerGui:GetChildren()) do
-        if gui:IsA("ScreenGui") and gui.Name ~= "MoneyHubGui" then
-            for _, btn in ipairs(gui:GetDescendants()) do
-                if (btn:IsA("ImageButton") or btn:IsA("TextButton")) and btn.Visible then
-                    local name = btn.Name:lower()
-                    local text = btn:IsA("TextButton") and btn.Text:lower() or ""
-                    if name:find(nameKeyword) or text:find(nameKeyword) then return btn end
-                end
-            end
-        end
-    end
-    return nil
-end
-
+-- ЛОГИКА AUTOFARM, AIM, SPEEDHACK (Без скрытия кнопок игры)
 local currentTarget = nil
 local isEvadingDamage = false
 
@@ -1898,41 +1833,39 @@ player.CharacterAdded:Connect(function(char)
     end
 end)
 
-local function executeInstantM1()
+local function executeActionKey(keyCode)
     pcall(function()
-        local punchBtn = getTouchButton("punch") or getTouchButton("attack") or getTouchButton("m1")
-        if punchBtn then firesignal(punchBtn.MouseButton1Down) firesignal(punchBtn.Activated) firesignal(punchBtn.MouseButton1Up) end
-        for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
-            if obj:IsA("RemoteEvent") and (obj.Name:lower():find("comm") or obj.Name:lower():find("event") or obj.Name:lower():find("punch")) then
-                obj:FireServer({Goal = "LeftClick"}) obj:FireServer("LeftClick") obj:FireServer("Punch")
-            end
-        end
-    end)
-end
-
-local function executeInstantSkill(skillNumber)
-    pcall(function()
-        local skillBtn = getTouchButton(tostring(skillNumber))
-        if skillBtn then firesignal(skillBtn.MouseButton1Down) firesignal(skillBtn.Activated) firesignal(skillBtn.MouseButton1Up) end
-        local keyEnum = Enum.KeyCode.One
-        if skillNumber == 2 then keyEnum = Enum.KeyCode.Two elseif skillNumber == 3 then keyEnum = Enum.KeyCode.Three elseif skillNumber == 4 then keyEnum = Enum.KeyCode.Four end
-        game:GetService("VirtualInputManager"):SendKeyEvent(true, keyEnum, false, game)
-        task.wait(0.02)
-        game:GetService("VirtualInputManager"):SendKeyEvent(false, keyEnum, false, game)
+        game:GetService("VirtualInputManager"):SendKeyEvent(true, keyCode, false, game)
+        task.wait(0.03)
+        game:GetService("VirtualInputManager"):SendKeyEvent(false, keyCode, false, game)
     end)
 end
 
 task.spawn(function()
     while true do
-        task.wait(0.08)
+        task.wait(0.1)
         if autoFarmEnabled and currentTarget and currentTarget.Character and not isEvadingDamage then
             pcall(function()
                 local char = player.Character local enemyChar = currentTarget.Character
                 if not char or not enemyChar then return end
                 local myRoot = char:FindFirstChild("HumanoidRootPart") local enemyRoot = enemyChar:FindFirstChild("HumanoidRootPart")
                 if not myRoot or not enemyRoot then return end
-                if (myRoot.Position - enemyRoot.Position).Magnitude <= 8 then
-                    if math.random(1, 6) <= 3 then executeInstantM1() else executeInstantSkill(math.random(1, 4)) end
+                
+                if (myRoot.Position - enemyRoot.Position).Magnitude <= 10 then
+                    -- Автоматический удар или способность (1-4) + Ульта на G
+                    local actionRand = math.random(1, 8)
+                    if actionRand <= 3 then
+                        executeActionKey(Enum.KeyCode.One)
+                    elseif actionRand == 4 then
+                        executeActionKey(Enum.KeyCode.Two)
+                    elseif actionRand == 5 then
+                        executeActionKey(Enum.KeyCode.Three)
+                    elseif actionRand == 6 then
+                        executeActionKey(Enum.KeyCode.Four)
+                    elseif actionRand >= 7 then
+                        -- Авто-ульта на букву G
+                        executeActionKey(Enum.KeyCode.G)
+                    end
                 end
             end)
         else
