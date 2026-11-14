@@ -298,9 +298,10 @@ searchInput.Font = Enum.Font.Gotham
 searchInput.ZIndex = 3
 searchInput.Parent = searchBar
 
+-- ИСПРАВЛЕННЫЙ БЛОК ПРОФИЛЯ (сдвинут левее от кнопок закрытия, чтобы не наезжать на ник)
 local profileFrame = Instance.new("Frame")
-profileFrame.Size = UDim2.new(0, 130, 0, 30)
-profileFrame.Position = UDim2.new(1, -155, 0, 5)
+profileFrame.Size = UDim2.new(0, 150, 0, 30)
+profileFrame.Position = UDim2.new(1, -185, 0, 5)
 profileFrame.BackgroundTransparency = 1
 profileFrame.ZIndex = 2
 profileFrame.Parent = topBarArea
@@ -621,7 +622,6 @@ local function createModuleCard(parent, title, descRu, descEn, callbackToggle, h
         settingsBtn.MouseButton1Click:Connect(function()
             local isOpen = not settingsPanel.Visible
             settingsPanel.Visible = isOpen
-            -- Увеличиваем высоту карточки если открыто превью
             local targetH = isOpen and (settingsPanel:FindFirstChild("PreviewContainer") and 240 or 200) or 70
             TweenService:Create(card, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 215, 0, targetH)}):Play()
         end)
@@ -630,7 +630,6 @@ local function createModuleCard(parent, title, descRu, descEn, callbackToggle, h
     return card, setVisualState
 end
 
--- Поиск
 searchInput:GetPropertyChangedSignal("Text"):Connect(function()
     local query = searchInput.Text:lower()
     for _, page in ipairs({mainPage, visualsPage}) do
@@ -1240,7 +1239,7 @@ end, true, function(panel)
 end)
 setWorldVisualsUIState = setWorldVisualsUIFunc
 
--- 3. Cosmic Aura с ПРЕВЬЮ (Предпросмотр)
+-- 3. Cosmic Aura с исправленным ПРЕВЬЮ
 local PsychoAuraConnection = nil
 local PsychoAuraFolder = nil
 
@@ -1361,7 +1360,6 @@ end, true, function(panel, card)
     prevTitle.ZIndex = 12
     prevTitle.Parent = previewContainer
 
-    -- Динамический перевод заголовка превью при смене языка
     table.insert(translatableCards, {lbl = prevTitle, ru = "Предпросмотр", en = "Preview"})
 
     local viewport = Instance.new("ViewportFrame")
@@ -1389,9 +1387,15 @@ end, true, function(panel, card)
 
             local root = previewCharModel:FindFirstChild("HumanoidRootPart") or previewCharModel:FindFirstChild("Torso")
             if root then
-                vpCam.CFrame = CFrame.new(root.Position + Vector3.new(0, 1.5, 3.5), root.Position + Vector3.new(0, 0.5, 0))
+                vpCam.CFrame = CFrame.new(root.Position + Vector3.new(0, 1.5, 3.8), root.Position + Vector3.new(0, 0.5, 0))
                 
-                -- Добавляем тестовую ауру в превью
+                -- Подсветка для ViewportFrame чтобы персонаж и аура были видны
+                local vpLight = Instance.new("PointLight")
+                vpLight.Brightness = 3
+                vpLight.Range = 15
+                vpLight.Parent = root
+
+                -- Ауры и партиклы внутри превью
                 local Folder = Instance.new("Folder")
                 Folder.Parent = previewCharModel
                 
@@ -1406,9 +1410,11 @@ end, true, function(panel, card)
                     ColorSequenceKeypoint.new(1, Color3.fromRGB(200, 100, 255))
                 })
                 Emitter.LightEmission = 1
-                Emitter.Rate = 50
+                Emitter.LightInfluence = 0
+                Emitter.Rate = 80
                 Emitter.Lifetime = NumberRange.new(0.5, 1)
                 Emitter.Speed = NumberRange.new(2, 4)
+                Emitter.SpreadAngle = Vector2.new(180, 180)
                 Emitter.Parent = att
 
                 local Highlight = Instance.new("Highlight")
@@ -1416,12 +1422,12 @@ end, true, function(panel, card)
                 Highlight.FillColor = Color3.fromRGB(125, 50, 255)
                 Highlight.OutlineColor = Color3.fromRGB(65, 160, 255)
                 Highlight.FillTransparency = 0.75
+                Highlight.OutlineTransparency = 0.2
                 Highlight.Parent = Folder
             end
         end
     end)
 
-    -- Вращение модельки в превью мышкой/пальцем (как на скрине)
     local draggingModel = false
     local lastMousePos = Vector2.new()
     local modelRot = 0
