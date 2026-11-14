@@ -178,15 +178,29 @@ sidebar.Parent = contentContainer
 local sidebarCorner = Instance.new("UICorner") sidebarCorner.CornerRadius = UDim.new(0, 10) sidebarCorner.Parent = sidebar
 
 local logoTexture = Instance.new("ImageLabel") logoTexture.Size = UDim2.new(0, 20, 0, 20) logoTexture.Position = UDim2.new(0, 10, 0, 17) logoTexture.BackgroundTransparency = 1 logoTexture.Image = TEXTURE_ID logoTexture.ZIndex = 3 logoTexture.Parent = sidebar
-local logoLabel = Instance.new("TextLabel") logoLabel.Size = UDim2.new(1, -38, 0, 35) logoLabel.Position = UDim2.new(0, 34, 0, 10) logoLabel.BackgroundTransparency = 1 logoLabel.Font = Enum.Font.GothamBold logoLabel.Text = "MONEYHUB" logoLabel.TextColor3 = Color3.fromRGB(255, 195, 80) logoLabel.TextSize = 14 logoLabel.TextXAlignment = Enum.TextXAlignment.Left logoLabel.ZIndex = 3 logoLabel.Parent = sidebar
+local logoLabel = Instance.new("TextLabel") logoLabel.Size = UDim2.new(1, -38, 0, 20) logoLabel.Position = UDim2.new(0, 34, 0, 10) logoLabel.BackgroundTransparency = 1 logoLabel.Font = Enum.Font.GothamBold logoLabel.Text = "MONEYHUB" logoLabel.TextColor3 = Color3.fromRGB(255, 195, 80) logoLabel.TextSize = 14 logoLabel.TextXAlignment = Enum.TextXAlignment.Left logoLabel.ZIndex = 3 logoLabel.Parent = sidebar
+
+-- Безопасное размещение версии v0.1 в боковой панели под логотипом
+local versionLabel = Instance.new("TextLabel")
+versionLabel.Name = "VersionLabel"
+versionLabel.Size = UDim2.new(1, -38, 0, 16)
+versionLabel.Position = UDim2.new(0, 34, 0, 28)
+versionLabel.BackgroundTransparency = 1
+versionLabel.Font = Enum.Font.GothamBold
+versionLabel.Text = "v0.1"
+versionLabel.TextColor3 = Color3.fromRGB(180, 130, 80)
+versionLabel.TextSize = 10
+versionLabel.TextXAlignment = Enum.TextXAlignment.Left
+versionLabel.ZIndex = 3
+versionLabel.Parent = sidebar
 
 -- Вкладка Main
-local modulesIconImg = Instance.new("ImageLabel") modulesIconImg.Size = UDim2.new(0, 14, 0, 14) modulesIconImg.Position = UDim2.new(0, 12, 0, 51) modulesIconImg.BackgroundTransparency = 1 modulesIconImg.Image = MODULES_ICON modulesIconImg.ZIndex = 3 modulesIconImg.Parent = sidebar
-local modulesHeader = Instance.new("TextLabel") modulesHeader.Size = UDim2.new(1, -32, 0, 20) modulesHeader.Position = UDim2.new(0, 34, 0, 48) modulesHeader.BackgroundTransparency = 1 modulesHeader.Font = Enum.Font.GothamBold modulesHeader.Text = "Modules" modulesHeader.TextColor3 = Color3.fromRGB(210, 150, 90) modulesHeader.TextSize = 11 modulesHeader.TextXAlignment = Enum.TextXAlignment.Left modulesHeader.ZIndex = 3 modulesHeader.Parent = sidebar
+local modulesIconImg = Instance.new("ImageLabel") modulesIconImg.Size = UDim2.new(0, 14, 0, 14) modulesIconImg.Position = UDim2.new(0, 12, 0, 55) modulesIconImg.BackgroundTransparency = 1 modulesIconImg.Image = MODULES_ICON modulesIconImg.ZIndex = 3 modulesIconImg.Parent = sidebar
+local modulesHeader = Instance.new("TextLabel") modulesHeader.Size = UDim2.new(1, -32, 0, 20) modulesHeader.Position = UDim2.new(0, 34, 0, 52) modulesHeader.BackgroundTransparency = 1 modulesHeader.Font = Enum.Font.GothamBold modulesHeader.Text = "Modules" modulesHeader.TextColor3 = Color3.fromRGB(210, 150, 90) modulesHeader.TextSize = 11 modulesHeader.TextXAlignment = Enum.TextXAlignment.Left modulesHeader.ZIndex = 3 modulesHeader.Parent = sidebar
 
 local mainTabBtn = Instance.new("TextButton")
 mainTabBtn.Size = UDim2.new(1, -20, 0, 30)
-mainTabBtn.Position = UDim2.new(0, 10, 0, 72)
+mainTabBtn.Position = UDim2.new(0, 10, 0, 76)
 mainTabBtn.BackgroundColor3 = Color3.fromRGB(85, 50, 22)
 mainTabBtn.BackgroundTransparency = 0.2
 mainTabBtn.Text = "          Main"
@@ -201,12 +215,12 @@ local mainTabCorner = Instance.new("UICorner") mainTabCorner.CornerRadius = UDim
 local mainIconImg = Instance.new("ImageLabel") mainIconImg.Size = UDim2.new(0, 14, 0, 14) mainIconImg.Position = UDim2.new(0, 12, 0, 8) mainIconImg.BackgroundTransparency = 1 mainIconImg.Image = MAIN_ICON mainIconImg.ZIndex = 4 mainIconImg.Parent = mainTabBtn
 
 -- Секция Settings
-local settingsIconImg = Instance.new("ImageLabel") settingsIconImg.Size = UDim2.new(0, 14, 0, 14) settingsIconImg.Position = UDim2.new(0, 12, 0, 110) settingsIconImg.BackgroundTransparency = 1 settingsIconImg.Image = SETTINGS_ICON settingsIconImg.ZIndex = 3 settingsIconImg.Parent = sidebar
-local settingsHeader = Instance.new("TextLabel") settingsHeader.Size = UDim2.new(1, -32, 0, 20) settingsHeader.Position = UDim2.new(0, 34, 0, 107) settingsHeader.BackgroundTransparency = 1 settingsHeader.Font = Enum.Font.GothamBold settingsHeader.Text = "Settings" settingsHeader.TextColor3 = Color3.fromRGB(210, 150, 90) settingsHeader.TextSize = 11 settingsHeader.TextXAlignment = Enum.TextXAlignment.Left settingsHeader.ZIndex = 3 settingsHeader.Parent = sidebar
+local settingsIconImg = Instance.new("ImageLabel") settingsIconImg.Size = UDim2.new(0, 14, 0, 14) settingsIconImg.Position = UDim2.new(0, 12, 0, 114) settingsIconImg.BackgroundTransparency = 1 settingsIconImg.Image = SETTINGS_ICON settingsIconImg.ZIndex = 3 settingsIconImg.Parent = sidebar
+local settingsHeader = Instance.new("TextLabel") settingsHeader.Size = UDim2.new(1, -32, 0, 20) settingsHeader.Position = UDim2.new(0, 34, 0, 111) settingsHeader.BackgroundTransparency = 1 settingsHeader.Font = Enum.Font.GothamBold settingsHeader.Text = "Settings" settingsHeader.TextColor3 = Color3.fromRGB(210, 150, 90) settingsHeader.TextSize = 11 settingsHeader.TextXAlignment = Enum.TextXAlignment.Left settingsHeader.ZIndex = 3 settingsHeader.Parent = sidebar
 
 local visualsTabBtn = Instance.new("TextButton")
 visualsTabBtn.Size = UDim2.new(1, -20, 0, 26)
-visualsTabBtn.Position = UDim2.new(0, 10, 0, 131)
+visualsTabBtn.Position = UDim2.new(0, 10, 0, 135)
 visualsTabBtn.BackgroundColor3 = Color3.fromRGB(54, 34, 18)
 visualsTabBtn.BackgroundTransparency = 0.5
 visualsTabBtn.Text = "             Visuals"
@@ -220,10 +234,9 @@ visualsTabBtn.Parent = sidebar
 local visualsTabCorner = Instance.new("UICorner") visualsTabCorner.CornerRadius = UDim.new(0, 6) visualsTabCorner.Parent = visualsTabBtn
 local visualsIconImg = Instance.new("ImageLabel") visualsIconImg.Size = UDim2.new(0, 14, 0, 14) visualsIconImg.Position = UDim2.new(0, 12, 0, 6) visualsIconImg.BackgroundTransparency = 1 visualsIconImg.Image = VISUALS_ICON visualsIconImg.ZIndex = 4 visualsIconImg.Parent = visualsTabBtn
 
--- Новая вкладка Language
 local languageTabBtn = Instance.new("TextButton")
 languageTabBtn.Size = UDim2.new(1, -20, 0, 26)
-languageTabBtn.Position = UDim2.new(0, 10, 0, 161)
+languageTabBtn.Position = UDim2.new(0, 10, 0, 165)
 languageTabBtn.BackgroundColor3 = Color3.fromRGB(54, 34, 18)
 languageTabBtn.BackgroundTransparency = 0.5
 languageTabBtn.Text = "             Language"
@@ -239,7 +252,7 @@ local languageIconImg = Instance.new("ImageLabel") languageIconImg.Size = UDim2.
 
 local configTabBtn = Instance.new("TextButton")
 configTabBtn.Size = UDim2.new(1, -20, 0, 26)
-configTabBtn.Position = UDim2.new(0, 10, 0, 191)
+configTabBtn.Position = UDim2.new(0, 10, 0, 195)
 configTabBtn.BackgroundColor3 = Color3.fromRGB(54, 34, 18)
 configTabBtn.BackgroundTransparency = 0.5
 configTabBtn.Text = "             Configs"
@@ -253,7 +266,7 @@ configTabBtn.Parent = sidebar
 local configTabCorner = Instance.new("UICorner") configTabCorner.CornerRadius = UDim.new(0, 6) configTabCorner.Parent = configTabBtn
 local configIconImg = Instance.new("ImageLabel") configIconImg.Size = UDim2.new(0, 14, 0, 14) configIconImg.Position = UDim2.new(0, 12, 0, 6) configIconImg.BackgroundTransparency = 1 configIconImg.Image = CONFIGS_ICON configIconImg.ZIndex = 4 configIconImg.Parent = configTabBtn
 
--- Верхняя панель (с версией v0.1 -×)
+-- Верхняя панель
 local topBarArea = Instance.new("Frame")
 topBarArea.Name = "TopBarArea"
 topBarArea.Size = UDim2.new(1, -190, 0, 45)
@@ -288,7 +301,7 @@ searchInput.Parent = searchBar
 
 local profileFrame = Instance.new("Frame")
 profileFrame.Size = UDim2.new(0, 130, 0, 30)
-profileFrame.Position = UDim2.new(1, -215, 0, 5)
+profileFrame.Position = UDim2.new(1, -155, 0, 5)
 profileFrame.BackgroundTransparency = 1
 profileFrame.ZIndex = 2
 profileFrame.Parent = topBarArea
@@ -315,20 +328,6 @@ profileAvatar.ZIndex = 3
 profileAvatar.Parent = profileFrame
 
 local avatarCorner = Instance.new("UICorner") avatarCorner.CornerRadius = UDim.new(1, 0) avatarCorner.Parent = profileAvatar
-
--- Надпись версии v0.1 перед дефисом (-)
-local versionLabel = Instance.new("TextLabel")
-versionLabel.Name = "VersionLabel"
-versionLabel.Size = UDim2.new(0, 35, 0, 24)
-versionLabel.Position = UDim2.new(1, -110, 0, 8)
-versionLabel.BackgroundTransparency = 1
-versionLabel.Font = Enum.Font.GothamBold
-versionLabel.Text = "v0.1"
-versionLabel.TextColor3 = Color3.fromRGB(190, 140, 90)
-versionLabel.TextSize = 11
-versionLabel.TextXAlignment = Enum.TextXAlignment.Right
-versionLabel.ZIndex = 4
-versionLabel.Parent = topBarArea
 
 local minBtn = Instance.new("TextButton")
 minBtn.Name = "MinimizeButton"
@@ -513,9 +512,16 @@ local updateAimButtonsVisual = nil
 local setAimSliderValue = nil
 local setSpeedSliderValue = nil
 
+local translatableCards = {}
+local function updateAllTranslations()
+    for _, item in ipairs(translatableCards) do
+        item.lbl.Text = (currentLanguage == "RU") and item.ru or item.en
+    end
+end
+
 local cardOrderIndex = 0
 
-local function createModuleCard(parent, title, desc, callbackToggle, hasSettings, customSettingsBuilder)
+local function createModuleCard(parent, title, descRu, descEn, callbackToggle, hasSettings, customSettingsBuilder)
     cardOrderIndex = cardOrderIndex + 1
 
     local card = Instance.new("Frame")
@@ -548,13 +554,15 @@ local function createModuleCard(parent, title, desc, callbackToggle, hasSettings
     dLbl.Position = UDim2.new(0, 12, 0, 36)
     dLbl.BackgroundTransparency = 1
     dLbl.Font = Enum.Font.Gotham
-    dLbl.Text = desc
+    dLbl.Text = (currentLanguage == "RU") and descRu or descEn
     dLbl.TextColor3 = Color3.fromRGB(180, 130, 80)
     dLbl.TextSize = 10
     dLbl.TextWrapped = true
     dLbl.TextXAlignment = Enum.TextXAlignment.Left
     dLbl.ZIndex = 3
     dLbl.Parent = card
+
+    table.insert(translatableCards, {lbl = dLbl, ru = descRu, en = descEn})
 
     local toggleFrame = Instance.new("Frame")
     toggleFrame.Size = UDim2.new(0, 34, 0, 18)
@@ -642,7 +650,7 @@ end)
 
 -- 1. AutoFarm
 local setAutoFarmUIFunc
-_, setAutoFarmUIFunc = createModuleCard(mainPage, "AutoFarm", "Рандомные удары и способности", function(state)
+_, setAutoFarmUIFunc = createModuleCard(mainPage, "AutoFarm", "Рандомные удары и способности", "Random attacks and abilities", function(state)
     autoFarmEnabled = state
 end, true, function(panel)
     local lbl = Instance.new("TextLabel")
@@ -706,7 +714,7 @@ setAutoFarmUIState = setAutoFarmUIFunc
 
 -- 2. Aim Assist
 local setAimUIFunc
-_, setAimUIFunc = createModuleCard(mainPage, "Aim Assist", "Автонаведение на цель", function(state)
+_, setAimUIFunc = createModuleCard(mainPage, "Aim Assist", "Автонаведение на цель", "Aim assist towards target", function(state)
     aimAssistEnabled = state
 end, true, function(panel)
     local lbl = Instance.new("TextLabel")
@@ -821,7 +829,7 @@ setAimAssistUIState = setAimUIFunc
 
 -- 3. SpeedHack
 local setSpeedUIFunc
-_, setSpeedUIFunc = createModuleCard(mainPage, "SpeedHack", "Увеличение скорости бега", function(state)
+_, setSpeedUIFunc = createModuleCard(mainPage, "SpeedHack", "Увеличение скорости бега", "Increase walk speed", function(state)
     speedHackEnabled = state
 end, true, function(panel)
     local sliderLbl = Instance.new("TextLabel")
@@ -902,7 +910,7 @@ local function enableDragging(frame, handle)
     end)
 end
 
--- Плавающая мобильная кнопка Fake Dash с поддержкой переключения перемещения
+-- Плавающая мобильная кнопка Fake Dash
 local mobileDashBtn = Instance.new("Frame")
 mobileDashBtn.Name = "MobileDashBtn"
 mobileDashBtn.Size = UDim2.new(0, 60, 0, 60)
@@ -917,7 +925,6 @@ local mdCorner = Instance.new("UICorner") mdCorner.CornerRadius = UDim.new(1, 0)
 local mdLbl = Instance.new("TextLabel") mdLbl.Size = UDim2.new(1, 0, 1, 0) mdLbl.BackgroundTransparency = 1 mdLbl.Font = Enum.Font.GothamBold mdLbl.Text = "DASH" mdLbl.TextColor3 = Color3.fromRGB(255, 255, 255) mdLbl.TextSize = 13 mdLbl.ZIndex = 201 mdLbl.Parent = mobileDashBtn
 local mdClick = Instance.new("TextButton") mdClick.Size = UDim2.new(1, 0, 1, 0) mdClick.BackgroundTransparency = 1 mdClick.Text = "" mdClick.ZIndex = 202 mdClick.Parent = mobileDashBtn
 
--- Функция перетаскивания мобильной кнопки рывка (включается через настройки)
 local dashDragging = false
 local dashDragInput, dashDragStart, dashStartPos
 mobileDashBtn.InputBegan:Connect(function(input)
@@ -950,7 +957,7 @@ end)
 
 -- 4. Fake Dash
 local setDashUIFunc
-_, setDashUIFunc = createModuleCard(mainPage, "Fake Dash", "Анимация и перемещение рывка без урона", function(state)
+_, setDashUIFunc = createModuleCard(mainPage, "Fake Dash", "Анимация и перемещение рывка без урона", "Dash animation and movement without damage", function(state)
     fakeDashEnabled = state
     if not fakeDashEnabled then
         mobileDashBtn.Visible = false
@@ -1052,7 +1059,6 @@ end, true, function(panel)
 end)
 setFakeDashUIState = setDashUIFunc
 
--- Логика Fake Dash
 performFakeDash = function()
     local char = player.Character
     if not char or isDashing then return end
@@ -1095,7 +1101,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 end)
 
 -- Visuals
-createModuleCard(visualsPage, "Fullbright", "Максимально светлое освещение карты", function(state)
+createModuleCard(visualsPage, "Fullbright", "Максимально светлое освещение карты", "Maximum bright map lighting", function(state)
     fullbrightEnabled = state
     if fullbrightEnabled then
         Lighting.Brightness = 2
@@ -1111,9 +1117,9 @@ createModuleCard(visualsPage, "Fullbright", "Максимально светло
     end
 end, false)
 
--- 1. Script Visuals (Падающие стикеры в меню)
+-- 1. Script Visuals
 local setScriptVisualsUIFunc
-_, setScriptVisualsUIFunc = createModuleCard(visualsPage, "Script Visuals", "Падающие стикеры в меню", function(state)
+_, setScriptVisualsUIFunc = createModuleCard(visualsPage, "Script Visuals", "Падающие стикеры в меню", "Falling stickers in menu", function(state)
     scriptVisualsEnabled = state
 end, true, function(panel)
     local lbl = Instance.new("TextLabel")
@@ -1151,9 +1157,9 @@ end, true, function(panel)
 end)
 setScriptVisualsUIState = setScriptVisualsUIFunc
 
--- 2. World Visual (Падают вокруг игрока, можно догонять и обгонять)
+-- 2. World Visual
 local setWorldVisualsUIFunc
-_, setWorldVisualsUIFunc = createModuleCard(visualsPage, "World Visual", "Стикеры падают вокруг вас в мире", function(state)
+_, setWorldVisualsUIFunc = createModuleCard(visualsPage, "World Visual", "Стикеры падают вокруг вас в мире", "Stickers fall around you in the world", function(state)
     worldVisualsEnabled = state
 end, true, function(panel)
     local lbl = Instance.new("TextLabel")
@@ -1239,7 +1245,7 @@ end, true, function(panel)
 end)
 setWorldVisualsUIState = setWorldVisualsUIFunc
 
--- 3. PSYCHO AURA
+-- 3. Cosmic Aura
 local PsychoAuraConnection = nil
 local PsychoAuraFolder = nil
 
@@ -1326,7 +1332,7 @@ local function removeCosmicAura()
 end
 
 local setAuraUIFunc
-_, setAuraUIFunc = createModuleCard(visualsPage, "Cosmic Aura", "Психо-аура вокруг персонажа", function(state)
+_, setAuraUIFunc = createModuleCard(visualsPage, "Cosmic Aura", "Психо-аура вокруг персонажа", "Psycho aura around character", function(state)
     cosmicAuraEnabled = state
     if cosmicAuraEnabled then
         if player.Character then applyCosmicAura(player.Character) end
@@ -1344,8 +1350,7 @@ player.CharacterAdded:Connect(function(char)
     end
 end)
 
-
--- КОНТЕЙНЕР ДЛЯ МИРОВЫХ ЧАСТИЦ (Абсолютно прозрачные блоки)
+-- КОНТЕЙНЕР ДЛЯ МИРОВЫХ ЧАСТИЦ
 local worldParticlesFolder = Workspace:FindFirstChild("MoneyHubWorldParticles")
 if worldParticlesFolder then worldParticlesFolder:Destroy() end
 worldParticlesFolder = Instance.new("Folder")
@@ -1380,8 +1385,7 @@ for i = 1, 50 do
     table.insert(worldParts, { part = part, lbl = lbl, pos = initPos, speed = math.random(15, 35) })
 end
 
-
--- ЭФФЕКТЫ ЧАСТИЦ (Внутри меню)
+-- ЭФФЕКТЫ ЧАСТИЦ
 local scriptParticles = {}
 for i = 1, 20 do
     local lbl = Instance.new("TextLabel")
@@ -1447,7 +1451,6 @@ RunService.RenderStepped:Connect(function(dt)
     end
 end)
 
-
 -- НАСТРОЙКА ВКЛАДКИ LANGUAGE
 local langLbl = Instance.new("TextLabel")
 langLbl.Size = UDim2.new(1, 0, 0, 24)
@@ -1489,6 +1492,7 @@ ruBtn.MouseButton1Click:Connect(function()
     currentLanguage = "RU"
     ruBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0) ruBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     enBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14) enBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+    updateAllTranslations()
     showNotification("Language", "Установлен русский язык")
 end)
 
@@ -1496,9 +1500,9 @@ enBtn.MouseButton1Click:Connect(function()
     currentLanguage = "EN"
     enBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0) enBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     ruBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14) ruBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
+    updateAllTranslations()
     showNotification("Language", "English language selected")
 end)
-
 
 -- МЕНЕДЖЕР КОНФИГОВ
 local configsFolder = "MoneyHubConfigs"
@@ -1611,6 +1615,7 @@ local function refreshConfigList()
                 worldParticleType = data.WorldParticleType or "🌸"
                 worldSpeedMultiplier = data.WorldSpeed or 1.0
                 currentLanguage = data.Language or "RU"
+                updateAllTranslations()
                 
                 showNotification("Configs", "Загружено: " .. cfgName)
             end)
