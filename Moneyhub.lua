@@ -66,81 +66,7 @@ local function playEnableSound()
     end)
 end
 
--- СПЕЦИАЛЬНОЕ УВЕДОМЛЕНИЕ ДЛЯ ОШИБКИ ВЫБОРА СПОСОБНОСТИ
-local function showAbilityErrorNotification(onCompleted)
-    pcall(function()
-        local sound = Instance.new("Sound")
-        sound.SoundId = "rbxassetid://109149869070031"
-        sound.Volume = 1
-        sound.Parent = SoundService
-        sound:Play()
-        task.delay(2, function() sound:Destroy() end)
-    end)
-
-    local errContainer = Instance.new("Frame")
-    errContainer.Size = UDim2.new(0, 320, 0, 50)
-    errContainer.Position = UDim2.new(0.5, -160, 1, 70)
-    errContainer.BackgroundTransparency = 1
-    errContainer.ZIndex = 600
-    errContainer.Parent = screenGui
-
-    local errBg = Instance.new("Frame")
-    errBg.Size = UDim2.new(1, 0, 1, 0)
-    errBg.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    errBg.BackgroundTransparency = 0.05
-    errBg.BorderSizePixel = 0
-    errBg.ZIndex = 601
-    errBg.Parent = errContainer
-
-    local errCorner = Instance.new("UICorner")
-    errCorner.CornerRadius = UDim.new(0, 12)
-    errCorner.Parent = errBg
-
-    local errGradient = Instance.new("UIGradient")
-    errGradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 120, 120)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(140, 20, 20))
-    })
-    errGradient.Parent = errBg
-
-    local errIcon = Instance.new("ImageLabel")
-    errIcon.Size = UDim2.new(0, 26, 0, 26)
-    errIcon.Position = UDim2.new(0, 14, 0.5, -13)
-    errIcon.BackgroundTransparency = 1
-    errIcon.Image = "rbxassetid://12633679807"
-    errIcon.ZIndex = 602
-    errIcon.Parent = errBg
-
-    local errLbl = Instance.new("TextLabel")
-    errLbl.Size = UDim2.new(1, -55, 1, 0)
-    errLbl.Position = UDim2.new(0, 50, 0, 0)
-    errLbl.BackgroundTransparency = 1
-    errLbl.Font = Enum.Font.GothamBold
-    errLbl.Text = "Выберите способность"
-    errLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-    errLbl.TextSize = 13
-    errLbl.TextXAlignment = Enum.TextXAlignment.Left
-    errLbl.ZIndex = 602
-    errLbl.Parent = errBg
-
-    TweenService:Create(errContainer, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-        Position = UDim2.new(0.5, -160, 1, -80)
-    }):Play()
-
-    task.delay(3.0, function()
-        local tw = TweenService:Create(errContainer, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-            Position = UDim2.new(0.5, -160, 1, 70),
-            BackgroundTransparency = 1
-        })
-        tw:Play()
-        tw.Completed:Connect(function()
-            errContainer:Destroy()
-            if onCompleted then onCompleted() end
-        end)
-    end)
-end
-
--- СТАНДАРТНЫЕ УВЕДОМЛЕНИЯ
+-- УВЕДОМЛЕНИЯ
 local notificationsContainer = Instance.new("Frame")
 notificationsContainer.Name = "NotificationsContainer"
 notificationsContainer.Size = UDim2.new(0, 240, 1, 0)
@@ -547,7 +473,6 @@ configTabBtn.MouseButton1Click:Connect(function() switchTab("Configs") end)
 local autoFarmEnabled = false
 local autoFarmLockTarget = true
 local autoFarmLowHpFinisher = true
-local selectedStyle = "" -- Переменная для выбранной способности
 
 local aimAssistEnabled = false
 local aimTargetPart = "Torso"
@@ -654,20 +579,7 @@ local function createModuleCard(parent, title, descRu, descEn, callbackToggle, h
     local clickBtn = Instance.new("TextButton") clickBtn.Size = UDim2.new(1, 0, 1, 0) clickBtn.BackgroundTransparency = 1 clickBtn.Text = "" clickBtn.ZIndex = 5 clickBtn.Parent = card
 
     local isEnabled = false
-    local settingsPanelRef = nil
-
     local function setVisualState(val, noNotify)
-        if val and selectedStyle == "" then
-            -- Проверка: если способность не выбрана, показываем ошибку и открываем настройки
-            showAbilityErrorNotification(function()
-                if settingsPanelRef and not settingsPanelRef.Visible then
-                    settingsPanelRef.Visible = true
-                    TweenService:Create(card, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 215, 0, 210)}):Play()
-                end
-            end)
-            return
-        end
-
         isEnabled = val
         if isEnabled then
             TweenService:Create(toggleFrame, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(255, 120, 0)}):Play()
@@ -698,13 +610,12 @@ local function createModuleCard(parent, title, descRu, descEn, callbackToggle, h
         settingsBtn.Parent = card
 
         local settingsPanel = Instance.new("Frame")
-        settingsPanel.Size = UDim2.new(1, -20, 0, 120)
+        settingsPanel.Size = UDim2.new(1, -20, 0, 100)
         settingsPanel.Position = UDim2.new(0, 10, 0, 68)
         settingsPanel.BackgroundTransparency = 1
         settingsPanel.Visible = false
         settingsPanel.ZIndex = 10
         settingsPanel.Parent = card
-        settingsPanelRef = settingsPanel
 
         if customSettingsBuilder then
             customSettingsBuilder(settingsPanel, card)
@@ -713,7 +624,7 @@ local function createModuleCard(parent, title, descRu, descEn, callbackToggle, h
         settingsBtn.MouseButton1Click:Connect(function()
             local isOpen = not settingsPanel.Visible
             settingsPanel.Visible = isOpen
-            local targetH = isOpen and 210 or 70
+            local targetH = isOpen and (settingsPanel:FindFirstChild("PreviewContainer") and 240 or 200) or 70
             TweenService:Create(card, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 215, 0, targetH)}):Play()
         end)
     end
@@ -736,62 +647,13 @@ searchInput:GetPropertyChangedSignal("Text"):Connect(function()
     end
 end)
 
--- 1. AutoFarm (с выбором способности Martial Artist на первой строке настроек)
+-- 1. AutoFarm (Классический AutoFarm с телепортацией на безопасную зону при уроне и атакой)
 local setAutoFarmUIFunc
 _, setAutoFarmUIFunc = createModuleCard(mainPage, "AutoFarm", "Обычные удары, способности и ульта", "Normal attacks, skills and ultimate", function(state)
     autoFarmEnabled = state
 end, true, function(panel)
-    -- Самая первая настройка внутри панели: Выбор способности
-    local styleLbl = Instance.new("TextLabel")
-    styleLbl.Size = UDim2.new(1, 0, 0, 16)
-    styleLbl.Position = UDim2.new(0, 0, 0, 2)
-    styleLbl.BackgroundTransparency = 1
-    styleLbl.Font = Enum.Font.GothamBold
-    styleLbl.Text = "Выберите способность:"
-    styleLbl.TextColor3 = Color3.fromRGB(250, 220, 170)
-    styleLbl.TextSize = 10
-    styleLbl.TextXAlignment = Enum.TextXAlignment.Left
-    styleLbl.ZIndex = 11
-    styleLbl.Parent = panel
-
-    local martialBtn = Instance.new("TextButton")
-    martialBtn.Size = UDim2.new(1, 0, 0, 26)
-    martialBtn.Position = UDim2.new(0, 0, 0, 20)
-    martialBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
-    martialBtn.Text = "      Martial Artist"
-    martialBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
-    martialBtn.TextSize = 10
-    martialBtn.Font = Enum.Font.GothamBold
-    martialBtn.TextXAlignment = Enum.TextXAlignment.Left
-    martialBtn.ZIndex = 11
-    martialBtn.Parent = panel
-    local mbC = Instance.new("UICorner") mbC.CornerRadius = UDim.new(0, 6) mbC.Parent = martialBtn
-
-    local martialIcon = Instance.new("ImageLabel")
-    martialIcon.Size = UDim2.new(0, 16, 0, 16)
-    martialIcon.Position = UDim2.new(0, 6, 0.5, -8)
-    martialIcon.BackgroundTransparency = 1
-    martialIcon.Image = "rbxassetid://79240866082046"
-    martialIcon.ZIndex = 12
-    martialIcon.Parent = martialBtn
-
-    martialBtn.MouseButton1Click:Connect(function()
-        if selectedStyle == "MartialArtist" then
-            selectedStyle = ""
-            martialBtn.BackgroundColor3 = Color3.fromRGB(50, 28, 14)
-            martialBtn.TextColor3 = Color3.fromRGB(200, 160, 120)
-            showNotification("AutoFarm", "Способность сброшена")
-        else
-            selectedStyle = "MartialArtist"
-            martialBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
-            martialBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            showNotification("AutoFarm", "Выбрано: Martial Artist")
-        end
-    end)
-
     local lbl = Instance.new("TextLabel")
     lbl.Size = UDim2.new(1, 0, 0, 16)
-    lbl.Position = UDim2.new(0, 0, 0, 52)
     lbl.BackgroundTransparency = 1
     lbl.Font = Enum.Font.GothamBold
     lbl.Text = "Настройки AutoFarm:"
@@ -802,8 +664,8 @@ end, true, function(panel)
     lbl.Parent = panel
 
     local lockBtn = Instance.new("TextButton")
-    lockBtn.Size = UDim2.new(1, 0, 0, 24)
-    lockBtn.Position = UDim2.new(0, 0, 0, 72)
+    lockBtn.Size = UDim2.new(1, 0, 0, 26)
+    lockBtn.Position = UDim2.new(0, 0, 0, 22)
     lockBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
     lockBtn.Text = "Фиксация цели: ON"
     lockBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -825,8 +687,8 @@ end, true, function(panel)
     end)
 
     local lowHpBtn = Instance.new("TextButton")
-    lowHpBtn.Size = UDim2.new(1, 0, 0, 24)
-    lowHpBtn.Position = UDim2.new(0, 0, 0, 100)
+    lowHpBtn.Size = UDim2.new(1, 0, 0, 26)
+    lowHpBtn.Position = UDim2.new(0, 0, 0, 54)
     lowHpBtn.BackgroundColor3 = Color3.fromRGB(255, 120, 0)
     lowHpBtn.Text = "Добивать шотных (<35 HP): ON"
     lowHpBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -1812,7 +1674,7 @@ local function refreshConfigList()
         
         saveBtn.MouseButton1Click:Connect(function()
             local data = { 
-                SelectedStyle = selectedStyle, AutoFarm = autoFarmEnabled, AimAssist = aimAssistEnabled, AimTarget = aimTargetPart, AimSmoothness = aimSmoothness,
+                AutoFarm = autoFarmEnabled, AimAssist = aimAssistEnabled, AimTarget = aimTargetPart, AimSmoothness = aimSmoothness,
                 SpeedHack = speedHackEnabled, WalkSpeed = walkSpeedValue, FakeDashEnabled = fakeDashEnabled, FakeDashKeyName = fakeDashKey.Name,
                 FakeDashMobile = fakeDashMobileBtnEnabled, Fullbright = fullbrightEnabled, ScriptVisuals = scriptVisualsEnabled,
                 WorldVisuals = worldVisualsEnabled, CosmicAura = cosmicAuraEnabled, ParticleType = currentParticleType,
@@ -1827,7 +1689,6 @@ local function refreshConfigList()
                 local content = readfile(configsFolder .. "/" .. cfgName .. ".json")
                 local data = HttpService:JSONDecode(content)
                 
-                selectedStyle = data.SelectedStyle or ""
                 autoFarmEnabled = data.AutoFarm or false if setAutoFarmUIState then setAutoFarmUIState(autoFarmEnabled, true) end
                 aimAssistEnabled = data.AimAssist or false if setAimAssistUIState then setAimAssistUIState(aimAssistEnabled, true) end
                 aimTargetPart = data.AimTarget or "Torso" if updateAimButtonsVisual then updateAimButtonsVisual(aimTargetPart) end
@@ -1868,7 +1729,7 @@ createCfgBtn.MouseButton1Click:Connect(function()
     local name = configNameBox.Text
     if name and name ~= "" then
         if not isfolder(configsFolder) then makefolder(configsFolder) end
-        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ SelectedStyle = "", AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Fullbright = false, ScriptVisuals = false, WorldVisuals = false, CosmicAura = false, ParticleType = "🌸", WorldParticleType = "🌸", WorldSpeed = 1.0, Language = "RU" }))
+        writefile(configsFolder .. "/" .. name .. ".json", HttpService:JSONEncode({ AutoFarm = false, AimAssist = false, AimTarget = "Torso", AimSmoothness = 0.2, SpeedHack = false, WalkSpeed = 32, FakeDashEnabled = false, FakeDashKeyName = "Q", FakeDashMobile = false, Fullbright = false, ScriptVisuals = false, WorldVisuals = false, CosmicAura = false, ParticleType = "🌸", WorldParticleType = "🌸", WorldSpeed = 1.0, Language = "RU" }))
         configNameBox.Text = ""
         refreshConfigList()
         showNotification("Configs", "Создан конфиг")
